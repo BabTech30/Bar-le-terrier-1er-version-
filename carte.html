@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#5C0A1E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notre Carte — Le Terrier · Cocktails & Tapas du Sud</title>
+  <meta name="description" content="Cocktails classiques dès 8 €, tapas méditerranéennes, planches à partager, spiritueux d'exception. Découvrez la carte du Terrier près de Nîmes.">
+  <meta property="og:title" content="Notre Carte — Le Terrier · Cocktails & Tapas du Sud">
+  <meta property="og:description" content="Cocktails classiques dès 8 €, tapas méditerranéennes, planches à partager, spiritueux d'exception. Découvrez la carte du Terrier.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:url" content="https://barleterrier.fr/carte">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Notre Carte — Le Terrier · Cocktails & Tapas du Sud">
+  <meta name="twitter:description" content="Cocktails classiques dès 8 €, tapas méditerranéennes, planches à partager. Découvrez la carte du Terrier.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="canonical" href="https://barleterrier.fr/carte">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Schema.org Menu -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Menu",
+    "name": "Carte du Terrier",
+    "url": "https://barleterrier.fr/carte",
+    "hasMenuSection": [
+      {
+        "@type": "MenuSection",
+        "name": "Formules — Les Rituels",
+        "hasMenuItem": [
+          {"@type":"MenuItem","name":"L'Entrée du Terrier","description":"3 tapas au choix + 1 cocktail","offers":{"@type":"Offer","price":"23","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"La Tanière","description":"5 tapas au choix + 2 cocktails","offers":{"@type":"Offer","price":"40","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Le Festin du Renard","description":"7 tapas + 2 cocktails + 1 planche à partager (pour deux)","offers":{"@type":"Offer","price":"55","priceCurrency":"EUR"}}
+        ]
+      },
+      {
+        "@type": "MenuSection",
+        "name": "Cocktails Signatures",
+        "hasMenuItem": [
+          {"@type":"MenuItem","name":"Le Terrier","description":"Gin, miel de garrigue, thym frais, citron, tonic artisanal","offers":{"@type":"Offer","price":"10","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"L'Embuscade","description":"Mezcal, pamplemousse rose, sirop de romarin, piment d'Espelette","offers":{"@type":"Offer","price":"10","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Nuit Fauve","description":"Rhum ambré, passion, lait de coco, vanille, zeste de combava","offers":{"@type":"Offer","price":"10","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Le Refuge","description":"Bourbon, sirop d'érable, bitter orange, cerise amarena, zeste fumé","offers":{"@type":"Offer","price":"10","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Brume d'Été","description":"Vodka, concombre, basilic frais, citron vert, fleur de sureau","offers":{"@type":"Offer","price":"10","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Terre Rouge","description":"Tequila reposado, betterave, gingembre, agave, citron","offers":{"@type":"Offer","price":"10","priceCurrency":"EUR"}}
+        ]
+      },
+      {
+        "@type": "MenuSection",
+        "name": "Classiques Revisités",
+        "hasMenuItem": [
+          {"@type":"MenuItem","name":"Spritz des Garrigues","description":"Aperol, prosecco, lavande, olive verte","offers":{"@type":"Offer","price":"9","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Negroni du Sud","description":"Gin, Campari, vermouth rouge infusé au romarin","offers":{"@type":"Offer","price":"9","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Mojito Sauvage","description":"Rhum blanc, menthe sauvage, citron vert, sirop thym-citron","offers":{"@type":"Offer","price":"9","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Paloma Rosée","description":"Tequila, pamplemousse, hibiscus, sel de Camargue","offers":{"@type":"Offer","price":"9","priceCurrency":"EUR"}}
+        ]
+      },
+      {
+        "@type": "MenuSection",
+        "name": "Sans Alcool",
+        "hasMenuItem": [
+          {"@type":"MenuItem","name":"Le Doux Terrier","description":"Tonic artisanal, miel, thym, citron, ginger beer","offers":{"@type":"Offer","price":"7","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Jardin Secret","description":"Concombre, basilic, pomme verte, citron vert, eau pétillante","offers":{"@type":"Offer","price":"7","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Flamme Douce","description":"Passion, mangue, gingembre, piment doux, lait de coco","offers":{"@type":"Offer","price":"7","priceCurrency":"EUR"}}
+        ]
+      },
+      {
+        "@type": "MenuSection",
+        "name": "Shooters",
+        "hasMenuItem": [
+          {"@type":"MenuItem","name":"L'Orgasme","description":"Crème de menthe, vanille, tequila, Baileys","offers":{"@type":"Offer","price":"4","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Kamikaze","description":"Vodka, citron vert, Cointreau","offers":{"@type":"Offer","price":"4","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Madeleine","description":"Amaretto, jus d'ananas, triple sec","offers":{"@type":"Offer","price":"4","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"B-52","description":"Kahlúa, Baileys, Grand Marnier — en couches","offers":{"@type":"Offer","price":"4","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Tequila Paf","description":"Tequila, tonic — claqué au comptoir","offers":{"@type":"Offer","price":"4","priceCurrency":"EUR"}}
+        ]
+      },
+      {
+        "@type": "MenuSection",
+        "name": "Tapas Signatures",
+        "hasMenuItem": [
+          {"@type":"MenuItem","name":"Planche Ibérique Grand Cru","description":"Jambon Bellota 36 mois, lomo, chorizo ibérique","offers":{"@type":"Offer","price":"16","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Poulpe Grillé","description":"Poulpe tendre grillé, grenailles confites, pimentón de la Vera","offers":{"@type":"Offer","price":"15","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Tartare de Bœuf Aubrac au Couteau","description":"Bœuf coupé au couteau, câpres, échalotes, jaune d'œuf","offers":{"@type":"Offer","price":"14","priceCurrency":"EUR"}},
+          {"@type":"MenuItem","name":"Planche de Fromages Affinés","description":"Ossau-iraty, comté, roquefort, chèvre cendré, confiture de figue","offers":{"@type":"Offer","price":"12","priceCurrency":"EUR"}}
+        ]
+      },
+      {
+        "@type": "MenuSection",
+        "name": "La Grande Tablée",
+        "hasMenuItem": [
+          {"@type":"MenuItem","name":"La Grande Tablée","description":"Planche signature à partager — croquetas, charcuterie ibérique, burrata, piquillos, olives, pan con tomate, gambas","offers":{"@type":"Offer","price":"22","priceCurrency":"EUR"}}
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Accueil",
+        "item": "https://barleterrier.fr/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Notre Carte",
+        "item": "https://barleterrier.fr/carte"
+      }
+    ]
+  }
+  </script>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <a href="#main-content" class="skip-to-content">Aller au contenu principal</a>
+  <!-- Premium Layer -->
+  <div class="preloader" aria-hidden="true">
+    <div style="text-align:center">
+      <p class="preloader__brand">Le Terrier</p>
+      <div class="preloader__line"></div>
+    </div>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"></div>
+  <div class="page-transition" aria-hidden="true"></div>
+
+
+  <div class="announce" role="banner">
+    Ouverture prochaine — Restez connectés pour la date officielle
+    <button class="announce__close" aria-label="Fermer">&times;</button>
+  </div>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="index.html" class="header__logo">Le Terrier</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="nav">
+        <ul class="nav__list">
+          <li><a href="index.html" class="nav__link">Accueil</a></li>
+          <li><a href="concept.html" class="nav__link">Le Concept</a></li>
+          <li><a href="carte.html" class="nav__link active">Notre Carte</a></li>
+          <li><a href="evenements.html" class="nav__link">Événements</a></li>
+          <li><a href="galerie.html" class="nav__link">Galerie</a></li>
+          <li><a href="contact.html" class="nav__link">Contact</a></li>
+          <li><a href="boutique.html" class="nav__link">Boutique</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <canvas id="atmosphere" class="canvas-atmo"></canvas>
+
+  <section class="page-hero reveal">
+    <div class="container">
+      <p class="hero__sur">Du marché au comptoir</p>
+      <h1 class="page-hero__title">Notre Carte</h1>
+      <p class="page-hero__sub">Produits nobles, recettes du Sud, simplicité méditerranéenne</p>
+    </div>
+  </section>
+
+  <!-- MENU NAV STICKY -->
+  <nav class="menu-nav" aria-label="Catégories de la carte">
+    <ul class="menu-nav__list">
+      <li><a href="#formules" class="menu-nav__link active">Formules</a></li>
+      <li><a href="#signatures" class="menu-nav__link">Signatures</a></li>
+      <li><a href="#classiques" class="menu-nav__link">Classiques</a></li>
+      <li><a href="#sans-alcool" class="menu-nav__link">Sans Alcool</a></li>
+      <li><a href="#shooters" class="menu-nav__link">Shooters</a></li>
+      <li><a href="#petites-tapas" class="menu-nav__link">Petites Tapas</a></li>
+      <li><a href="#tapas" class="menu-nav__link">Tapas</a></li>
+      <li><a href="#tapas-signatures" class="menu-nav__link">Signatures</a></li>
+      <li><a href="#grande-tablee" class="menu-nav__link">Grande Tablée</a></li>
+      <li><a href="#spiritueux" class="menu-nav__link">Spiritueux</a></li>
+      <li><a href="#vins" class="menu-nav__link">Vins</a></li>
+    </ul>
+  </nav>
+
+  <main class="container" style="padding-top:1rem;">
+
+    <!-- ===================== FORMULES ===================== -->
+    <section id="formules" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Les Rituels</p>
+        <h2 class="menu-cat__title">Nos Formules</h2>
+        <p class="menu-cat__sub">Tapas au choix parmi Petites Tapas & Tapas uniquement</p>
+      </div>
+      <div class="grid-3 reveal">
+        <div class="formule">
+          <h3 class="formule__name">L'Entrée du Terrier</h3>
+          <p class="formule__price">23 €</p>
+          <p class="formule__desc">3 tapas au choix + 1 cocktail</p>
+          <p class="formule__note">L'initiation parfaite</p>
+        </div>
+        <div class="formule formule--featured">
+          <span class="formule__badge">★ Recommandé</span>
+          <h3 class="formule__name">La Tanière</h3>
+          <p class="formule__price">40 €</p>
+          <p class="formule__desc">5 tapas au choix + 2 cocktails</p>
+          <p class="formule__note">Pour s'installer confortablement</p>
+        </div>
+        <div class="formule">
+          <h3 class="formule__name">Le Festin du Renard</h3>
+          <p class="formule__price">55 €</p>
+          <p class="formule__desc">7 tapas au choix + 2 cocktails + 1 planche à partager</p>
+          <p class="formule__note">L'expérience complète · Pour deux</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== COCKTAILS SIGNATURES ===================== -->
+    <section id="signatures" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Créations du Terrier</p>
+        <h2 class="menu-cat__title">Cocktails Signatures</h2>
+        <p class="menu-cat__sub">10 €</p>
+      </div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Le Terrier</h3>
+            <p class="menu-item__comp">Gin, miel de garrigue, thym frais, citron, tonic artisanal</p>
+            <p class="menu-item__accent">Frais, herbacé, ancré dans le Sud — notre carte de visite</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">L'Embuscade</h3>
+            <p class="menu-item__comp">Mezcal, pamplemousse rose, sirop de romarin, piment d'Espelette</p>
+            <p class="menu-item__accent">Fumé, surprenant, avec une morsure finale</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Nuit Fauve</h3>
+            <p class="menu-item__comp">Rhum ambré, passion, lait de coco, vanille, zeste de combava</p>
+            <p class="menu-item__accent">Rond, enveloppant, tropical — le cocktail du velours</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Le Refuge</h3>
+            <p class="menu-item__comp">Bourbon, sirop d'érable, bitter orange, cerise amarena, zeste fumé</p>
+            <p class="menu-item__accent">Un Old Fashioned revisité — chaud, réconfortant</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Brume d'Été</h3>
+            <p class="menu-item__comp">Vodka, concombre, basilic frais, citron vert, fleur de sureau</p>
+            <p class="menu-item__accent">Léger, cristallin, le cocktail d'ouverture de soirée</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Terre Rouge</h3>
+            <p class="menu-item__comp">Tequila reposado, betterave, gingembre, agave, citron</p>
+            <p class="menu-item__accent">Terreux, original, d'un rouge profond spectaculaire</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CLASSIQUES REVISITÉS ===================== -->
+    <section id="classiques" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Nos interprétations</p>
+        <h2 class="menu-cat__title">Classiques Revisités</h2>
+        <p class="menu-cat__sub">9 €</p>
+      </div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Spritz des Garrigues</h3>
+            <p class="menu-item__comp">Aperol, prosecco, lavande, olive verte</p>
+            <p class="menu-item__accent">Le Spritz local — la lavande change tout</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Negroni du Sud</h3>
+            <p class="menu-item__comp">Gin, Campari, vermouth rouge infusé au romarin</p>
+            <p class="menu-item__accent">Amer, puissant, parfumé</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Mojito Sauvage</h3>
+            <p class="menu-item__comp">Rhum blanc, menthe sauvage, citron vert, sirop thym-citron</p>
+            <p class="menu-item__accent">Plus complexe, plus garrigue</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Paloma Rosée</h3>
+            <p class="menu-item__comp">Tequila, pamplemousse, hibiscus, sel de Camargue</p>
+            <p class="menu-item__accent">Rose, salée — le Mexique croise le sud de la France</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SANS ALCOOL ===================== -->
+    <section id="sans-alcool" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Sobrement</p>
+        <h2 class="menu-cat__title">Sans Alcool</h2>
+        <p class="menu-cat__sub">Le goût, sans compromis · 7 €</p>
+      </div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Le Doux Terrier</h3>
+            <p class="menu-item__comp">Tonic artisanal, miel, thym, citron, ginger beer</p>
+            <p class="menu-item__accent">Le miroir sans alcool de notre signature</p>
+          </div>
+          <span class="menu-item__price">7 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Jardin Secret</h3>
+            <p class="menu-item__comp">Concombre, basilic, pomme verte, citron vert, eau pétillante</p>
+            <p class="menu-item__accent">Vert, frais, élégant</p>
+          </div>
+          <span class="menu-item__price">7 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Flamme Douce</h3>
+            <p class="menu-item__comp">Passion, mangue, gingembre, piment doux, lait de coco</p>
+            <p class="menu-item__accent">Exotique et épicé, sans compromis</p>
+          </div>
+          <span class="menu-item__price">7 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SHOOTERS ===================== -->
+    <section id="shooters" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">En un shot</p>
+        <h2 class="menu-cat__title">Shooters</h2>
+        <p class="menu-cat__sub">4 € pièce</p>
+      </div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">L'Orgasme</h3>
+            <p class="menu-item__comp">Crème de menthe, vanille, tequila, Baileys</p>
+          </div>
+          <span class="menu-item__price">4 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Kamikaze</h3>
+            <p class="menu-item__comp">Vodka, citron vert, Cointreau</p>
+          </div>
+          <span class="menu-item__price">4 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Madeleine</h3>
+            <p class="menu-item__comp">Amaretto, jus d'ananas, triple sec</p>
+          </div>
+          <span class="menu-item__price">4 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">B-52</h3>
+            <p class="menu-item__comp">Kahlúa, Baileys, Grand Marnier — en couches</p>
+          </div>
+          <span class="menu-item__price">4 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Tequila Paf</h3>
+            <p class="menu-item__comp">Tequila, tonic — claqué au comptoir</p>
+          </div>
+          <span class="menu-item__price">4 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PETITES TAPAS ===================== -->
+    <section id="petites-tapas" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Pour commencer</p>
+        <h2 class="menu-cat__title">Petites Tapas</h2>
+        <p class="menu-cat__sub">5 — 6 €</p>
+      </div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Olives Cassées & Amandes Grillées</h3>
+            <p class="menu-item__comp">Olives de Nîmes, amandes, fleur de sel, romarin</p>
+          </div>
+          <span class="menu-item__price">5 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Verrines Gaspacho & Chèvre</h3>
+            <p class="menu-item__comp">Gaspacho de betterave, crème de chèvre frais, noisettes torréfiées</p>
+          </div>
+          <span class="menu-item__price">5 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Pan con Tomate & Anchois de Collioure</h3>
+            <p class="menu-item__comp">Pain grillé frotté tomate, ail, anchois, huile d'olive vierge</p>
+          </div>
+          <span class="menu-item__price">6 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Croquetas au Jambon Ibérique</h3>
+            <p class="menu-item__comp">Béchamel fondante, jambon Bellota, panure croustillante · x3</p>
+          </div>
+          <span class="menu-item__price">6 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Piquillos Farcis à la Brandade</h3>
+            <p class="menu-item__comp">Poivrons piquillos, brandade de Nîmes, huile d'olive fumée</p>
+          </div>
+          <span class="menu-item__price">6 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Œuf Parfait, Parmesan & Truffe</h3>
+            <p class="menu-item__comp">Œuf basse température, fondue de parmesan, copeaux de truffe d'été</p>
+          </div>
+          <span class="menu-item__price">6 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TAPAS ===================== -->
+    <section id="tapas" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Terre & Mer</p>
+        <h2 class="menu-cat__title">Tapas</h2>
+        <p class="menu-cat__sub">8 — 10 €</p>
+      </div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Calamars Frits, Aïoli Safrané</h3>
+            <p class="menu-item__comp">Calamars en tempura légère, aïoli au safran des Cévennes</p>
+          </div>
+          <span class="menu-item__price">8 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Burrata, Tomates Confites & Pistache</h3>
+            <p class="menu-item__comp">Burrata des Pouilles, tomates séchées, pesto pistache-basilic · Burrata 125 g</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Champignons à la Plancha</h3>
+            <p class="menu-item__comp">Champignons de saison grillés, jaune d'œuf confit, copeaux ibériques</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Tataki de Thon Rouge</h3>
+            <p class="menu-item__comp">Thon rouge snacké, sésame noir, ponzu maison, ciboulette · ~120 g</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Gambas à la Plancha</h3>
+            <p class="menu-item__comp">Gambas entières grillées, ail confit, piment doux, persil plat · 4 pièces</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Tataki de Bœuf de l'Aubrac</h3>
+            <p class="menu-item__comp">Bœuf d'Aubrac snacké, roquette, parmesan 24 mois, vinaigrette truffe · ~120 g</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TAPAS SIGNATURES ===================== -->
+    <section id="tapas-signatures" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Les incontournables</p>
+        <h2 class="menu-cat__title">Tapas Signatures</h2>
+        <p class="menu-cat__sub">12 — 16 €</p>
+      </div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Planche de Fromages Affinés</h3>
+            <p class="menu-item__comp">Ossau-iraty, comté 18 mois, roquefort, chèvre cendré, confiture de figue · 5 fromages · ~200 g</p>
+          </div>
+          <span class="menu-item__price">12 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Tartare de Bœuf Aubrac au Couteau</h3>
+            <p class="menu-item__comp">Bœuf coupé au couteau, câpres, échalotes, jaune d'œuf, tuiles de pain · ~150 g · Coupé minute</p>
+          </div>
+          <span class="menu-item__price">14 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Poulpe Grillé</h3>
+            <p class="menu-item__comp">Poulpe tendre grillé, grenailles confites, pimentón de la Vera · ~160 g · Cuisson basse température</p>
+          </div>
+          <span class="menu-item__price">15 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Planche Ibérique "Grand Cru"</h3>
+            <p class="menu-item__comp">Jambon Bellota 36 mois, lomo, chorizo ibérique, pan cristal, tomate · Planche ~180 g charcuterie</p>
+          </div>
+          <span class="menu-item__price">16 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== LA GRANDE TABLÉE ===================== -->
+    <section id="grande-tablee" class="menu-cat reveal">
+      <div class="grande-tablee">
+        <h3 class="grande-tablee__title">La Grande Tablée</h3>
+        <p class="grande-tablee__price">22 €</p>
+        <p class="grande-tablee__desc">Planche signature à partager — croquetas, charcuterie ibérique, burrata, piquillos, olives, pan con tomate & gambas.</p>
+        <p class="grande-tablee__note">Incluse dans la formule « Le Festin du Renard »</p>
+      </div>
+    </section>
+
+    <!-- ===================== SPIRITUEUX ===================== -->
+    <section id="spiritueux" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Pour les connaisseurs</p>
+        <h2 class="menu-cat__title">Spiritueux</h2>
+        <p class="menu-cat__sub">Servis en verre dégustation · 4 cl</p>
+      </div>
+
+      <p class="vins-label">Whiskies</p>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Johnnie Walker Black Label</h3>
+            <p class="menu-item__comp">Blend — Fumé doux, fruits secs, vanille caramélisée</p>
+          </div>
+          <span class="menu-item__price">8 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Glenlivet 12 ans</h3>
+            <p class="menu-item__comp">Speyside — Floral, pomme mûre, miel délicat</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Ardbeg 10 ans</h3>
+            <p class="menu-item__comp">Islay — Tourbe intense, citron, fumée maritime</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Balvenie DoubleWood 12 ans</h3>
+            <p class="menu-item__comp">Speyside — Miel, vanille, chêne épicé, double maturation</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Laphroaig 10 ans</h3>
+            <p class="menu-item__comp">Islay — Tourbe médicinale, iode, sel marin, finale longue</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Lagavulin 16 ans</h3>
+            <p class="menu-item__comp">Islay — Tourbe noble, fruits secs, sherry, complexité rare</p>
+          </div>
+          <span class="menu-item__price">12 €</span>
+        </div>
+      </div>
+
+      <p class="vins-label" style="margin-top:1.5rem;">Rhums</p>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Doorly's 12 ans</h3>
+            <p class="menu-item__comp">Barbade — Vanille, caramel beurré, épices douces</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Clairin Sajous</h3>
+            <p class="menu-item__comp">Haïti — Canne fraîche, agrumes, floral, brut de colonne</p>
+          </div>
+          <span class="menu-item__price">9 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Hampden Estate 8 ans</h3>
+            <p class="menu-item__comp">Jamaïque — Esters puissants, fruits tropicaux, funk jamaïcain</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">El Dorado 12 ans</h3>
+            <p class="menu-item__comp">Guyana — Caramel, épices chaudes, boisé, rondeur enveloppante</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">Appleton Estate 12 ans</h3>
+            <p class="menu-item__comp">Jamaïque — Orange confite, vanille, chêne, complexité élégante</p>
+          </div>
+          <span class="menu-item__price">10 €</span>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__info">
+            <h3 class="menu-item__name">J.M XO</h3>
+            <p class="menu-item__comp">Martinique — Cacao, épices créoles, canne noble, finale interminable</p>
+          </div>
+          <span class="menu-item__price">12 €</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== VINS ===================== -->
+    <section id="vins" class="menu-cat reveal">
+      <div class="menu-cat__head">
+        <p class="menu-cat__sur">Du terroir</p>
+        <h2 class="menu-cat__title">Vins au Verre</h2>
+      </div>
+
+      <p class="vins-label">Blancs</p>
+      <div class="vins-grid">
+        <div class="vin-card">
+          <div><p class="vin-card__name">Picpoul de Pinet</p><p class="vin-card__detail">Blanc · 12 cl</p></div>
+          <span class="vin-card__price">5 €</span>
+        </div>
+        <div class="vin-card">
+          <div><p class="vin-card__name">Costières de Nîmes</p><p class="vin-card__detail">Blanc · 12 cl</p></div>
+          <span class="vin-card__price">6 €</span>
+        </div>
+      </div>
+
+      <p class="vins-label">Rosés</p>
+      <div class="vins-grid">
+        <div class="vin-card">
+          <div><p class="vin-card__name">Costières de Nîmes</p><p class="vin-card__detail">Rosé · 12 cl</p></div>
+          <span class="vin-card__price">5 €</span>
+        </div>
+        <div class="vin-card">
+          <div><p class="vin-card__name">Tavel</p><p class="vin-card__detail">Rosé · 12 cl</p></div>
+          <span class="vin-card__price">6 €</span>
+        </div>
+      </div>
+
+      <p class="vins-label">Rouges</p>
+      <div class="vins-grid">
+        <div class="vin-card">
+          <div><p class="vin-card__name">Costières de Nîmes</p><p class="vin-card__detail">Rouge · 12 cl</p></div>
+          <span class="vin-card__price">6 €</span>
+        </div>
+        <div class="vin-card">
+          <div><p class="vin-card__name">Pic Saint-Loup</p><p class="vin-card__detail">Rouge · 12 cl</p></div>
+          <span class="vin-card__price">7 €</span>
+        </div>
+      </div>
+
+      <p class="vins-label">Cuvées Premium</p>
+      <div class="vins-grid">
+        <div class="vin-card">
+          <div><p class="vin-card__name">Terrasses du Larzac</p><p class="vin-card__detail">Rouge · 10 cl</p></div>
+          <span class="vin-card__price">8 €</span>
+        </div>
+        <div class="vin-card">
+          <div><p class="vin-card__name">Châteauneuf-du-Pape</p><p class="vin-card__detail">Rouge · 10 cl</p></div>
+          <span class="vin-card__price">9 €</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter" id="newsletter">
+    <div class="container">
+      <div class="newsletter__inner">
+        <p class="newsletter__title">Restez dans le repaire</p>
+        <p class="newsletter__text">Événements, nouveautés et invitations exclusives.</p>
+        <form class="newsletter__form" action="#BREVO_FORM_URL" method="POST">
+          <div class="newsletter__field">
+            <input type="email" name="EMAIL" class="newsletter__input" placeholder="Votre email" required aria-label="Adresse email pour la newsletter">
+            <button type="submit" class="btn newsletter__btn">S'inscrire</button>
+          </div>
+          <div style="position:absolute;left:-5000px" aria-hidden="true"><input type="text" name="b_honey" tabindex="-1" autocomplete="off"></div>
+        </form>
+        <p class="newsletter__legal">En vous inscrivant, vous acceptez notre <a href="politique-confidentialite.html">politique de confidentialité</a>. Désinscription à tout moment.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scroll to top -->
+  <button class="scroll-top" aria-label="Retour en haut">&#8593;</button>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="footer__logo">Le Terrier</p>
+        <p class="footer__tagline">Cocktails & tapas · Speakeasy méditerranéen</p>
+        <p class="footer__contact">26 place de la République, 30920 Codognan</p>
+        <p class="footer__contact"><a href="tel:+33763519363">07 63 51 93 63</a> · <a href="mailto:barleterrier@gmail.com">barleterrier@gmail.com</a></p>
+        <div class="footer__social">
+          <a href="#" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer__links footer__links--cols">
+        <div class="footer__col">
+          <p class="footer__col-title">Le Terrier</p>
+          <a href="concept.html">Le Concept</a>
+          <a href="carte.html">Notre Carte</a>
+          <a href="evenements.html">Événements</a>
+          <a href="galerie.html">Galerie</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__col-title">Infos</p>
+          <a href="contact.html">Contact & Accès</a>
+          <a href="boutique.html">Boutique</a>
+          <a href="mentions-legales.html">Mentions légales</a>
+          <a href="politique-confidentialite.html">Confidentialité</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        L’abus d’alcool est dangereux pour la santé. À consommer avec modération.<br>
+        © 2026 Le Terrier — Tous droits réservés<br>
+        <span class="footer__credit">Créé avec l’Amour pour Francky · By bab</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="shared.js" defer></script>
+  <!-- Cookie Banner RGPD -->
+  <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Consentement cookies">
+    <div class="cookie-banner__inner">
+      <p class="cookie-banner__text">Ce site utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre <a href="politique-confidentialite.html">politique de confidentialité</a>.</p>
+      <div class="cookie-banner__actions">
+        <button class="btn cookie-banner__accept" id="cookie-accept">Accepter</button>
+        <button class="cookie-banner__refuse" id="cookie-refuse">Refuser</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

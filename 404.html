@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#5C0A1E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page introuvable — Le Terrier</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bordeaux: #5C0A1E;
+      --bordeaux-deep: #3A0612;
+      --or: #C8A45C;
+      --creme: #F5F0E8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, var(--bordeaux-deep), var(--bordeaux));
+      color: var(--creme);
+      font-family: 'Cormorant Garamond', serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    .error {
+      max-width: 480px;
+    }
+    .error__code {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(4rem, 12vw, 7rem);
+      color: var(--or);
+      line-height: 1;
+      margin-bottom: .5rem;
+      opacity: .3;
+    }
+    .error__title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 3vw, 1.8rem);
+      color: var(--or);
+      margin-bottom: 1rem;
+    }
+    .error__text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      opacity: .8;
+      margin-bottom: 2rem;
+    }
+    .error__link {
+      display: inline-block;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--bordeaux-deep);
+      background: var(--or);
+      padding: .8rem 2.2rem;
+      text-decoration: none;
+      transition: background .3s, transform .2s;
+    }
+    .error__link:hover {
+      background: var(--creme);
+      transform: translateY(-2px);
+    }
+    .error__sub {
+      margin-top: 2rem;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: .7rem;
+      letter-spacing: .06em;
+      opacity: .4;
+    }
+    .error__sub a {
+      color: var(--or);
+      text-decoration: none;
+    }
+    .error__sub a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="error">
+    <p class="error__code">404</p>
+    <h1 class="error__title">Ce passage est fermé</h1>
+    <p class="error__text">La page que vous cherchez semble avoir disparu dans les recoins du Terrier. Pas de panique — le bar est toujours ouvert.</p>
+    <a href="/" class="error__link">Retour au repaire</a>
+    <p class="error__sub">
+      <a href="/carte">Notre carte</a> · <a href="/contact">Contact</a> · <a href="/evenements">Événements</a>
+    </p>
+  </div>
+</body>
+</html>
