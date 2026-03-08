@@ -260,6 +260,163 @@ try {
             break;
 
         // ============================
+        // BOUTIQUE (Produits)
+        // ============================
+        case 'boutique':
+            $data = loadData('boutique');
+            if ($method === 'GET') {
+                usort($data, fn($a, $b) => strtotime($b['created'] ?? 0) - strtotime($a['created'] ?? 0));
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $product = [
+                    'id' => generateId(),
+                    'name' => sanitize($input['name'] ?? ''),
+                    'category' => sanitize($input['category'] ?? 'accessoire'),
+                    'price' => floatval($input['price'] ?? 0),
+                    'stock' => intval($input['stock'] ?? 0),
+                    'description' => sanitize($input['description'] ?? ''),
+                    'image' => sanitize($input['image'] ?? ''),
+                    'status' => sanitize($input['status'] ?? 'actif'),
+                    'created' => date('Y-m-d H:i:s'),
+                ];
+                $data[] = $product;
+                saveData('boutique', $data);
+                jsonResponse(['success' => true, 'product' => $product]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                foreach ($data as &$product) {
+                    if ($product['id'] === $id) {
+                        foreach (['name','category','description','image','status'] as $field) {
+                            if (isset($input[$field])) $product[$field] = sanitize($input[$field]);
+                        }
+                        if (isset($input['price'])) $product['price'] = floatval($input['price']);
+                        if (isset($input['stock'])) $product['stock'] = intval($input['stock']);
+                        $product['updated'] = date('Y-m-d H:i:s');
+                        break;
+                    }
+                }
+                saveData('boutique', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                $data = array_values(array_filter($data, fn($p) => $p['id'] !== $id));
+                saveData('boutique', $data);
+                jsonResponse(['success' => true]);
+            }
+            break;
+
+        // ============================
+        // REVIEWS (Avis clients)
+        // ============================
+        case 'reviews':
+            $data = loadData('reviews');
+            if ($method === 'GET') {
+                usort($data, fn($a, $b) => strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0));
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $review = [
+                    'id' => generateId(),
+                    'client' => sanitize($input['client'] ?? ''),
+                    'rating' => max(1, min(5, intval($input['rating'] ?? 5))),
+                    'comment' => sanitize($input['comment'] ?? ''),
+                    'source' => sanitize($input['source'] ?? 'google'),
+                    'date' => sanitize($input['date'] ?? date('Y-m-d')),
+                    'visible' => (bool)($input['visible'] ?? true),
+                    'created' => date('Y-m-d H:i:s'),
+                ];
+                $data[] = $review;
+                saveData('reviews', $data);
+                jsonResponse(['success' => true, 'review' => $review]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                foreach ($data as &$review) {
+                    if ($review['id'] === $id) {
+                        foreach (['client','comment','source','date'] as $field) {
+                            if (isset($input[$field])) $review[$field] = sanitize($input[$field]);
+                        }
+                        if (isset($input['rating'])) $review['rating'] = max(1, min(5, intval($input['rating'])));
+                        if (isset($input['visible'])) $review['visible'] = (bool)$input['visible'];
+                        $review['updated'] = date('Y-m-d H:i:s');
+                        break;
+                    }
+                }
+                saveData('reviews', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                $data = array_values(array_filter($data, fn($r) => $r['id'] !== $id));
+                saveData('reviews', $data);
+                jsonResponse(['success' => true]);
+            }
+            break;
+
+        // ============================
+        // OBSERVATIONS (Notes internes)
+        // ============================
+        case 'observations':
+            $data = loadData('observations');
+            if ($method === 'GET') {
+                $priorityOrder = ['haute' => 0, 'moyenne' => 1, 'basse' => 2];
+                usort($data, function($a, $b) use ($priorityOrder) {
+                    $pa = $priorityOrder[$a['priority'] ?? 'moyenne'] ?? 1;
+                    $pb = $priorityOrder[$b['priority'] ?? 'moyenne'] ?? 1;
+                    if ($a['status'] === 'fait' && $b['status'] !== 'fait') return 1;
+                    if ($a['status'] !== 'fait' && $b['status'] === 'fait') return -1;
+                    return $pa - $pb;
+                });
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $obs = [
+                    'id' => generateId(),
+                    'note' => sanitize($input['note'] ?? ''),
+                    'category' => sanitize($input['category'] ?? 'general'),
+                    'priority' => sanitize($input['priority'] ?? 'moyenne'),
+                    'status' => 'en attente',
+                    'created' => date('Y-m-d H:i:s'),
+                ];
+                $data[] = $obs;
+                saveData('observations', $data);
+                jsonResponse(['success' => true, 'observation' => $obs]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                foreach ($data as &$obs) {
+                    if ($obs['id'] === $id) {
+                        foreach (['note','category','priority','status'] as $field) {
+                            if (isset($input[$field])) $obs[$field] = sanitize($input[$field]);
+                        }
+                        $obs['updated'] = date('Y-m-d H:i:s');
+                        break;
+                    }
+                }
+                saveData('observations', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                $data = array_values(array_filter($data, fn($o) => $o['id'] !== $id));
+                saveData('observations', $data);
+                jsonResponse(['success' => true]);
+            }
+            break;
+
+        // ============================
         // STATS (Dashboard overview)
         // ============================
         case 'stats':

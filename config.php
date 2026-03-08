@@ -10,9 +10,7 @@
 // Mot de passe du dashboard (changer IMMÉDIATEMENT après installation)
 // Pour générer un hash : php -r "echo password_hash('votre_mot_de_passe', PASSWORD_DEFAULT);"
 define('ADMIN_USER', 'admin');
-define('ADMIN_HASH', password_hash('LeTerrierAdmin2026!', PASSWORD_DEFAULT));
-// ⚠️ REMPLACER la ligne ci-dessus par un hash fixe après premier déploiement :
-// define('ADMIN_HASH', '$2y$10$VOTRE_HASH_ICI');
+define('ADMIN_HASH', '$2y$10$1.Qiv.YpxXAi5P15ka0sy.vGKe9gZ/lWv7MKXT9E7vXGETETGaX42');
 
 // --- EMAIL ---
 define('CONTACT_EMAIL', 'barleterrier@gmail.com');
@@ -39,7 +37,7 @@ if (!is_dir(DATA_DIR)) {
 }
 
 // Initialiser les fichiers JSON s'ils n'existent pas
-$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats'];
+$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations'];
 foreach ($dataFiles as $file) {
     $path = DATA_DIR . $file . '.json';
     if (!file_exists($path)) {

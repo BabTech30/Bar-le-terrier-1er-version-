@@ -1,0 +1,32 @@
+[
+    {
+        "id": "rev001",
+        "client": "Marie L.",
+        "rating": 5,
+        "comment": "Un lieu hors du temps. Les cocktails sont impeccables, les tapas fondantes. On se croirait à Barcelone avec le charme du Sud en plus.",
+        "source": "Google",
+        "date": "2026-03-01",
+        "visible": true,
+        "created": "2026-03-08"
+    },
+    {
+        "id": "rev002",
+        "client": "Thomas R.",
+        "rating": 5,
+        "comment": "Enfin un bar qui ose la qualité sans casser les prix. Le Terrier signature est devenu mon rituel du vendredi.",
+        "source": "Google",
+        "date": "2026-03-03",
+        "visible": true,
+        "created": "2026-03-08"
+    },
+    {
+        "id": "rev003",
+        "client": "Sophie & Marc",
+        "rating": 5,
+        "comment": "L'ambiance est incroyable. Lumière tamisée, musique parfaite, service au top. On reviendra c'est certain.",
+        "source": "Google",
+        "date": "2026-03-05",
+        "visible": true,
+        "created": "2026-03-08"
+    }
+]

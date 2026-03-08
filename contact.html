@@ -248,7 +248,7 @@
             btn.disabled = true;
             try {
               var formData = new FormData(this);
-              var res = await fetch('/api/contact.php', {method:'POST', body: formData});
+              var res = await fetch('/contact.php', {method:'POST', body: formData});
               var data = await res.json();
               if (data.success) {
                 this.style.display = 'none';

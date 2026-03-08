@@ -1,0 +1,72 @@
+[
+    {
+        "id": "evt001",
+        "title": "Inauguration du Terrier",
+        "date": "2026-03-15",
+        "time": "18:00",
+        "type": "special",
+        "description": "Soirée d'ouverture — Cocktail de bienvenue offert, carte complète, musique live",
+        "status": "actif",
+        "created": "2026-03-08"
+    },
+    {
+        "id": "evt002",
+        "title": "Jazz au Terrier — Trio acoustique",
+        "date": "2026-03-22",
+        "time": "20:00",
+        "type": "jazz",
+        "description": "Guitare, contrebasse et voix — Soirée jazz acoustique",
+        "status": "actif",
+        "created": "2026-03-08"
+    },
+    {
+        "id": "evt003",
+        "title": "Les Vins du Languedoc",
+        "date": "2026-03-29",
+        "time": "18:00",
+        "type": "vin",
+        "description": "Dégustation commentée de 5 cuvées locales accompagnées de tapas",
+        "status": "actif",
+        "created": "2026-03-08"
+    },
+    {
+        "id": "evt004",
+        "title": "Nuit Fauve — DJ set lounge",
+        "date": "2026-04-05",
+        "time": "21:00",
+        "type": "dj",
+        "description": "Deep house & nu-disco — Ambiance lounge",
+        "status": "actif",
+        "created": "2026-03-08"
+    },
+    {
+        "id": "evt005",
+        "title": "Jazz au Terrier",
+        "date": "2026-03-20",
+        "time": "20:00",
+        "type": "jazz",
+        "description": "Musique live acoustique — Tous les jeudis soir, entrée libre",
+        "status": "actif",
+        "created": "2026-03-08"
+    },
+    {
+        "id": "evt006",
+        "title": "Vendredis Vins",
+        "date": "2026-03-21",
+        "time": "18:00",
+        "type": "vin",
+        "description": "Dégustation hebdomadaire de vins avec accords tapas — Entrée libre",
+        "status": "actif",
+        "created": "2026-03-08"
+    },
+    {
+        "id": "evt007",
+        "title": "DJ Lounge",
+        "date": "2026-03-22",
+        "time": "21:00",
+        "type": "dj",
+        "description": "Deep house, nu-disco, world music — Tous les samedis, entrée libre",
+        "status": "actif",
+        "created": "2026-03-08"
+    }
+]
