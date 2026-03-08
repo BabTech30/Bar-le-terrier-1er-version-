@@ -219,7 +219,9 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="events"><span>🎭</span> <small>Événements</small></div>
     <div class="sidebar__link" data-section="social"><span>📱</span> <small>Réseaux sociaux</small></div>
     <div class="sidebar__link" data-section="finances"><span>💰</span> <small>Finances</small></div>
-    <div class="sidebar__link" data-section="workspace"><span>🔮</span> <small>Espace libre</small></div>
+    <div class="sidebar__link" data-section="boutique"><span>🛍️</span> <small>Boutique</small></div>
+    <div class="sidebar__link" data-section="reviews"><span>⭐</span> <small>Avis clients</small></div>
+    <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
   </nav>
   <div class="sidebar__footer">
     <a href="?logout=1" class="sidebar__logout">Déconnexion</a>
@@ -298,18 +300,31 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="table-wrap"><table><thead><tr><th>Réf.</th><th>Client</th><th>Date event</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="finances-list"></tbody></table></div>
   </div>
 
-  <!-- ===== ESPACE LIBRE ===== -->
-  <div class="section" id="sec-workspace">
+  <!-- ===== BOUTIQUE ===== -->
+  <div class="section" id="sec-boutique">
     <div class="main__header">
-      <h1 class="main__title">Espace libre</h1>
+      <h1 class="main__title">Boutique</h1>
+      <button class="btn btn--primary" onclick="openModal('boutique')">+ Nouveau produit</button>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:3rem;text-align:center;min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center">
-      <p style="font-size:2.5rem;opacity:.2;margin-bottom:1rem">🔮</p>
-      <p style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--or);margin-bottom:.5rem">Espace réservé</p>
-      <p style="color:var(--text-dim);max-width:400px;line-height:1.6;font-size:.85rem">
-        Cet espace est libre pour de futures fonctionnalités : gestion des photos, intégration Instagram, statistiques avancées, ou tout ce dont tu auras besoin.
-      </p>
+    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Image</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="boutique-list"></tbody></table></div>
+  </div>
+
+  <!-- ===== AVIS CLIENTS ===== -->
+  <div class="section" id="sec-reviews">
+    <div class="main__header">
+      <h1 class="main__title">Avis clients</h1>
+      <button class="btn btn--primary" onclick="openModal('review')">+ Ajouter un avis</button>
     </div>
+    <div class="table-wrap"><table><thead><tr><th>Note</th><th>Client</th><th>Avis</th><th>Source</th><th>Date</th><th>Visible</th><th>Actions</th></tr></thead><tbody id="reviews-list"></tbody></table></div>
+  </div>
+
+  <!-- ===== OBSERVATIONS ===== -->
+  <div class="section" id="sec-observations">
+    <div class="main__header">
+      <h1 class="main__title">Observations & Notes</h1>
+      <button class="btn btn--primary" onclick="openModal('observation')">+ Nouvelle note</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Priorité</th><th>Catégorie</th><th>Note</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="observations-list"></tbody></table></div>
   </div>
 
 </div>
@@ -373,6 +388,9 @@ async function loadSection(name) {
     case 'events': return loadEvents();
     case 'social': return loadSocial();
     case 'finances': return loadFinances();
+    case 'boutique': return loadBoutique();
+    case 'reviews': return loadReviews();
+    case 'observations': return loadObservations();
   }
 }
 
@@ -573,6 +591,52 @@ function openModal(type) {
           <button class="btn btn--ghost" onclick="closeModal()">Fermer</button>
         </div>`;
       break;
+    case 'boutique':
+      mc.innerHTML = `
+        <p class="modal__title">Nouveau produit</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Nom du produit</label><input class="form-input" id="bq-name" placeholder="T-shirt Le Terrier"></div>
+          <div class="form-group"><label class="form-label">Catégorie</label><select class="form-select" id="bq-category"><option value="cocktail">Cocktail</option><option value="accessoire">Accessoire</option><option value="vetement">Vêtement</option><option value="epicerie">Épicerie</option><option value="cadeau">Coffret cadeau</option></select></div>
+          <div class="form-group"><label class="form-label">Prix (€)</label><input type="number" step="0.01" class="form-input" id="bq-price" placeholder="25.00"></div>
+          <div class="form-group"><label class="form-label">Stock</label><input type="number" class="form-input" id="bq-stock" placeholder="10"></div>
+          <div class="form-group"><label class="form-label">Statut</label><select class="form-select" id="bq-status"><option value="actif">Actif</option><option value="inactif">Inactif</option><option value="rupture">En rupture</option></select></div>
+          <div class="form-group"><label class="form-label">URL image</label><input class="form-input" id="bq-image" placeholder="images/produit.jpg"></div>
+          <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="bq-desc" placeholder="Description du produit"></textarea></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" onclick="saveBoutique()">Créer</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      break;
+    case 'review':
+      mc.innerHTML = `
+        <p class="modal__title">Nouvel avis client</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Nom du client</label><input class="form-input" id="rv-client" placeholder="Jean D."></div>
+          <div class="form-group"><label class="form-label">Note (1-5)</label><select class="form-select" id="rv-rating"><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option><option value="2">★★☆☆☆ (2)</option><option value="1">★☆☆☆☆ (1)</option></select></div>
+          <div class="form-group"><label class="form-label">Source</label><select class="form-select" id="rv-source"><option value="google">Google</option><option value="tripadvisor">TripAdvisor</option><option value="instagram">Instagram</option><option value="bouche-a-oreille">Bouche à oreille</option><option value="autre">Autre</option></select></div>
+          <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="rv-date"></div>
+          <div class="form-group form-group--full"><label class="form-label">Commentaire</label><textarea class="form-textarea" id="rv-comment" placeholder="Super ambiance, cocktails incroyables..."></textarea></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rv-visible" checked> <span class="form-label" style="margin:0">Visible sur le site</span></label></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" onclick="saveReview()">Ajouter</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      break;
+    case 'observation':
+      mc.innerHTML = `
+        <p class="modal__title">Nouvelle observation</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Catégorie</label><select class="form-select" id="obs-category"><option value="general">Général</option><option value="bug">Bug / Problème</option><option value="amelioration">Amélioration</option><option value="contenu">Contenu à modifier</option><option value="securite">Sécurité</option><option value="design">Design</option></select></div>
+          <div class="form-group"><label class="form-label">Priorité</label><select class="form-select" id="obs-priority"><option value="haute">Haute</option><option value="moyenne" selected>Moyenne</option><option value="basse">Basse</option></select></div>
+          <div class="form-group form-group--full"><label class="form-label">Note / Observation</label><textarea class="form-textarea" id="obs-note" placeholder="Décrire l'observation, le problème ou l'amélioration souhaitée..."></textarea></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" onclick="saveObservation()">Ajouter</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      break;
     case 'finance':
       mc.innerHTML = `
         <p class="modal__title">Nouveau devis</p>
@@ -705,6 +769,169 @@ async function editFinance(id) {
       closeModal(); loadFinances();
     };
   }, 50);
+}
+
+// ===== BOUTIQUE =====
+async function loadBoutique() {
+  const d = await api('boutique');
+  const cats = {cocktail:'Cocktail',accessoire:'Accessoire',vetement:'Vêtement',epicerie:'Épicerie',cadeau:'Coffret cadeau'};
+  const el = document.getElementById('boutique-list');
+  el.innerHTML = (d.data||[]).map(p => `
+    <tr>
+      <td>${statusBadge(p.status)}</td>
+      <td>${p.image ? '<img src="'+p.image+'" style="width:40px;height:40px;object-fit:cover;border-radius:4px">' : '—'}</td>
+      <td><strong>${p.name}</strong><br><small style="color:var(--text-dim)">${truncate(p.description,40)}</small></td>
+      <td>${cats[p.category]||p.category}</td>
+      <td>${parseFloat(p.price||0).toLocaleString('fr-FR')} €</td>
+      <td>${p.stock ?? '—'}</td>
+      <td class="btn-group">
+        <button class="btn btn--sm btn--ghost" onclick="editBoutique('${p.id}')">Modifier</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('boutique','${p.id}')">×</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7"><div class="empty"><p class="empty__icon">🛍️</p><p class="empty__text">Aucun produit</p></div></td></tr>';
+}
+
+async function saveBoutique() {
+  await api('boutique','POST',{
+    name: document.getElementById('bq-name').value,
+    category: document.getElementById('bq-category').value,
+    price: document.getElementById('bq-price').value,
+    stock: document.getElementById('bq-stock').value,
+    description: document.getElementById('bq-desc').value,
+    image: document.getElementById('bq-image').value,
+    status: document.getElementById('bq-status').value,
+  });
+  closeModal(); loadBoutique();
+}
+
+async function editBoutique(id) {
+  const d = await api('boutique');
+  const p = (d.data||[]).find(x => x.id === id);
+  if (!p) return;
+  openModal('boutique');
+  setTimeout(() => {
+    document.getElementById('bq-name').value = p.name||'';
+    document.getElementById('bq-category').value = p.category||'cocktail';
+    document.getElementById('bq-price').value = p.price||'';
+    document.getElementById('bq-stock').value = p.stock||'';
+    document.getElementById('bq-desc').value = p.description||'';
+    document.getElementById('bq-image').value = p.image||'';
+    document.getElementById('bq-status').value = p.status||'actif';
+    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+      await api('boutique','PATCH',{id, name:document.getElementById('bq-name').value, category:document.getElementById('bq-category').value, price:document.getElementById('bq-price').value, stock:document.getElementById('bq-stock').value, description:document.getElementById('bq-desc').value, image:document.getElementById('bq-image').value, status:document.getElementById('bq-status').value});
+      closeModal(); loadBoutique();
+    };
+  }, 50);
+}
+
+// ===== AVIS CLIENTS =====
+async function loadReviews() {
+  const d = await api('reviews');
+  const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
+  const el = document.getElementById('reviews-list');
+  el.innerHTML = (d.data||[]).map(r => `
+    <tr>
+      <td style="color:var(--or);font-size:1rem">${stars(r.rating||5)}</td>
+      <td><strong>${r.client}</strong></td>
+      <td>${truncate(r.comment,50)}</td>
+      <td>${r.source||'—'}</td>
+      <td>${fmtDate(r.date)}</td>
+      <td>${r.visible ? '<span style="color:var(--green)">Oui</span>' : '<span style="color:var(--text-dim)">Non</span>'}</td>
+      <td class="btn-group">
+        <button class="btn btn--sm btn--ghost" onclick="editReview('${r.id}')">Modifier</button>
+        <button class="btn btn--sm btn--ghost" onclick="toggleReviewVisibility('${r.id}',${!r.visible})">${r.visible?'Masquer':'Afficher'}</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('reviews','${r.id}')">×</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7"><div class="empty"><p class="empty__icon">⭐</p><p class="empty__text">Aucun avis</p></div></td></tr>';
+}
+
+async function saveReview() {
+  await api('reviews','POST',{
+    client: document.getElementById('rv-client').value,
+    rating: document.getElementById('rv-rating').value,
+    comment: document.getElementById('rv-comment').value,
+    source: document.getElementById('rv-source').value,
+    date: document.getElementById('rv-date').value,
+    visible: document.getElementById('rv-visible').checked,
+  });
+  closeModal(); loadReviews();
+}
+
+async function editReview(id) {
+  const d = await api('reviews');
+  const r = (d.data||[]).find(x => x.id === id);
+  if (!r) return;
+  openModal('review');
+  setTimeout(() => {
+    document.getElementById('rv-client').value = r.client||'';
+    document.getElementById('rv-rating').value = r.rating||5;
+    document.getElementById('rv-comment').value = r.comment||'';
+    document.getElementById('rv-source').value = r.source||'google';
+    document.getElementById('rv-date').value = r.date||'';
+    document.getElementById('rv-visible').checked = r.visible !== false;
+    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+      await api('reviews','PATCH',{id, client:document.getElementById('rv-client').value, rating:document.getElementById('rv-rating').value, comment:document.getElementById('rv-comment').value, source:document.getElementById('rv-source').value, date:document.getElementById('rv-date').value, visible:document.getElementById('rv-visible').checked});
+      closeModal(); loadReviews();
+    };
+  }, 50);
+}
+
+async function toggleReviewVisibility(id, visible) {
+  await api('reviews','PATCH',{id, visible});
+  loadReviews();
+}
+
+// ===== OBSERVATIONS =====
+async function loadObservations() {
+  const d = await api('observations');
+  const priorities = {haute:'<span style="color:var(--red)">● Haute</span>',moyenne:'<span style="color:var(--orange)">● Moyenne</span>',basse:'<span style="color:var(--green)">● Basse</span>'};
+  const el = document.getElementById('observations-list');
+  el.innerHTML = (d.data||[]).map(o => `
+    <tr>
+      <td>${priorities[o.priority]||o.priority}</td>
+      <td>${o.category||'—'}</td>
+      <td><strong>${truncate(o.note,60)}</strong></td>
+      <td>${fmtDate(o.created)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td class="btn-group">
+        <button class="btn btn--sm btn--ghost" onclick="editObservation('${o.id}')">Modifier</button>
+        ${o.status!=='fait'?'<button class="btn btn--sm btn--ghost" onclick="completeObservation(\''+o.id+'\')">✓ Fait</button>':''}
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('observations','${o.id}')">×</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📋</p><p class="empty__text">Aucune observation</p></div></td></tr>';
+}
+
+async function saveObservation() {
+  await api('observations','POST',{
+    note: document.getElementById('obs-note').value,
+    category: document.getElementById('obs-category').value,
+    priority: document.getElementById('obs-priority').value,
+  });
+  closeModal(); loadObservations();
+}
+
+async function editObservation(id) {
+  const d = await api('observations');
+  const o = (d.data||[]).find(x => x.id === id);
+  if (!o) return;
+  openModal('observation');
+  setTimeout(() => {
+    document.getElementById('obs-note').value = o.note||'';
+    document.getElementById('obs-category').value = o.category||'general';
+    document.getElementById('obs-priority').value = o.priority||'moyenne';
+    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+      await api('observations','PATCH',{id, note:document.getElementById('obs-note').value, category:document.getElementById('obs-category').value, priority:document.getElementById('obs-priority').value});
+      closeModal(); loadObservations();
+    };
+  }, 50);
+}
+
+async function completeObservation(id) {
+  await api('observations','PATCH',{id, status:'fait'});
+  loadObservations();
 }
 
 // ===== KEYBOARD SHORTCUT =====
