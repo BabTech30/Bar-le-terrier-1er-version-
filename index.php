@@ -335,7 +335,7 @@ tr:hover{background:rgba(200,164,92,.03)}
 </div>
 
 <script>
-const API = 'api.php';
+const API = '/api.php';
 const CSRF_TOKEN = '<?= $csrfToken ?>';
 
 // ===== NAVIGATION =====
