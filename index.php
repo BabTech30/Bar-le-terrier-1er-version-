@@ -255,6 +255,7 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="events"><span>🎭</span> <small>Événements</small></div>
     <div class="sidebar__link" data-section="social"><span>📱</span> <small>Réseaux sociaux</small></div>
     <div class="sidebar__link" data-section="finances"><span>💰</span> <small>Finances</small></div>
+    <div class="sidebar__link" data-section="carte"><span>🍽️</span> <small>Carte</small></div>
     <div class="sidebar__link" data-section="boutique"><span>🛍️</span> <small>Boutique</small></div>
     <div class="sidebar__link" data-section="reviews"><span>⭐</span> <small>Avis clients</small></div>
     <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
@@ -342,6 +343,16 @@ tr:hover{background:rgba(200,164,92,.03)}
     </div>
     <div class="cards" id="finance-cards"></div>
     <div class="table-wrap"><table><thead><tr><th>Réf.</th><th>Client</th><th>Date event</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="finances-list"></tbody></table></div>
+  </div>
+
+  <!-- ===== CARTE / MENU ===== -->
+  <div class="section" id="sec-carte">
+    <div class="main__header">
+      <h1 class="main__title">Carte & Menu</h1>
+      <button class="btn btn--primary" onclick="openCarteItemModal()">+ Ajouter un plat</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Gérez les catégories, plats, cocktails et prix de la carte. Les modifications sont visibles immédiatement sur le site.</p>
+    <div id="carte-editor"></div>
   </div>
 
   <!-- ===== BOUTIQUE ===== -->
@@ -494,6 +505,7 @@ async function loadSection(name) {
     case 'events': return loadEvents();
     case 'social': return loadSocial();
     case 'finances': return loadFinances();
+    case 'carte': return loadCarte();
     case 'boutique': return loadBoutique();
     case 'reviews': return loadReviews();
     case 'observations': return loadObservations();
@@ -1239,6 +1251,136 @@ async function editAnnouncement(id) {
 async function toggleAnnouncement(id, active) {
   await api('announcements','PATCH',{id, active});
   loadAnnouncements();
+}
+
+// ===== CARTE / MENU =====
+let carteData = [];
+
+async function loadCarte() {
+  const d = await api('carte');
+  carteData = d.data || [];
+  renderCarte();
+}
+
+function renderCarte() {
+  const editor = document.getElementById('carte-editor');
+  if (!carteData.length) {
+    editor.innerHTML = '<div class="empty"><p class="empty__text">Aucune catégorie dans la carte</p></div>';
+    return;
+  }
+  editor.innerHTML = carteData.map(cat => {
+    const items = cat.items || [];
+    const subcats = cat.subcategories || [];
+    let itemsHtml = '';
+
+    if (subcats.length) {
+      itemsHtml = subcats.map(sc => `
+        <p style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 .5rem;padding-top:.5rem;border-top:1px solid rgba(200,164,92,.1)">${esc(sc.name)}</p>
+        ${(sc.items||[]).map(item => renderCarteItem(cat.id, item)).join('')}
+      `).join('');
+    } else {
+      itemsHtml = items.map(item => renderCarteItem(cat.id, item)).join('');
+    }
+
+    return `
+    <div style="background:rgba(0,0,0,.2);border:1px solid rgba(200,164,92,.12);padding:1rem;margin-bottom:1rem;border-radius:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
+        <div>
+          <h3 style="font-family:var(--font-display);color:var(--gold);font-size:1.1rem;margin:0">${esc(cat.category)}</h3>
+          <span style="font-size:.7rem;color:var(--text-dim)">${esc(cat.subtitle || '')} ${cat.price_label ? '· ' + esc(cat.price_label) : ''}</span>
+        </div>
+        <button class="btn-action" onclick="openCarteItemModal('${cat.id}')">+ Plat</button>
+      </div>
+      ${itemsHtml || '<p style="font-size:.8rem;color:var(--text-dim);font-style:italic">Aucun plat dans cette catégorie</p>'}
+    </div>`;
+  }).join('');
+}
+
+function renderCarteItem(catId, item) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.04);gap:.5rem">
+    <div style="flex:1;min-width:0">
+      <span style="font-size:.9rem;color:var(--creme)">${esc(item.name)}</span>
+      <span style="font-size:.75rem;color:var(--text-dim);margin-left:.5rem">${esc(item.description || '')}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+      <strong style="color:var(--gold);font-size:.9rem">${esc(item.price)} €</strong>
+      <button class="btn-action" onclick="editCarteItem('${catId}','${item.id}')" style="font-size:.6rem">Modifier</button>
+      <button class="btn-action btn-action--danger" onclick="deleteCarteItem('${catId}','${item.id}')" style="font-size:.6rem">Suppr</button>
+    </div>
+  </div>`;
+}
+
+function openCarteItemModal(catId) {
+  const catOptions = carteData.map(c => `<option value="${c.id}" ${c.id === catId ? 'selected' : ''}>${esc(c.category)}</option>`).join('');
+  document.getElementById('modal-content').innerHTML = `
+    <h2 class="modal__title">Ajouter un plat</h2>
+    <div class="form-group"><label class="form-label">Catégorie</label><select class="form-input" id="ci-cat">${catOptions}</select></div>
+    <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="ci-name" placeholder="Nom du plat"></div>
+    <div class="form-group"><label class="form-label">Prix (€)</label><input class="form-input" id="ci-price" type="number" step="0.5" placeholder="10"></div>
+    <div class="form-group"><label class="form-label">Description / Ingrédients</label><input class="form-input" id="ci-desc" placeholder="Gin, citron, miel..."></div>
+    <div class="form-group"><label class="form-label">Accroche (optionnel)</label><input class="form-input" id="ci-accent" placeholder="Le cocktail du Sud"></div>
+    <div class="modal__actions"><button class="btn btn--primary" onclick="saveNewCarteItem()">Ajouter</button><button class="btn" onclick="closeModal()">Annuler</button></div>
+  `;
+  openModal();
+}
+
+async function saveNewCarteItem() {
+  const catId = document.getElementById('ci-cat').value;
+  const item = {
+    name: document.getElementById('ci-name').value,
+    price: document.getElementById('ci-price').value,
+    description: document.getElementById('ci-desc').value,
+    accent: document.getElementById('ci-accent').value || undefined,
+  };
+  if (!item.name || !item.price) { alert('Nom et prix requis'); return; }
+  await api('carte', 'PATCH', { category_id: catId, type: 'add', item });
+  closeModal();
+  loadCarte();
+}
+
+function editCarteItem(catId, itemId) {
+  let item = null;
+  for (const cat of carteData) {
+    if (cat.id === catId) {
+      item = (cat.items || []).find(i => i.id === itemId);
+      if (!item && cat.subcategories) {
+        for (const sc of cat.subcategories) {
+          item = (sc.items || []).find(i => i.id === itemId);
+          if (item) break;
+        }
+      }
+      break;
+    }
+  }
+  if (!item) return;
+
+  document.getElementById('modal-content').innerHTML = `
+    <h2 class="modal__title">Modifier — ${esc(item.name)}</h2>
+    <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="ci-name" value="${esc(item.name)}"></div>
+    <div class="form-group"><label class="form-label">Prix (€)</label><input class="form-input" id="ci-price" type="number" step="0.5" value="${esc(item.price)}"></div>
+    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="ci-desc" value="${esc(item.description || '')}"></div>
+    <div class="form-group"><label class="form-label">Accroche</label><input class="form-input" id="ci-accent" value="${esc(item.accent || '')}"></div>
+    <div class="modal__actions"><button class="btn btn--primary" onclick="updateCarteItem('${catId}','${itemId}')">Sauvegarder</button><button class="btn" onclick="closeModal()">Annuler</button></div>
+  `;
+  openModal();
+}
+
+async function updateCarteItem(catId, itemId) {
+  const item = {
+    name: document.getElementById('ci-name').value,
+    price: document.getElementById('ci-price').value,
+    description: document.getElementById('ci-desc').value,
+    accent: document.getElementById('ci-accent').value || undefined,
+  };
+  await api('carte', 'PATCH', { category_id: catId, type: 'update', item_id: itemId, item });
+  closeModal();
+  loadCarte();
+}
+
+async function deleteCarteItem(catId, itemId) {
+  if (!confirm('Supprimer ce plat ?')) return;
+  await api('carte', 'PATCH', { category_id: catId, type: 'delete', item_id: itemId });
+  loadCarte();
 }
 
 // ===== NEWSLETTER =====

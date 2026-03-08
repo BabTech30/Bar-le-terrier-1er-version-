@@ -171,17 +171,6 @@
     });
   }
 
-  /* --- CONTACT FORM (demo) --- */
-  var form = document.querySelector('.form[data-form]');
-  if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      form.style.display = 'none';
-      var success = document.querySelector('.form__success');
-      if (success) success.classList.add('visible');
-    });
-  }
-
   /* --- SMOOTH ANCHOR SCROLL (skip href="#" placeholders) --- */
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     a.addEventListener('click', function (e) {

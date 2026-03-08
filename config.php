@@ -46,7 +46,7 @@ if (!is_dir(UPLOADS_DIR . 'gallery/')) {
 }
 
 // Initialiser les fichiers JSON s'ils n'existent pas
-$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations', 'gallery', 'announcements', 'newsletter'];
+$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations', 'gallery', 'announcements', 'newsletter', 'carte'];
 foreach ($dataFiles as $file) {
     $path = DATA_DIR . $file . '.json';
     if (!file_exists($path)) {

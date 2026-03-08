@@ -15,7 +15,7 @@ header('X-Content-Type-Options: nosniff');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'submit-review', 'subscribe-newsletter'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'submit-review', 'subscribe-newsletter'])) {
     // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     if (in_array($action, ['submit-review', 'subscribe-newsletter'])) {
@@ -692,6 +692,61 @@ try {
             break;
 
         // ============================
+        // CARTE / MENU (Admin — gestion de la carte)
+        // ============================
+        case 'carte':
+            $data = loadData('carte');
+            if ($method === 'GET') {
+                usort($data, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+                jsonResponse(['data' => $data]);
+            }
+            if ($method === 'PUT') {
+                // Sauvegarde complète de la carte
+                $input = json_decode(file_get_contents('php://input'), true);
+                if (!isset($input['data']) || !is_array($input['data'])) {
+                    jsonResponse(['error' => 'Données invalides'], 400);
+                }
+                saveData('carte', $input['data']);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'PATCH') {
+                // Modifier un item dans une catégorie
+                $input = json_decode(file_get_contents('php://input'), true);
+                $catId = $input['category_id'] ?? '';
+                $item = $input['item'] ?? null;
+                $action_type = $input['type'] ?? 'update'; // update, add, delete
+
+                foreach ($data as &$cat) {
+                    if (($cat['id'] ?? '') === $catId) {
+                        if ($action_type === 'add' && $item) {
+                            $item['id'] = generateId();
+                            $cat['items'][] = $item;
+                        } elseif ($action_type === 'delete' && isset($input['item_id'])) {
+                            $cat['items'] = array_values(array_filter($cat['items'] ?? [], fn($i) => ($i['id'] ?? '') !== $input['item_id']));
+                        } elseif ($action_type === 'update' && $item && isset($input['item_id'])) {
+                            foreach ($cat['items'] as &$existing) {
+                                if (($existing['id'] ?? '') === $input['item_id']) {
+                                    $existing = array_merge($existing, $item);
+                                    break;
+                                }
+                            }
+                        } elseif ($action_type === 'update-category') {
+                            // Mise à jour des infos de la catégorie
+                            if (isset($input['category'])) $cat['category'] = $input['category'];
+                            if (isset($input['subtitle'])) $cat['subtitle'] = $input['subtitle'];
+                            if (isset($input['price_label'])) $cat['price_label'] = $input['price_label'];
+                            if (isset($input['note'])) $cat['note'] = $input['note'];
+                        }
+                        break;
+                    }
+                }
+                saveData('carte', $data);
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
         // NEWSLETTER (Admin — gestion abonnés)
         // ============================
         case 'newsletter':
@@ -713,6 +768,12 @@ try {
         // ============================
         // PUBLIC API (pas d'auth requise — géré séparément)
         // ============================
+        case 'public-carte':
+            $data = loadData('carte');
+            usort($data, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+            jsonResponse(['data' => $data]);
+            break;
+
         case 'public-gallery':
             $data = loadData('gallery');
             $visible = array_values(array_filter($data, fn($p) => ($p['visible'] ?? true)));
