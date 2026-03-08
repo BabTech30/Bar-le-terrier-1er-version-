@@ -455,6 +455,90 @@
     }
   });
 
+  /* --- ARDOISE DU TERRIER (Dynamic announcements on homepage) --- */
+  var ardoiseSection = document.getElementById('ardoise-section');
+  var ardoiseContent = document.getElementById('ardoise-content');
+  if (ardoiseSection && ardoiseContent) {
+    fetch('/api.php?action=public-announcements')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return;
+        ardoiseSection.style.display = '';
+        var types = {info:'Info',event:'Événement',promo:'Promotion',urgent:'Important',horaires:'Horaires'};
+        var html = '';
+        d.data.forEach(function(a) {
+          html += '<div class="ardoise__item">';
+          html += '<p class="ardoise__type">' + (types[a.type] || a.type) + '</p>';
+          html += '<p class="ardoise__title">' + (a.title || '') + '</p>';
+          if (a.content) html += '<p class="ardoise__text">' + a.content + '</p>';
+          if (a.link && a.link_text && !/^javascript:/i.test(a.link)) html += '<a href="' + a.link + '" class="ardoise__link">' + a.link_text + '</a>';
+          html += '</div>';
+        });
+        ardoiseContent.innerHTML = html;
+      })
+      .catch(function() { /* silently fail — no announcements */ });
+  }
+
+  /* --- DYNAMIC REVIEWS (Avis Google on homepage) --- */
+  var reviewsGrid = document.getElementById('reviews-grid');
+  if (reviewsGrid) {
+    fetch('/api.php?action=public-reviews')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) {
+          document.getElementById('reviews-count').textContent = 'Aucun avis pour le moment';
+          return;
+        }
+        // Update score
+        var scoreEl = document.getElementById('reviews-score');
+        var starsEl = document.getElementById('reviews-stars');
+        var countEl = document.getElementById('reviews-count');
+        if (scoreEl) scoreEl.textContent = d.average + ' / 5';
+        if (starsEl) {
+          var full = Math.floor(d.average);
+          var stars = '';
+          for (var i = 0; i < full; i++) stars += '★';
+          for (var j = full; j < 5; j++) stars += '☆';
+          starsEl.textContent = stars;
+        }
+        if (countEl) countEl.textContent = 'Basé sur ' + d.count + ' avis';
+        // Render review cards
+        var html = '';
+        var delays = ['reveal-d1', 'reveal-d2', 'reveal-d3'];
+        d.data.forEach(function(r, i) {
+          var delay = delays[i % delays.length] || '';
+          var text = r.comment || '';
+          // Escape HTML
+          var div = document.createElement('div');
+          div.textContent = text;
+          var safeText = div.innerHTML;
+          div.textContent = r.client || '';
+          var safeName = div.innerHTML;
+          html += '<div class="review reveal ' + delay + '">';
+          html += '<p class="review__text">« ' + safeText + ' »</p>';
+          html += '<p class="review__author">— ' + safeName + '</p>';
+          html += '</div>';
+        });
+        reviewsGrid.innerHTML = html;
+        // Re-init reveal observer for new elements
+        if (typeof IntersectionObserver !== 'undefined') {
+          var obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                obs.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.15 });
+          reviewsGrid.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+        }
+      })
+      .catch(function() {
+        var countEl = document.getElementById('reviews-count');
+        if (countEl) countEl.textContent = 'Basé sur les premiers avis';
+      });
+  }
+
   /* --- NEWSLETTER FORM (Brevo integration) --- */
   var nlForm = document.querySelector('.newsletter__form');
   if (nlForm) {

@@ -25,6 +25,7 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400&display=swap" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet">
   <link rel="canonical" href="https://barleterrier.fr/">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
@@ -297,6 +298,20 @@
     </div>
   </section>
 
+  <!-- ARDOISE DU TERRIER — Annonces dynamiques depuis le dashboard -->
+  <section class="section-pad ardoise-section" id="ardoise-section" style="display:none">
+    <div class="container">
+      <div class="stitle reveal">
+        <p class="stitle__sur">Du nouveau au repaire</p>
+        <h2 class="stitle__main">L'Ardoise du Terrier</h2>
+        <span class="gold-sep"></span>
+      </div>
+      <div class="ardoise reveal" id="ardoise-content">
+        <!-- Rempli dynamiquement par JS -->
+      </div>
+    </div>
+  </section>
+
   <!-- ESPACES TEASER -->
   <section class="section-pad">
     <div class="container">
@@ -361,29 +376,14 @@
           <h2 class="stitle__main">Avis Google</h2>
           <span class="gold-sep"></span>
         </div>
-        <p class="reviews__stars">★★★★★</p>
-        <p class="reviews__score">5.0 / 5</p>
-        <p class="reviews__count">Basé sur les premiers avis</p>
-        <div class="reviews-grid">
-
-          <div class="review reveal reveal-d1">
-            <p class="review__text">« Un lieu hors du temps. Les cocktails sont impeccables, les tapas fondantes. On se croirait à Barcelone avec le charme du Sud en plus. »</p>
-            <p class="review__author">— Marie L.</p>
-          </div>
-
-          <div class="review reveal reveal-d2">
-            <p class="review__text">« Enfin un bar qui ose la qualité sans casser les prix. Le Terrier signature est devenu mon rituel du vendredi. »</p>
-            <p class="review__author">— Thomas R.</p>
-          </div>
-
-          <div class="review reveal reveal-d3">
-            <p class="review__text">« L'ambiance est incroyable. Lumière tamisée, musique parfaite, service au top. On reviendra c'est certain. »</p>
-            <p class="review__author">— Sophie & Marc</p>
-          </div>
-
+        <p class="reviews__stars" id="reviews-stars">★★★★★</p>
+        <p class="reviews__score" id="reviews-score">5.0 / 5</p>
+        <p class="reviews__count" id="reviews-count">Chargement des avis…</p>
+        <div class="reviews-grid" id="reviews-grid">
+          <!-- Loaded dynamically from API -->
         </div>
-        <!-- LIEN GOOGLE REVIEWS — remplacer # par votre lien Google -->
-        <a href="#" class="btn" target="_blank" rel="noopener">Laisser un avis</a>
+        <!-- LIEN GOOGLE REVIEWS — remplacer par votre lien Google Business -->
+        <a href="https://search.google.com/local/writereview?placeid=VOTRE_PLACE_ID" class="btn" target="_blank" rel="noopener">Laisser un avis sur Google</a>
       </div>
     </div>
   </section>

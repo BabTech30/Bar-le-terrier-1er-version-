@@ -98,28 +98,74 @@
   <section class="section-pad">
     <div class="container">
 
-      <!--
-        AJOUTER VOS PHOTOS :
-        Remplacer les div.gallery-item par :
-        <div class="gallery-item" data-src="images/photo.jpg" data-caption="Description">
-          <img src="images/photo.jpg" alt="Description" loading="lazy">
-        </div>
-      -->
-
-      <div class="gallery-grid">
-        <div class="gallery-item reveal"><span class="gallery-item__ph">Cocktail Signature</span></div>
-        <div class="gallery-item reveal reveal-d1"><span class="gallery-item__ph">Ambiance Tamisée</span></div>
-        <div class="gallery-item reveal reveal-d2"><span class="gallery-item__ph">Tapas du Marché</span></div>
-        <div class="gallery-item reveal"><span class="gallery-item__ph">Détail Décor</span></div>
-        <div class="gallery-item reveal reveal-d1"><span class="gallery-item__ph">Bar & Comptoir</span></div>
-        <div class="gallery-item reveal reveal-d2"><span class="gallery-item__ph">Planche Charcuterie</span></div>
-        <div class="gallery-item reveal"><span class="gallery-item__ph">Préparation</span></div>
-        <div class="gallery-item reveal reveal-d1"><span class="gallery-item__ph">Soirée Jazz</span></div>
-        <div class="gallery-item reveal reveal-d2"><span class="gallery-item__ph">Terroir du Sud</span></div>
-        <div class="gallery-item reveal"><span class="gallery-item__ph">Lumière Chaude</span></div>
-        <div class="gallery-item reveal reveal-d1"><span class="gallery-item__ph">Coulisses</span></div>
-        <div class="gallery-item reveal reveal-d2"><span class="gallery-item__ph">Le Repaire</span></div>
+      <div class="gallery-grid" id="gallery-grid">
+        <!-- Chargement dynamique depuis le dashboard -->
+        <div class="gallery-item reveal"><span class="gallery-item__ph">Chargement...</span></div>
       </div>
+
+      <script>
+      (function() {
+        var grid = document.getElementById('gallery-grid');
+        fetch('/api.php?action=public-gallery')
+          .then(function(r) { return r.json(); })
+          .then(function(d) {
+            if (!d.data || !d.data.length) {
+              // Fallback: placeholders
+              var placeholders = ['Cocktail Signature','Ambiance Tamisée','Tapas du Marché','Détail Décor','Bar & Comptoir','Planche Charcuterie','Préparation','Soirée Jazz','Terroir du Sud','Lumière Chaude','Coulisses','Le Repaire'];
+              grid.innerHTML = placeholders.map(function(p, i) {
+                var delay = ['','reveal-d1','reveal-d2'][i % 3];
+                return '<div class="gallery-item reveal ' + delay + '"><span class="gallery-item__ph">' + p + '</span></div>';
+              }).join('');
+            } else {
+              grid.innerHTML = d.data.map(function(p, i) {
+                var delay = ['','reveal-d1','reveal-d2'][i % 3];
+                if (p.image) {
+                  return '<div class="gallery-item reveal ' + delay + '" data-src="/' + p.image + '" data-caption="' + (p.title || '') + '"><img src="/' + p.image + '" alt="' + (p.title || 'Photo Le Terrier') + '" loading="lazy"></div>';
+                } else {
+                  return '<div class="gallery-item reveal ' + delay + '"><span class="gallery-item__ph">' + (p.title || 'Photo') + '</span></div>';
+                }
+              }).join('');
+            }
+            // Re-init reveal observer for new elements
+            var reveals = grid.querySelectorAll('.reveal');
+            if (reveals.length && 'IntersectionObserver' in window) {
+              var io = new IntersectionObserver(function(entries) {
+                entries.forEach(function(e) {
+                  if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+                });
+              }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+              reveals.forEach(function(el) { io.observe(el); });
+            } else {
+              reveals.forEach(function(el) { el.classList.add('visible'); });
+            }
+            // Re-init lightbox for new elements
+            var lightbox = document.querySelector('.lightbox');
+            if (lightbox) {
+              var lbImg = lightbox.querySelector('.lightbox__img');
+              var lbCap = lightbox.querySelector('.lightbox__cap');
+              grid.querySelectorAll('.gallery-item[data-src]').forEach(function(item) {
+                item.addEventListener('click', function() {
+                  var src = item.getAttribute('data-src');
+                  var cap = item.getAttribute('data-caption') || '';
+                  if (lbImg) { lbImg.src = src; lbImg.alt = cap || 'Photo Le Terrier'; }
+                  if (lbCap) lbCap.textContent = cap;
+                  lightbox.classList.add('open');
+                  lightbox.setAttribute('aria-hidden', 'false');
+                  document.body.style.overflow = 'hidden';
+                });
+              });
+            }
+          })
+          .catch(function() {
+            // Fallback on error: keep placeholders
+            var placeholders = ['Cocktail Signature','Ambiance Tamisée','Tapas du Marché','Détail Décor','Bar & Comptoir','Planche Charcuterie'];
+            grid.innerHTML = placeholders.map(function(p, i) {
+              var delay = ['','reveal-d1','reveal-d2'][i % 3];
+              return '<div class="gallery-item reveal visible ' + delay + '"><span class="gallery-item__ph">' + p + '</span></div>';
+            }).join('');
+          });
+      })();
+      </script>
 
       <!-- CTA INSTAGRAM — remplacer # par votre lien -->
       <div class="gallery-cta reveal">

@@ -20,6 +20,9 @@ define('SITE_URL', 'https://barleterrier.fr');
 // --- CHEMINS ---
 define('DATA_DIR', __DIR__ . '/data/');
 define('ADMIN_DIR', __DIR__ . '/');
+define('UPLOADS_DIR', __DIR__ . '/uploads/');
+define('MAX_UPLOAD_SIZE', 5 * 1024 * 1024); // 5 Mo
+define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png', 'image/webp']);
 
 // --- SÉCURITÉ ---
 define('SESSION_LIFETIME', 3600 * 8); // 8 heures
@@ -31,13 +34,19 @@ define('LOGIN_LOCKOUT_TIME', 900); // 15 minutes
 date_default_timezone_set('Europe/Paris');
 
 // --- INITIALISATION ---
-// Créer le dossier data s'il n'existe pas
+// Créer les dossiers nécessaires
 if (!is_dir(DATA_DIR)) {
     mkdir(DATA_DIR, 0755, true);
 }
+if (!is_dir(UPLOADS_DIR)) {
+    mkdir(UPLOADS_DIR, 0755, true);
+}
+if (!is_dir(UPLOADS_DIR . 'gallery/')) {
+    mkdir(UPLOADS_DIR . 'gallery/', 0755, true);
+}
 
 // Initialiser les fichiers JSON s'ils n'existent pas
-$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations'];
+$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations', 'gallery', 'announcements'];
 foreach ($dataFiles as $file) {
     $path = DATA_DIR . $file . '.json';
     if (!file_exists($path)) {

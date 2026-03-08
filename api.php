@@ -13,25 +13,42 @@ require_once __DIR__ . '/config.php';
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-// --- AUTH CHECK ---
-if (!isset($_SESSION['lt_admin_auth']) || $_SESSION['lt_admin_auth'] !== true) {
-    jsonResponse(['error' => 'Non autorisé'], 401);
-}
+// --- PUBLIC ENDPOINTS (no auth needed) ---
+$action = $_GET['action'] ?? '';
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews'])) {
+    // Skip auth for public read-only endpoints
+    $method = $_SERVER['REQUEST_METHOD'];
+    if ($method !== 'GET') {
+        jsonResponse(['error' => 'Méthode non autorisée'], 405);
+    }
+} else {
+    // --- AUTH CHECK ---
+    if (!isset($_SESSION['lt_admin_auth']) || $_SESSION['lt_admin_auth'] !== true) {
+        jsonResponse(['error' => 'Non autorisé'], 401);
+    }
 
-// Refresh session
-$_SESSION['lt_admin_last'] = time();
+    // Refresh session
+    $_SESSION['lt_admin_last'] = time();
 
-// --- CSRF CHECK for state-changing requests ---
-$method = $_SERVER['REQUEST_METHOD'];
-if (in_array($method, ['POST', 'PATCH', 'DELETE'])) {
-    $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-    if (!verifyCsrfToken($csrfToken)) {
-        jsonResponse(['error' => 'Token CSRF invalide'], 403);
+    // --- CSRF CHECK for state-changing requests ---
+    $method = $_SERVER['REQUEST_METHOD'];
+    if (in_array($method, ['POST', 'PATCH', 'DELETE'])) {
+        // Upload uses multipart form, CSRF token in POST field
+        if ($action === 'upload') {
+            $csrfToken = $_POST['csrf_token'] ?? '';
+        } else {
+            $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        }
+        if (!verifyCsrfToken($csrfToken)) {
+            jsonResponse(['error' => 'Token CSRF invalide'], 403);
+        }
     }
 }
 
+// Reset action for routing (already set above)
+$method = $_SERVER['REQUEST_METHOD'];
+
 // --- ROUTING ---
-$action = $_GET['action'] ?? '';
 $entity = $_GET['entity'] ?? '';
 
 try {
@@ -500,6 +517,208 @@ try {
             );
 
             jsonResponse(['caption' => $caption, 'type' => $type]);
+            break;
+
+        // ============================
+        // GALLERY (Gestion des photos)
+        // ============================
+        case 'gallery':
+            $data = loadData('gallery');
+            if ($method === 'GET') {
+                usort($data, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $photo = [
+                    'id' => generateId(),
+                    'title' => sanitize($input['title'] ?? ''),
+                    'caption' => sanitize($input['caption'] ?? ''),
+                    'category' => sanitize($input['category'] ?? 'ambiance'),
+                    'image' => sanitize($input['image'] ?? ''),
+                    'visible' => (bool)($input['visible'] ?? true),
+                    'order' => intval($input['order'] ?? count($data)),
+                    'created' => date('Y-m-d H:i:s'),
+                ];
+                // Validate image path is within uploads/gallery/
+                if (!empty($photo['image']) && strpos($photo['image'], 'uploads/gallery/') !== 0) {
+                    $photo['image'] = '';
+                }
+                $data[] = $photo;
+                saveData('gallery', $data);
+                jsonResponse(['success' => true, 'photo' => $photo]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                foreach ($data as &$photo) {
+                    if ($photo['id'] === $id) {
+                        foreach (['title','caption','category','image'] as $field) {
+                            if (isset($input[$field])) $photo[$field] = sanitize($input[$field]);
+                        }
+                        if (isset($input['visible'])) $photo['visible'] = (bool)$input['visible'];
+                        if (isset($input['order'])) $photo['order'] = intval($input['order']);
+                        $photo['updated'] = date('Y-m-d H:i:s');
+                        break;
+                    }
+                }
+                saveData('gallery', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                // Supprimer le fichier image associé (avec validation du chemin)
+                foreach ($data as $photo) {
+                    if ($photo['id'] === $id && !empty($photo['image'])) {
+                        $filePath = realpath(__DIR__ . '/' . $photo['image']);
+                        $uploadsDir = realpath(UPLOADS_DIR . 'gallery/');
+                        // Ne supprimer que si le fichier est dans uploads/gallery/
+                        if ($filePath && $uploadsDir && strpos($filePath, $uploadsDir) === 0 && file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                    }
+                }
+                $data = array_values(array_filter($data, fn($p) => $p['id'] !== $id));
+                saveData('gallery', $data);
+                jsonResponse(['success' => true]);
+            }
+            break;
+
+        // ============================
+        // ANNOUNCEMENTS (Annonces)
+        // ============================
+        case 'announcements':
+            $data = loadData('announcements');
+            if ($method === 'GET') {
+                usort($data, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $announcement = [
+                    'id' => generateId(),
+                    'title' => sanitize($input['title'] ?? ''),
+                    'content' => sanitize($input['content'] ?? ''),
+                    'type' => sanitize($input['type'] ?? 'info'),
+                    'link' => preg_match('/^javascript:/i', $input['link'] ?? '') ? '' : sanitize($input['link'] ?? ''),
+                    'link_text' => sanitize($input['link_text'] ?? ''),
+                    'active' => (bool)($input['active'] ?? true),
+                    'expires' => sanitize($input['expires'] ?? ''),
+                    'order' => intval($input['order'] ?? count($data)),
+                    'created' => date('Y-m-d H:i:s'),
+                ];
+                $data[] = $announcement;
+                saveData('announcements', $data);
+                jsonResponse(['success' => true, 'announcement' => $announcement]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                foreach ($data as &$ann) {
+                    if ($ann['id'] === $id) {
+                        foreach (['title','content','type','link','link_text','expires'] as $field) {
+                            if (isset($input[$field])) {
+                                $val = sanitize($input[$field]);
+                                if ($field === 'link' && preg_match('/^javascript:/i', $input[$field])) $val = '';
+                                $ann[$field] = $val;
+                            }
+                        }
+                        if (isset($input['active'])) $ann['active'] = (bool)$input['active'];
+                        if (isset($input['order'])) $ann['order'] = intval($input['order']);
+                        $ann['updated'] = date('Y-m-d H:i:s');
+                        break;
+                    }
+                }
+                saveData('announcements', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                $data = array_values(array_filter($data, fn($a) => $a['id'] !== $id));
+                saveData('announcements', $data);
+                jsonResponse(['success' => true]);
+            }
+            break;
+
+        // ============================
+        // UPLOAD (Images galerie)
+        // ============================
+        case 'upload':
+            if ($method !== 'POST') jsonResponse(['error' => 'Méthode non autorisée'], 405);
+
+            if (empty($_FILES['image'])) {
+                jsonResponse(['error' => 'Aucun fichier envoyé'], 400);
+            }
+
+            $file = $_FILES['image'];
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                jsonResponse(['error' => 'Erreur upload: ' . $file['error']], 400);
+            }
+            if ($file['size'] > MAX_UPLOAD_SIZE) {
+                jsonResponse(['error' => 'Fichier trop volumineux (max 5 Mo)'], 400);
+            }
+
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->file($file['tmp_name']);
+            if (!in_array($mimeType, ALLOWED_IMAGE_TYPES)) {
+                jsonResponse(['error' => 'Type de fichier non autorisé (JPG, PNG, WebP uniquement)'], 400);
+            }
+
+            $ext = match($mimeType) {
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                default => 'jpg',
+            };
+
+            $filename = 'gallery-' . bin2hex(random_bytes(8)) . '.' . $ext;
+            $destPath = UPLOADS_DIR . 'gallery/' . $filename;
+
+            if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+                jsonResponse(['error' => 'Erreur lors de la sauvegarde'], 500);
+            }
+
+            jsonResponse([
+                'success' => true,
+                'url' => 'uploads/gallery/' . $filename,
+                'filename' => $filename,
+            ]);
+            break;
+
+        // ============================
+        // PUBLIC API (pas d'auth requise — géré séparément)
+        // ============================
+        case 'public-gallery':
+            $data = loadData('gallery');
+            $visible = array_values(array_filter($data, fn($p) => ($p['visible'] ?? true)));
+            usort($visible, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+            jsonResponse(['data' => $visible, 'count' => count($visible)]);
+            break;
+
+        case 'public-announcements':
+            $data = loadData('announcements');
+            $now = date('Y-m-d');
+            $active = array_values(array_filter($data, function($a) use ($now) {
+                if (!($a['active'] ?? false)) return false;
+                if (!empty($a['expires']) && $a['expires'] < $now) return false;
+                return true;
+            }));
+            usort($active, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+            jsonResponse(['data' => $active, 'count' => count($active)]);
+            break;
+
+        case 'public-reviews':
+            $data = loadData('reviews');
+            $visible = array_values(array_filter($data, fn($r) => ($r['visible'] ?? true)));
+            usort($visible, fn($a, $b) => strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0));
+            // Calculate average rating
+            $avg = 0;
+            if (count($visible) > 0) {
+                $avg = round(array_sum(array_column($visible, 'rating')) / count($visible), 1);
+            }
+            jsonResponse(['data' => $visible, 'count' => count($visible), 'average' => $avg]);
             break;
 
         default:
