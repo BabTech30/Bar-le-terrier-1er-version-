@@ -595,7 +595,7 @@ try {
                     'title' => sanitize($input['title'] ?? ''),
                     'content' => sanitize($input['content'] ?? ''),
                     'type' => sanitize($input['type'] ?? 'info'),
-                    'link' => sanitize($input['link'] ?? ''),
+                    'link' => preg_match('/^javascript:/i', $input['link'] ?? '') ? '' : sanitize($input['link'] ?? ''),
                     'link_text' => sanitize($input['link_text'] ?? ''),
                     'active' => (bool)($input['active'] ?? true),
                     'expires' => sanitize($input['expires'] ?? ''),
@@ -612,7 +612,11 @@ try {
                 foreach ($data as &$ann) {
                     if ($ann['id'] === $id) {
                         foreach (['title','content','type','link','link_text','expires'] as $field) {
-                            if (isset($input[$field])) $ann[$field] = sanitize($input[$field]);
+                            if (isset($input[$field])) {
+                                $val = sanitize($input[$field]);
+                                if ($field === 'link' && preg_match('/^javascript:/i', $input[$field])) $val = '';
+                                $ann[$field] = $val;
+                            }
                         }
                         if (isset($input['active'])) $ann['active'] = (bool)$input['active'];
                         if (isset($input['order'])) $ann['order'] = intval($input['order']);

@@ -471,7 +471,7 @@
           html += '<p class="ardoise__type">' + (types[a.type] || a.type) + '</p>';
           html += '<p class="ardoise__title">' + (a.title || '') + '</p>';
           if (a.content) html += '<p class="ardoise__text">' + a.content + '</p>';
-          if (a.link && a.link_text) html += '<a href="' + a.link + '" class="ardoise__link">' + a.link_text + '</a>';
+          if (a.link && a.link_text && !/^javascript:/i.test(a.link)) html += '<a href="' + a.link + '" class="ardoise__link">' + a.link_text + '</a>';
           html += '</div>';
         });
         ardoiseContent.innerHTML = html;

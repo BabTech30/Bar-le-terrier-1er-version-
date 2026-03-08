@@ -578,6 +578,7 @@ async function viewMessage(id) {
   const m = (d.data||[]).find(x => x.id === id);
   if (!m) return;
   if (m.status === 'nouveau') await api('messages','PATCH',{id,status:'lu'});
+  // Note: message data may come from external forms — keep esc() for safety
   document.getElementById('modal-content').innerHTML = `
     <p class="modal__title">${esc(m.subject||'Message')}</p>
     <p style="margin-bottom:.5rem"><strong>${esc(m.name)}</strong> · <a href="mailto:${esc(m.email)}">${esc(m.email)}</a>${m.phone?' · <a href="tel:'+esc(m.phone)+'">'+esc(m.phone)+'</a>':''}</p>
@@ -1032,17 +1033,18 @@ async function loadGallery() {
   const d = await api('gallery');
   const el = document.getElementById('gallery-grid');
   const cats = {ambiance:'Ambiance',cocktails:'Cocktails',tapas:'Tapas',decor:'Décor',events:'Événements',equipe:'Équipe'};
+  // Note: data is already htmlspecialchars'd server-side via sanitize()
   el.innerHTML = (d.data||[]).map(p => `
     <div class="gallery-card">
-      ${p.image ? '<img src="/'+esc(p.image)+'" alt="'+esc(p.title)+'">' : '<div class="gallery-card__placeholder">Pas d\'image</div>'}
+      ${p.image ? '<img src="/'+p.image+'" alt="'+p.title+'">' : '<div class="gallery-card__placeholder">Pas d\'image</div>'}
       <span class="gallery-card__badge ${p.visible?'gallery-card__badge--visible':'gallery-card__badge--hidden'}">${p.visible?'Visible':'Masqué'}</span>
       <div class="gallery-card__actions">
         <button class="btn btn--sm btn--ghost" onclick="editGallery('${p.id}')" style="background:rgba(0,0,0,.6)">Modifier</button>
         <button class="btn btn--sm btn--danger" onclick="deleteItem('gallery','${p.id}')" style="background:rgba(0,0,0,.6)">×</button>
       </div>
       <div class="gallery-card__overlay">
-        <p class="gallery-card__title">${esc(p.title)}</p>
-        <p class="gallery-card__caption">${esc(cats[p.category]||p.category)} ${p.caption ? '· '+esc(p.caption) : ''}</p>
+        <p class="gallery-card__title">${p.title}</p>
+        <p class="gallery-card__caption">${cats[p.category]||p.category} ${p.caption ? '· '+p.caption : ''}</p>
       </div>
     </div>
   `).join('') || '<div style="grid-column:1/-1;text-align:center;padding:3rem"><p style="font-size:1.5rem;margin-bottom:.5rem">🖼️</p><p style="color:var(--text-dim)">Aucune photo dans la galerie</p></div>';
@@ -1089,7 +1091,7 @@ async function editGallery(id) {
     document.getElementById('gal-image-url').value = p.image||'';
     document.getElementById('gal-visible').checked = p.visible !== false;
     if (p.image) {
-      document.getElementById('gal-preview').innerHTML = '<img src="/'+esc(p.image)+'" style="max-height:120px;border-radius:4px">';
+      document.getElementById('gal-preview').innerHTML = '<img src="/'+p.image+'" style="max-height:120px;border-radius:4px">';
     }
     document.querySelector('#modal-content .btn--primary').onclick = async () => {
       const fileInput = document.getElementById('gal-file');
@@ -1113,12 +1115,13 @@ async function loadAnnouncements() {
   const d = await api('announcements');
   const types = {info:'ℹ️ Info',event:'🎭 Événement',promo:'🎁 Promo',urgent:'🔴 Urgent',horaires:'🕐 Horaires'};
   const el = document.getElementById('announcements-list');
+  // Note: data is already htmlspecialchars'd server-side via sanitize()
   el.innerHTML = (d.data||[]).map(a => `
     <tr>
       <td>${a.active ? '<span class="badge badge--confirmed">Active</span>' : '<span class="badge badge--draft">Inactive</span>'}</td>
-      <td>${types[a.type]||esc(a.type)}</td>
-      <td><strong>${esc(a.title)}</strong></td>
-      <td>${esc(truncate(a.content,50))}</td>
+      <td>${types[a.type]||a.type}</td>
+      <td><strong>${a.title}</strong></td>
+      <td>${truncate(a.content,50)}</td>
       <td>${a.expires ? fmtDate(a.expires) : '<span style="color:var(--text-dim)">Permanent</span>'}</td>
       <td class="btn-group">
         <button class="btn btn--sm btn--ghost" onclick="editAnnouncement('${a.id}')">Modifier</button>
