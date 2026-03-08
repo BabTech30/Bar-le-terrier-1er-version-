@@ -11,7 +11,7 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # --- PAGE D'ACCUEIL ---
 # Servir index.html comme page d'accueil (pas index.php)
-DirectoryIndex index.html
+DirectoryIndex index.html index.php
 
 # --- PROTECTION DES DONNEES ---
 # Bloquer l'acces direct au dossier data/
