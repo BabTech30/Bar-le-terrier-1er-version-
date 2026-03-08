@@ -79,6 +79,17 @@ function sendEmail(string $to, string $subject, string $htmlBody, string $replyT
     return mail($to, "=?UTF-8?B?" . base64_encode($subject) . "?=", $htmlBody, $headers);
 }
 
+function generateCsrfToken(): string {
+    if (empty($_SESSION[CSRF_TOKEN_NAME])) {
+        $_SESSION[CSRF_TOKEN_NAME] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION[CSRF_TOKEN_NAME];
+}
+
+function verifyCsrfToken(string $token): bool {
+    return isset($_SESSION[CSRF_TOKEN_NAME]) && hash_equals($_SESSION[CSRF_TOKEN_NAME], $token);
+}
+
 function jsonResponse(array $data, int $code = 200): void {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
