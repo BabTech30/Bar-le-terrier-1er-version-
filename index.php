@@ -255,11 +255,13 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="events"><span>🎭</span> <small>Événements</small></div>
     <div class="sidebar__link" data-section="social"><span>📱</span> <small>Réseaux sociaux</small></div>
     <div class="sidebar__link" data-section="finances"><span>💰</span> <small>Finances</small></div>
+    <div class="sidebar__link" data-section="carte"><span>🍽️</span> <small>Carte</small></div>
     <div class="sidebar__link" data-section="boutique"><span>🛍️</span> <small>Boutique</small></div>
     <div class="sidebar__link" data-section="reviews"><span>⭐</span> <small>Avis clients</small></div>
     <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
     <div class="sidebar__link" data-section="gallery"><span>🖼️</span> <small>Galerie</small></div>
     <div class="sidebar__link" data-section="announcements"><span>📢</span> <small>Annonces</small></div>
+    <div class="sidebar__link" data-section="newsletter"><span>📧</span> <small>Newsletter</small></div>
   </nav>
   <div class="sidebar__footer">
     <div style="display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap">
@@ -318,7 +320,7 @@ tr:hover{background:rgba(200,164,92,.03)}
       <h1 class="main__title">Événements</h1>
       <button class="btn btn--primary" onclick="openModal('event')">+ Nouvel événement</button>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Date</th><th>Type</th><th>Titre</th><th>Actions</th></tr></thead><tbody id="events-list"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Date</th><th>Type</th><th>Titre</th><th>Afficher sur</th><th>Actions</th></tr></thead><tbody id="events-list"></tbody></table></div>
   </div>
 
   <!-- ===== RÉSEAUX SOCIAUX ===== -->
@@ -341,6 +343,16 @@ tr:hover{background:rgba(200,164,92,.03)}
     </div>
     <div class="cards" id="finance-cards"></div>
     <div class="table-wrap"><table><thead><tr><th>Réf.</th><th>Client</th><th>Date event</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="finances-list"></tbody></table></div>
+  </div>
+
+  <!-- ===== CARTE / MENU ===== -->
+  <div class="section" id="sec-carte">
+    <div class="main__header">
+      <h1 class="main__title">Carte & Menu</h1>
+      <button class="btn btn--primary" onclick="openCarteItemModal()">+ Ajouter un plat</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Gérez les catégories, plats, cocktails et prix de la carte. Les modifications sont visibles immédiatement sur le site.</p>
+    <div id="carte-editor"></div>
   </div>
 
   <!-- ===== BOUTIQUE ===== -->
@@ -388,6 +400,19 @@ tr:hover{background:rgba(200,164,92,.03)}
     </div>
     <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les annonces actives apparaissent sur la page d'accueil dans l'encadré "Ardoise du Terrier".</p>
     <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Type</th><th>Titre</th><th>Contenu</th><th>Expire</th><th>Actions</th></tr></thead><tbody id="announcements-list"></tbody></table></div>
+  </div>
+
+  <!-- ===== NEWSLETTER ===== -->
+  <div class="section" id="sec-newsletter">
+    <div class="main__header">
+      <h1 class="main__title">Newsletter</h1>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les visiteurs qui s'inscrivent à la newsletter sont enregistrés ici. Vous pouvez exporter la liste ou envoyer un email groupé.</p>
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+      <button class="btn btn--primary" onclick="exportNewsletter()">Exporter CSV</button>
+      <span id="nl-count" style="font-size:.8rem;color:var(--text-dim);align-self:center"></span>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Email</th><th>Date d'inscription</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="newsletter-list"></tbody></table></div>
   </div>
 
 </div>
@@ -480,11 +505,13 @@ async function loadSection(name) {
     case 'events': return loadEvents();
     case 'social': return loadSocial();
     case 'finances': return loadFinances();
+    case 'carte': return loadCarte();
     case 'boutique': return loadBoutique();
     case 'reviews': return loadReviews();
     case 'observations': return loadObservations();
     case 'gallery': return loadGallery();
     case 'announcements': return loadAnnouncements();
+    case 'newsletter': return loadNewsletter();
   }
 }
 
@@ -551,18 +578,20 @@ async function loadEvents() {
   const d = await api('events');
   const el = document.getElementById('events-list');
   const types = {jazz:'🎵 Jazz',vin:'🍷 Vins',dj:'🎧 DJ',special:'✨ Spécial',prive:'🔒 Privé'};
+  const displayLabels = {both:'📄 Les deux',evenements:'🎭 Événements',accueil:'🏠 Accueil'};
   el.innerHTML = (d.data||[]).map(e => `
     <tr>
       <td>${statusBadge(e.status)}</td>
       <td>${fmtDate(e.date)}</td>
       <td>${types[e.type]||e.type}</td>
       <td><strong>${e.title}</strong><br><small style="color:var(--text-dim)">${truncate(e.description,60)}</small></td>
+      <td><span style="font-size:.85em">${displayLabels[e.display]||'📄 Les deux'}</span></td>
       <td class="btn-group">
         <button class="btn btn--sm btn--ghost" onclick="editEvent('${e.id}')">Modifier</button>
         <button class="btn btn--sm btn--danger" onclick="deleteItem('events','${e.id}')">×</button>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="5"><div class="empty"><p class="empty__icon">🎭</p><p class="empty__text">Aucun événement</p></div></td></tr>';
+  `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">🎭</p><p class="empty__text">Aucun événement</p></div></td></tr>';
 }
 
 async function loadSocial() {
@@ -648,6 +677,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="evt-type"><option value="jazz">🎵 Jazz</option><option value="vin">🍷 Vins</option><option value="dj">🎧 DJ</option><option value="special">✨ Spécial</option><option value="prive">🔒 Privé</option></select></div>
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="evt-date"></div>
           <div class="form-group"><label class="form-label">Heure</label><input type="time" class="form-input" id="evt-time" value="20:00"></div>
+          <div class="form-group"><label class="form-label">Afficher sur</label><select class="form-select" id="evt-display"><option value="both">📄 Les deux pages</option><option value="evenements">🎭 Page Événements</option><option value="accueil">🏠 Page d'accueil</option></select></div>
           <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="evt-desc" placeholder="Description de l'événement"></textarea></div>
         </div>
         <div class="modal__actions">
@@ -803,6 +833,7 @@ async function saveEvent() {
     date: document.getElementById('evt-date').value,
     time: document.getElementById('evt-time').value,
     type: document.getElementById('evt-type').value,
+    display: document.getElementById('evt-display').value,
     description: document.getElementById('evt-desc').value,
   });
   closeModal(); loadEvents();
@@ -860,10 +891,11 @@ async function editEvent(id) {
     document.getElementById('evt-date').value = e.date||'';
     document.getElementById('evt-time').value = e.time||'';
     document.getElementById('evt-type').value = e.type||'special';
+    document.getElementById('evt-display').value = e.display||'both';
     document.getElementById('evt-desc').value = e.description||'';
     // Override save to PATCH
     document.querySelector('#modal-content .btn--primary').onclick = async () => {
-      await api('events','PATCH',{id, title:document.getElementById('evt-title').value, date:document.getElementById('evt-date').value, time:document.getElementById('evt-time').value, type:document.getElementById('evt-type').value, description:document.getElementById('evt-desc').value});
+      await api('events','PATCH',{id, title:document.getElementById('evt-title').value, date:document.getElementById('evt-date').value, time:document.getElementById('evt-time').value, type:document.getElementById('evt-type').value, display:document.getElementById('evt-display').value, description:document.getElementById('evt-desc').value});
       closeModal(); loadEvents();
     };
   }, 50);
@@ -1224,6 +1256,177 @@ async function editAnnouncement(id) {
 async function toggleAnnouncement(id, active) {
   await api('announcements','PATCH',{id, active});
   loadAnnouncements();
+}
+
+// ===== CARTE / MENU =====
+let carteData = [];
+
+async function loadCarte() {
+  const d = await api('carte');
+  carteData = d.data || [];
+  renderCarte();
+}
+
+function renderCarte() {
+  const editor = document.getElementById('carte-editor');
+  if (!carteData.length) {
+    editor.innerHTML = '<div class="empty"><p class="empty__text">Aucune catégorie dans la carte</p></div>';
+    return;
+  }
+  editor.innerHTML = carteData.map(cat => {
+    const items = cat.items || [];
+    const subcats = cat.subcategories || [];
+    let itemsHtml = '';
+
+    if (subcats.length) {
+      itemsHtml = subcats.map(sc => `
+        <p style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 .5rem;padding-top:.5rem;border-top:1px solid rgba(200,164,92,.1)">${esc(sc.name)}</p>
+        ${(sc.items||[]).map(item => renderCarteItem(cat.id, item)).join('')}
+      `).join('');
+    } else {
+      itemsHtml = items.map(item => renderCarteItem(cat.id, item)).join('');
+    }
+
+    return `
+    <div style="background:rgba(0,0,0,.2);border:1px solid rgba(200,164,92,.12);padding:1rem;margin-bottom:1rem;border-radius:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
+        <div>
+          <h3 style="font-family:var(--font-display);color:var(--gold);font-size:1.1rem;margin:0">${esc(cat.category)}</h3>
+          <span style="font-size:.7rem;color:var(--text-dim)">${esc(cat.subtitle || '')} ${cat.price_label ? '· ' + esc(cat.price_label) : ''}</span>
+        </div>
+        <button class="btn-action" onclick="openCarteItemModal('${cat.id}')">+ Plat</button>
+      </div>
+      ${itemsHtml || '<p style="font-size:.8rem;color:var(--text-dim);font-style:italic">Aucun plat dans cette catégorie</p>'}
+    </div>`;
+  }).join('');
+}
+
+function renderCarteItem(catId, item) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.04);gap:.5rem">
+    <div style="flex:1;min-width:0">
+      <span style="font-size:.9rem;color:var(--creme)">${esc(item.name)}</span>
+      <span style="font-size:.75rem;color:var(--text-dim);margin-left:.5rem">${esc(item.description || '')}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+      <strong style="color:var(--gold);font-size:.9rem">${esc(item.price)} €</strong>
+      <button class="btn-action" onclick="editCarteItem('${catId}','${item.id}')" style="font-size:.6rem">Modifier</button>
+      <button class="btn-action btn-action--danger" onclick="deleteCarteItem('${catId}','${item.id}')" style="font-size:.6rem">Suppr</button>
+    </div>
+  </div>`;
+}
+
+function openCarteItemModal(catId) {
+  const catOptions = carteData.map(c => `<option value="${c.id}" ${c.id === catId ? 'selected' : ''}>${esc(c.category)}</option>`).join('');
+  document.getElementById('modal-content').innerHTML = `
+    <h2 class="modal__title">Ajouter un plat</h2>
+    <div class="form-group"><label class="form-label">Catégorie</label><select class="form-input" id="ci-cat">${catOptions}</select></div>
+    <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="ci-name" placeholder="Nom du plat"></div>
+    <div class="form-group"><label class="form-label">Prix (€)</label><input class="form-input" id="ci-price" type="number" step="0.5" placeholder="10"></div>
+    <div class="form-group"><label class="form-label">Description / Ingrédients</label><input class="form-input" id="ci-desc" placeholder="Gin, citron, miel..."></div>
+    <div class="form-group"><label class="form-label">Accroche (optionnel)</label><input class="form-input" id="ci-accent" placeholder="Le cocktail du Sud"></div>
+    <div class="modal__actions"><button class="btn btn--primary" onclick="saveNewCarteItem()">Ajouter</button><button class="btn" onclick="closeModal()">Annuler</button></div>
+  `;
+  openModal();
+}
+
+async function saveNewCarteItem() {
+  const catId = document.getElementById('ci-cat').value;
+  const item = {
+    name: document.getElementById('ci-name').value,
+    price: document.getElementById('ci-price').value,
+    description: document.getElementById('ci-desc').value,
+    accent: document.getElementById('ci-accent').value || undefined,
+  };
+  if (!item.name || !item.price) { alert('Nom et prix requis'); return; }
+  await api('carte', 'PATCH', { category_id: catId, type: 'add', item });
+  closeModal();
+  loadCarte();
+}
+
+function editCarteItem(catId, itemId) {
+  let item = null;
+  for (const cat of carteData) {
+    if (cat.id === catId) {
+      item = (cat.items || []).find(i => i.id === itemId);
+      if (!item && cat.subcategories) {
+        for (const sc of cat.subcategories) {
+          item = (sc.items || []).find(i => i.id === itemId);
+          if (item) break;
+        }
+      }
+      break;
+    }
+  }
+  if (!item) return;
+
+  document.getElementById('modal-content').innerHTML = `
+    <h2 class="modal__title">Modifier — ${esc(item.name)}</h2>
+    <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="ci-name" value="${esc(item.name)}"></div>
+    <div class="form-group"><label class="form-label">Prix (€)</label><input class="form-input" id="ci-price" type="number" step="0.5" value="${esc(item.price)}"></div>
+    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="ci-desc" value="${esc(item.description || '')}"></div>
+    <div class="form-group"><label class="form-label">Accroche</label><input class="form-input" id="ci-accent" value="${esc(item.accent || '')}"></div>
+    <div class="modal__actions"><button class="btn btn--primary" onclick="updateCarteItem('${catId}','${itemId}')">Sauvegarder</button><button class="btn" onclick="closeModal()">Annuler</button></div>
+  `;
+  openModal();
+}
+
+async function updateCarteItem(catId, itemId) {
+  const item = {
+    name: document.getElementById('ci-name').value,
+    price: document.getElementById('ci-price').value,
+    description: document.getElementById('ci-desc').value,
+    accent: document.getElementById('ci-accent').value || undefined,
+  };
+  await api('carte', 'PATCH', { category_id: catId, type: 'update', item_id: itemId, item });
+  closeModal();
+  loadCarte();
+}
+
+async function deleteCarteItem(catId, itemId) {
+  if (!confirm('Supprimer ce plat ?')) return;
+  await api('carte', 'PATCH', { category_id: catId, type: 'delete', item_id: itemId });
+  loadCarte();
+}
+
+// ===== NEWSLETTER =====
+async function loadNewsletter() {
+  const d = await api('newsletter');
+  const list = d.data || d || [];
+  document.getElementById('nl-count').textContent = list.length + ' abonné' + (list.length > 1 ? 's' : '');
+  const tbody = document.getElementById('newsletter-list');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty"><p class="empty__text">Aucun abonné pour le moment</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(s => `<tr>
+    <td>${esc(s.email)}</td>
+    <td>${fmtDateTime(s.subscribed)}</td>
+    <td>${s.active ? '<span class="badge badge--confirmed">Actif</span>' : '<span class="badge badge--cancelled">Désabonné</span>'}</td>
+    <td><button class="btn-action btn-action--danger" onclick="removeSubscriber('${s.id}')">Supprimer</button></td>
+  </tr>`).join('');
+}
+
+async function removeSubscriber(id) {
+  if (!confirm('Supprimer cet abonné ?')) return;
+  await api('newsletter','DELETE',{id});
+  loadNewsletter();
+}
+
+function exportNewsletter() {
+  const rows = document.querySelectorAll('#newsletter-list tr');
+  if (!rows.length) { alert('Aucun abonné à exporter.'); return; }
+  let csv = 'Email,Date inscription,Statut\n';
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 3) {
+      csv += '"' + cells[0].textContent + '","' + cells[1].textContent + '","' + cells[2].textContent.trim() + '"\n';
+    }
+  });
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'newsletter-le-terrier.csv'; a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ===== UPLOAD HELPERS =====

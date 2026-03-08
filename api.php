@@ -15,10 +15,10 @@ header('X-Content-Type-Options: nosniff');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'submit-review'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'submit-review', 'subscribe-newsletter'])) {
     // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
-    if ($action === 'submit-review') {
+    if (in_array($action, ['submit-review', 'subscribe-newsletter'])) {
         if ($method !== 'POST') {
             jsonResponse(['error' => 'Méthode non autorisée'], 405);
         }
@@ -65,7 +65,7 @@ try {
             $data = loadData('messages');
             if ($method === 'GET') {
                 // Sort by date desc
-                usort($data, fn($a, $b) => strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0));
+                usort($data, function($a, $b) { return strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'PATCH') {
@@ -85,7 +85,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($m) => $m['id'] !== $id));
+                $data = array_values(array_filter($data, function($m) use ($id) { return $m['id'] !== $id; }));
                 saveData('messages', $data);
                 jsonResponse(['success' => true]);
             }
@@ -97,7 +97,7 @@ try {
         case 'reservations':
             $data = loadData('reservations');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => strtotime($b['date_resa'] ?? 0) - strtotime($a['date_resa'] ?? 0));
+                usort($data, function($a, $b) { return strtotime($b['date_resa'] ?? 0) - strtotime($a['date_resa'] ?? 0); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'PATCH') {
@@ -117,7 +117,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($r) => $r['id'] !== $id));
+                $data = array_values(array_filter($data, function($r) use ($id) { return $r['id'] !== $id; }));
                 saveData('reservations', $data);
                 jsonResponse(['success' => true]);
             }
@@ -129,7 +129,7 @@ try {
         case 'events':
             $data = loadData('events');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => strtotime($a['date'] ?? 0) - strtotime($b['date'] ?? 0));
+                usort($data, function($a, $b) { return strtotime($a['date'] ?? 0) - strtotime($b['date'] ?? 0); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'POST') {
@@ -140,6 +140,7 @@ try {
                     'date' => sanitize($input['date'] ?? ''),
                     'time' => sanitize($input['time'] ?? ''),
                     'type' => sanitize($input['type'] ?? 'special'),
+                    'display' => sanitize($input['display'] ?? 'both'),
                     'description' => sanitize($input['description'] ?? ''),
                     'status' => 'actif',
                     'created' => date('Y-m-d H:i:s'),
@@ -153,7 +154,7 @@ try {
                 $id = $input['id'] ?? '';
                 foreach ($data as &$evt) {
                     if ($evt['id'] === $id) {
-                        foreach (['title','date','time','type','description','status'] as $field) {
+                        foreach (['title','date','time','type','display','description','status'] as $field) {
                             if (isset($input[$field])) $evt[$field] = sanitize($input[$field]);
                         }
                         $evt['updated'] = date('Y-m-d H:i:s');
@@ -166,7 +167,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($e) => $e['id'] !== $id));
+                $data = array_values(array_filter($data, function($e) use ($id) { return $e['id'] !== $id; }));
                 saveData('events', $data);
                 jsonResponse(['success' => true]);
             }
@@ -178,7 +179,7 @@ try {
         case 'social':
             $data = loadData('social');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => strtotime($a['date'] ?? 0) - strtotime($b['date'] ?? 0));
+                usort($data, function($a, $b) { return strtotime($a['date'] ?? 0) - strtotime($b['date'] ?? 0); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'POST') {
@@ -216,7 +217,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($p) => $p['id'] !== $id));
+                $data = array_values(array_filter($data, function($p) use ($id) { return $p['id'] !== $id; }));
                 saveData('social', $data);
                 jsonResponse(['success' => true]);
             }
@@ -228,9 +229,9 @@ try {
         case 'finances':
             $data = loadData('finances');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0));
-                $total = array_sum(array_map(fn($f) => ($f['status'] === 'payé') ? floatval($f['amount'] ?? 0) : 0, $data));
-                $pending = array_sum(array_map(fn($f) => ($f['status'] === 'envoyé' || $f['status'] === 'accepté') ? floatval($f['amount'] ?? 0) : 0, $data));
+                usort($data, function($a, $b) { return strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0); });
+                $total = array_sum(array_map(function($f) { return ($f['status'] === 'payé') ? floatval($f['amount'] ?? 0) : 0; }, $data));
+                $pending = array_sum(array_map(function($f) { return ($f['status'] === 'envoyé' || $f['status'] === 'accepté') ? floatval($f['amount'] ?? 0) : 0; }, $data));
                 jsonResponse(['data' => $data, 'count' => count($data), 'total_paid' => $total, 'total_pending' => $pending]);
             }
             if ($method === 'POST') {
@@ -274,7 +275,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($f) => $f['id'] !== $id));
+                $data = array_values(array_filter($data, function($f) use ($id) { return $f['id'] !== $id; }));
                 saveData('finances', $data);
                 jsonResponse(['success' => true]);
             }
@@ -286,7 +287,7 @@ try {
         case 'boutique':
             $data = loadData('boutique');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => strtotime($b['created'] ?? 0) - strtotime($a['created'] ?? 0));
+                usort($data, function($a, $b) { return strtotime($b['created'] ?? 0) - strtotime($a['created'] ?? 0); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'POST') {
@@ -326,7 +327,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($p) => $p['id'] !== $id));
+                $data = array_values(array_filter($data, function($p) use ($id) { return $p['id'] !== $id; }));
                 saveData('boutique', $data);
                 jsonResponse(['success' => true]);
             }
@@ -338,7 +339,7 @@ try {
         case 'reviews':
             $data = loadData('reviews');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0));
+                usort($data, function($a, $b) { return strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'POST') {
@@ -377,7 +378,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($r) => $r['id'] !== $id));
+                $data = array_values(array_filter($data, function($r) use ($id) { return $r['id'] !== $id; }));
                 saveData('reviews', $data);
                 jsonResponse(['success' => true]);
             }
@@ -431,7 +432,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($o) => $o['id'] !== $id));
+                $data = array_values(array_filter($data, function($o) use ($id) { return $o['id'] !== $id; }));
                 saveData('observations', $data);
                 jsonResponse(['success' => true]);
             }
@@ -450,13 +451,13 @@ try {
             $now = date('Y-m-d');
             $weekAgo = date('Y-m-d', strtotime('-7 days'));
 
-            $newMessages = count(array_filter($messages, fn($m) => ($m['status'] ?? '') === 'nouveau'));
-            $todayReservations = count(array_filter($reservations, fn($r) => ($r['date_resa'] ?? '') === $now && ($r['status'] ?? '') === 'confirmée'));
-            $weekMessages = count(array_filter($messages, fn($m) => ($m['date'] ?? '') >= $weekAgo));
-            $upcomingEvents = count(array_filter($events, fn($e) => ($e['date'] ?? '') >= $now && ($e['status'] ?? '') === 'actif'));
-            $pendingPosts = count(array_filter($social, fn($s) => ($s['status'] ?? '') === 'planifié'));
+            $newMessages = count(array_filter($messages, function($m) { return ($m['status'] ?? '') === 'nouveau'; }));
+            $todayReservations = count(array_filter($reservations, function($r) use ($now) { return ($r['date_resa'] ?? '') === $now && ($r['status'] ?? '') === 'confirmée'; }));
+            $weekMessages = count(array_filter($messages, function($m) use ($weekAgo) { return ($m['date'] ?? '') >= $weekAgo; }));
+            $upcomingEvents = count(array_filter($events, function($e) use ($now) { return ($e['date'] ?? '') >= $now && ($e['status'] ?? '') === 'actif'; }));
+            $pendingPosts = count(array_filter($social, function($s) { return ($s['status'] ?? '') === 'planifié'; }));
             $monthRevenue = array_sum(array_map(
-                fn($f) => ($f['status'] === 'payé' && substr($f['date'] ?? '', 0, 7) === date('Y-m')) ? floatval($f['amount'] ?? 0) : 0,
+                function($f) { return ($f['status'] === 'payé' && substr($f['date'] ?? '', 0, 7) === date('Y-m')) ? floatval($f['amount'] ?? 0) : 0; },
                 $finances
             ));
 
@@ -469,8 +470,8 @@ try {
                 'month_revenue' => $monthRevenue,
                 'total_messages' => count($messages),
                 'total_reservations' => count($reservations),
-                'recent_messages' => array_slice(array_filter($messages, fn($m) => ($m['status'] ?? '') === 'nouveau'), 0, 5),
-                'today_resas' => array_values(array_filter($reservations, fn($r) => ($r['date_resa'] ?? '') === $now)),
+                'recent_messages' => array_slice(array_filter($messages, function($m) { return ($m['status'] ?? '') === 'nouveau'; }), 0, 5),
+                'today_resas' => array_values(array_filter($reservations, function($r) use ($now) { return ($r['date_resa'] ?? '') === $now; })),
             ]);
             break;
 
@@ -529,7 +530,7 @@ try {
         case 'gallery':
             $data = loadData('gallery');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+                usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'POST') {
@@ -583,7 +584,7 @@ try {
                         }
                     }
                 }
-                $data = array_values(array_filter($data, fn($p) => $p['id'] !== $id));
+                $data = array_values(array_filter($data, function($p) use ($id) { return $p['id'] !== $id; }));
                 saveData('gallery', $data);
                 jsonResponse(['success' => true]);
             }
@@ -595,7 +596,7 @@ try {
         case 'announcements':
             $data = loadData('announcements');
             if ($method === 'GET') {
-                usort($data, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+                usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
                 jsonResponse(['data' => $data, 'count' => count($data)]);
             }
             if ($method === 'POST') {
@@ -640,7 +641,7 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                $data = array_values(array_filter($data, fn($a) => $a['id'] !== $id));
+                $data = array_values(array_filter($data, function($a) use ($id) { return $a['id'] !== $id; }));
                 saveData('announcements', $data);
                 jsonResponse(['success' => true]);
             }
@@ -692,12 +693,92 @@ try {
             break;
 
         // ============================
+        // CARTE / MENU (Admin — gestion de la carte)
+        // ============================
+        case 'carte':
+            $data = loadData('carte');
+            if ($method === 'GET') {
+                usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+                jsonResponse(['data' => $data]);
+            }
+            if ($method === 'PUT') {
+                // Sauvegarde complète de la carte
+                $input = json_decode(file_get_contents('php://input'), true);
+                if (!isset($input['data']) || !is_array($input['data'])) {
+                    jsonResponse(['error' => 'Données invalides'], 400);
+                }
+                saveData('carte', $input['data']);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'PATCH') {
+                // Modifier un item dans une catégorie
+                $input = json_decode(file_get_contents('php://input'), true);
+                $catId = $input['category_id'] ?? '';
+                $item = $input['item'] ?? null;
+                $action_type = $input['type'] ?? 'update'; // update, add, delete
+
+                foreach ($data as &$cat) {
+                    if (($cat['id'] ?? '') === $catId) {
+                        if ($action_type === 'add' && $item) {
+                            $item['id'] = generateId();
+                            $cat['items'][] = $item;
+                        } elseif ($action_type === 'delete' && isset($input['item_id'])) {
+                            $cat['items'] = array_values(array_filter($cat['items'] ?? [], function($i) use ($input) { return ($i['id'] ?? '') !== $input['item_id']; }));
+                        } elseif ($action_type === 'update' && $item && isset($input['item_id'])) {
+                            foreach ($cat['items'] as &$existing) {
+                                if (($existing['id'] ?? '') === $input['item_id']) {
+                                    $existing = array_merge($existing, $item);
+                                    break;
+                                }
+                            }
+                        } elseif ($action_type === 'update-category') {
+                            // Mise à jour des infos de la catégorie
+                            if (isset($input['category'])) $cat['category'] = $input['category'];
+                            if (isset($input['subtitle'])) $cat['subtitle'] = $input['subtitle'];
+                            if (isset($input['price_label'])) $cat['price_label'] = $input['price_label'];
+                            if (isset($input['note'])) $cat['note'] = $input['note'];
+                        }
+                        break;
+                    }
+                }
+                saveData('carte', $data);
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
+        // NEWSLETTER (Admin — gestion abonnés)
+        // ============================
+        case 'newsletter':
+            $data = loadData('newsletter');
+            if ($method === 'GET') {
+                usort($data, function($a, $b) { return strtotime($b['subscribed'] ?? 0) - strtotime($a['subscribed'] ?? 0); });
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                $data = array_values(array_filter($data, function($s) use ($id) { return ($s['id'] ?? '') !== $id; }));
+                saveData('newsletter', $data);
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
         // PUBLIC API (pas d'auth requise — géré séparément)
         // ============================
+        case 'public-carte':
+            $data = loadData('carte');
+            usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+            jsonResponse(['data' => $data]);
+            break;
+
         case 'public-gallery':
             $data = loadData('gallery');
-            $visible = array_values(array_filter($data, fn($p) => ($p['visible'] ?? true)));
-            usort($visible, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+            $visible = array_values(array_filter($data, function($p) { return ($p['visible'] ?? true); }));
+            usort($visible, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
             jsonResponse(['data' => $visible, 'count' => count($visible)]);
             break;
 
@@ -709,14 +790,14 @@ try {
                 if (!empty($a['expires']) && $a['expires'] < $now) return false;
                 return true;
             }));
-            usort($active, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
+            usort($active, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
             jsonResponse(['data' => $active, 'count' => count($active)]);
             break;
 
         case 'public-reviews':
             $data = loadData('reviews');
-            $visible = array_values(array_filter($data, fn($r) => ($r['visible'] ?? true)));
-            usort($visible, fn($a, $b) => strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0));
+            $visible = array_values(array_filter($data, function($r) { return ($r['visible'] ?? true); }));
+            usort($visible, function($a, $b) { return strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0); });
             // Calculate average rating
             $avg = 0;
             if (count($visible) > 0) {
@@ -743,8 +824,8 @@ try {
             $rateData = file_exists($rateLimitFile) ? (json_decode(file_get_contents($rateLimitFile), true) ?: []) : [];
             $oneHourAgo = time() - 3600;
             // Nettoyer les anciennes entrées
-            $rateData = array_filter($rateData, fn($entry) => ($entry['time'] ?? 0) > $oneHourAgo);
-            $ipCount = count(array_filter($rateData, fn($entry) => ($entry['ip'] ?? '') === $ip));
+            $rateData = array_filter($rateData, function($entry) use ($oneHourAgo) { return ($entry['time'] ?? 0) > $oneHourAgo; });
+            $ipCount = count(array_filter($rateData, function($entry) use ($ip) { return ($entry['ip'] ?? '') === $ip; }));
             if ($ipCount >= 3) {
                 jsonResponse(['error' => 'Vous avez déjà soumis plusieurs avis récemment. Réessayez plus tard.'], 429);
             }
@@ -789,6 +870,47 @@ try {
             file_put_contents($rateLimitFile, json_encode(array_values($rateData)));
 
             jsonResponse(['success' => true, 'message' => 'Merci pour votre avis ! Il sera publié après validation.']);
+            break;
+
+        // ============================
+        // INSCRIPTION NEWSLETTER
+        // ============================
+        case 'subscribe-newsletter':
+            $input = json_decode(file_get_contents('php://input'), true);
+
+            // Anti-spam : champ honeypot
+            if (!empty($input['b_honey'] ?? '')) {
+                jsonResponse(['success' => true, 'message' => 'Merci pour votre inscription !']);
+            }
+
+            $email = trim($input['email'] ?? '');
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                jsonResponse(['error' => 'Veuillez entrer une adresse email valide.'], 400);
+            }
+
+            // Vérifier doublon
+            $data = loadData('newsletter');
+            $exists = false;
+            foreach ($data as $sub) {
+                if (strtolower($sub['email'] ?? '') === strtolower($email)) {
+                    $exists = true;
+                    break;
+                }
+            }
+
+            if ($exists) {
+                jsonResponse(['success' => true, 'message' => 'Vous êtes déjà inscrit !']);
+            }
+
+            $data[] = [
+                'id' => generateId(),
+                'email' => sanitize($email),
+                'subscribed' => date('Y-m-d H:i:s'),
+                'active' => true,
+            ];
+            saveData('newsletter', $data);
+
+            jsonResponse(['success' => true, 'message' => 'Merci ! Vous recevrez nos prochaines actualités.']);
             break;
 
         default:

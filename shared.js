@@ -171,17 +171,6 @@
     });
   }
 
-  /* --- CONTACT FORM (demo) --- */
-  var form = document.querySelector('.form[data-form]');
-  if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      form.style.display = 'none';
-      var success = document.querySelector('.form__success');
-      if (success) success.classList.add('visible');
-    });
-  }
-
   /* --- SMOOTH ANCHOR SCROLL (skip href="#" placeholders) --- */
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
@@ -606,7 +595,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ client: client, comment: comment, rating: rating, website: honeypot })
         })
-        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(r) {
+          var contentType = r.headers.get('content-type') || '';
+          if (contentType.indexOf('application/json') === -1) {
+            throw new Error('Le serveur a renvoyé une réponse inattendue. Vérifiez la configuration PHP.');
+          }
+          return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+        })
         .then(function(res) {
           msgEl.style.display = 'block';
           if (res.ok && res.data.success) {
@@ -623,10 +618,10 @@
           submitBtn.disabled = false;
           submitBtn.textContent = 'Envoyer mon avis';
         })
-        .catch(function() {
+        .catch(function(err) {
           msgEl.style.display = 'block';
           msgEl.style.color = '#f44336';
-          msgEl.textContent = 'Erreur de connexion. Réessayez.';
+          msgEl.textContent = err.message || 'Erreur de connexion. Réessayez.';
           submitBtn.disabled = false;
           submitBtn.textContent = 'Envoyer mon avis';
         });
@@ -634,20 +629,47 @@
     }
   }
 
-  /* --- NEWSLETTER FORM (Brevo integration) --- */
+  /* --- NEWSLETTER FORM (sauvegarde locale + Brevo fallback) --- */
   var nlForm = document.querySelector('.newsletter__form');
   if (nlForm) {
     nlForm.addEventListener('submit', function (e) {
-      var action = nlForm.getAttribute('action');
-      // If Brevo URL not yet configured, show feedback
-      if (!action || action === '#BREVO_FORM_URL' || action === '#') {
-        e.preventDefault();
-        var emailInput = nlForm.querySelector('.newsletter__input');
-        if (emailInput && emailInput.value) {
-          nlForm.innerHTML = '<p class="newsletter__text" style="color:var(--or);margin:0;">Merci ! Nous vous tiendrons informé.</p>';
+      e.preventDefault();
+      var emailInput = nlForm.querySelector('.newsletter__input');
+      var honeypot = nlForm.querySelector('[name="b_honey"]');
+      var submitBtn = nlForm.querySelector('.newsletter__btn');
+      if (!emailInput || !emailInput.value) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Envoi...';
+
+      fetch('/api.php?action=subscribe-newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput.value, b_honey: honeypot ? honeypot.value : '' })
+      })
+      .then(function(r) {
+        var contentType = r.headers.get('content-type') || '';
+        if (contentType.indexOf('application/json') === -1) {
+          throw new Error('Erreur serveur');
         }
-      }
-      // If Brevo URL is set, form submits normally via POST
+        return r.json();
+      })
+      .then(function(data) {
+        if (data.success) {
+          nlForm.innerHTML = '<p class="newsletter__text" style="color:var(--or);margin:0;">' + (data.message || 'Merci ! Vous recevrez nos prochaines actualités.') + '</p>';
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'S\'inscrire';
+          emailInput.style.borderColor = '#f44336';
+          emailInput.placeholder = data.error || 'Erreur, réessayez';
+        }
+      })
+      .catch(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'S\'inscrire';
+        emailInput.style.borderColor = '#f44336';
+        emailInput.placeholder = 'Erreur de connexion';
+      });
     });
   }
 

@@ -29,7 +29,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet">
   <link rel="canonical" href="https://barleterrier.fr/">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 
   <!-- Schema.org LocalBusiness — enrichi pour SEO & IA -->
   <script type="application/ld+json">
@@ -244,8 +244,7 @@
       <div class="preloader__line"></div>
     </div>
   </div>
-  <div class="scroll-progress" aria-hidden="true"></div>
-  <div class="page-transition" aria-hidden="true"></div>
+
 
 
   <!-- BANDEAU ANNONCE — modifier le texte ici -->
@@ -276,7 +275,7 @@
   </header>
 
   <!-- ATMOSPHERE CANVAS -->
-  <canvas id="atmosphere" class="canvas-atmo"></canvas>
+  <canvas id="atmosphere" class="canvas-atmo" aria-hidden="true" aria-label="Animation décorative"></canvas>
 
   <!-- HERO -->
   <main id="main-content">
@@ -496,8 +495,7 @@
       <div class="newsletter__inner">
         <p class="newsletter__title">Restez dans le repaire</p>
         <p class="newsletter__text">Événements, nouveautés et invitations exclusives.</p>
-        <!-- BREVO: Remplacer action="#BREVO_FORM_URL" par l'URL de votre formulaire Brevo -->
-        <form class="newsletter__form" action="#BREVO_FORM_URL" method="POST">
+        <form class="newsletter__form" action="/api.php?action=subscribe-newsletter" method="POST">
           <div class="newsletter__field">
             <input type="email" name="EMAIL" class="newsletter__input" placeholder="Votre email" required aria-label="Adresse email pour la newsletter">
             <button type="submit" class="btn newsletter__btn">S'inscrire</button>
@@ -522,10 +520,10 @@
         <p class="footer__contact">26 place de la République, 30920 Codognan</p>
         <p class="footer__contact"><a href="tel:+33763519363">07 63 51 93 63</a> · <a href="mailto:barleterrier@gmail.com">barleterrier@gmail.com</a></p>
         <div class="footer__social">
-          <a href="#" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
+          <a href="https://www.instagram.com/barleterrier.fr/" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
           </a>
-          <a href="#" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
+          <a href="https://www.facebook.com/people/Le-Terrier/" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
           </a>
         </div>
@@ -549,12 +547,13 @@
       <div class="footer__bottom">
         L’abus d’alcool est dangereux pour la santé. À consommer avec modération.<br>
         © 2026 Le Terrier — Tous droits réservés<br>
-        <span class="footer__credit">Design by BAB</span>
+        <span class="footer__credit">Créer avec IAmour pour Francky By BAB</span><br>
+        <a href="#" class="footer__credit" style="opacity:.7;font-size:.85em;">BAB IA — Créateur de business et outils en ligne</a>
       </div>
     </div>
   </footer>
 
-  <script src="shared.js?v=2" defer></script>
+  <script src="shared.js?v=3" defer></script>
 
   <!-- COOKIE CONSENT -->
   <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Consentement cookies">
