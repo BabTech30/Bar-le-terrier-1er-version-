@@ -262,6 +262,11 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="announcements"><span>📢</span> <small>Annonces</small></div>
   </nav>
   <div class="sidebar__footer">
+    <div style="display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap">
+      <a href="/diagnostic.php" style="font-size:.55rem;padding:.25rem .5rem;background:rgba(200,164,92,.1);border:1px solid rgba(200,164,92,.15);border-radius:4px;color:rgba(245,240,232,.5);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;transition:all .2s" onmouseover="this.style.color='#C8A45C';this.style.borderColor='#C8A45C'" onmouseout="this.style.color='rgba(245,240,232,.5)';this.style.borderColor='rgba(200,164,92,.15)'">Diagnostic</a>
+      <a href="/backup.php" style="font-size:.55rem;padding:.25rem .5rem;background:rgba(200,164,92,.1);border:1px solid rgba(200,164,92,.15);border-radius:4px;color:rgba(245,240,232,.5);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;transition:all .2s" onmouseover="this.style.color='#C8A45C';this.style.borderColor='#C8A45C'" onmouseout="this.style.color='rgba(245,240,232,.5)';this.style.borderColor='rgba(200,164,92,.15)'">Backup</a>
+      <a href="/staging/" style="font-size:.55rem;padding:.25rem .5rem;background:rgba(200,164,92,.1);border:1px solid rgba(200,164,92,.15);border-radius:4px;color:rgba(245,240,232,.5);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;transition:all .2s" onmouseover="this.style.color='#C8A45C';this.style.borderColor='#C8A45C'" onmouseout="this.style.color='rgba(245,240,232,.5)';this.style.borderColor='rgba(200,164,92,.15)'">Test</a>
+    </div>
     <a href="?logout=1" class="sidebar__logout">Déconnexion</a>
     <p class="sidebar__time" id="clock"></p>
   </div>
