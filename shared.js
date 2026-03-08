@@ -525,7 +525,7 @@
           var obs = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
               if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
+                entry.target.classList.add('visible');
                 obs.unobserve(entry.target);
               }
             });
