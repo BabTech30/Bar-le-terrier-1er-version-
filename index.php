@@ -12,15 +12,32 @@ require_once __DIR__ . '/config.php';
 // --- HANDLE LOGIN ---
 $loginError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lt_login'])) {
-    $user = $_POST['username'] ?? '';
-    $pass = $_POST['password'] ?? '';
-    if ($user === ADMIN_USER && password_verify($pass, ADMIN_HASH)) {
-        $_SESSION['lt_admin_auth'] = true;
-        $_SESSION['lt_admin_last'] = time();
-        header('Location: /admin/');
-        exit;
+    // Brute-force protection
+    $attempts = $_SESSION['lt_login_attempts'] ?? 0;
+    $lockUntil = $_SESSION['lt_login_lock'] ?? 0;
+    if ($lockUntil > time()) {
+        $remaining = ceil(($lockUntil - time()) / 60);
+        $loginError = 'Trop de tentatives. Réessayez dans ' . $remaining . ' min.';
     } else {
-        $loginError = 'Identifiants incorrects';
+        $user = $_POST['username'] ?? '';
+        $pass = $_POST['password'] ?? '';
+        if ($user === ADMIN_USER && password_verify($pass, ADMIN_HASH)) {
+            $_SESSION['lt_admin_auth'] = true;
+            $_SESSION['lt_admin_last'] = time();
+            unset($_SESSION['lt_login_attempts'], $_SESSION['lt_login_lock']);
+            header('Location: /admin/');
+            exit;
+        } else {
+            $attempts++;
+            $_SESSION['lt_login_attempts'] = $attempts;
+            if ($attempts >= MAX_LOGIN_ATTEMPTS) {
+                $_SESSION['lt_login_lock'] = time() + LOGIN_LOCKOUT_TIME;
+                $_SESSION['lt_login_attempts'] = 0;
+                $loginError = 'Trop de tentatives. Compte verrouillé 15 minutes.';
+            } else {
+                $loginError = 'Identifiants incorrects';
+            }
+        }
     }
 }
 
@@ -639,7 +656,7 @@ function openModal(type) {
         <div class="gen-output" id="gen-output">Le post généré apparaîtra ici.</div>
         <div class="gen-actions">
           <button class="btn btn--primary" onclick="generatePost()">Générer</button>
-          <button class="btn btn--ghost" onclick="copyGenerated()">Copier</button>
+          <button class="btn btn--ghost" onclick="copyGenerated(event)">Copier</button>
           <button class="btn btn--ghost" onclick="closeModal()">Fermer</button>
         </div>`;
       break;
@@ -798,12 +815,11 @@ async function generatePost() {
   document.getElementById('gen-output').textContent = d.caption || 'Erreur de génération';
 }
 
-function copyGenerated() {
+function copyGenerated(e) {
   const text = document.getElementById('gen-output').textContent;
+  const btn = e ? e.target : document.querySelector('.gen-actions .btn--ghost');
   navigator.clipboard.writeText(text).then(() => {
-    const btn = event.target;
-    btn.textContent = 'Copié !';
-    setTimeout(() => btn.textContent = 'Copier', 1500);
+    if (btn) { btn.textContent = 'Copié !'; setTimeout(() => btn.textContent = 'Copier', 1500); }
   });
 }
 

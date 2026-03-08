@@ -540,6 +540,10 @@ try {
                     'order' => intval($input['order'] ?? count($data)),
                     'created' => date('Y-m-d H:i:s'),
                 ];
+                // Validate image path is within uploads/gallery/
+                if (!empty($photo['image']) && strpos($photo['image'], 'uploads/gallery/') !== 0) {
+                    $photo['image'] = '';
+                }
                 $data[] = $photo;
                 saveData('gallery', $data);
                 jsonResponse(['success' => true, 'photo' => $photo]);
@@ -564,11 +568,13 @@ try {
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
                 $id = $input['id'] ?? '';
-                // Supprimer le fichier image associé
+                // Supprimer le fichier image associé (avec validation du chemin)
                 foreach ($data as $photo) {
                     if ($photo['id'] === $id && !empty($photo['image'])) {
-                        $filePath = __DIR__ . '/' . $photo['image'];
-                        if (file_exists($filePath)) {
+                        $filePath = realpath(__DIR__ . '/' . $photo['image']);
+                        $uploadsDir = realpath(UPLOADS_DIR . 'gallery/');
+                        // Ne supprimer que si le fichier est dans uploads/gallery/
+                        if ($filePath && $uploadsDir && strpos($filePath, $uploadsDir) === 0 && file_exists($filePath)) {
                             unlink($filePath);
                         }
                     }
