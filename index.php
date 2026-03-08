@@ -320,7 +320,7 @@ tr:hover{background:rgba(200,164,92,.03)}
       <h1 class="main__title">Événements</h1>
       <button class="btn btn--primary" onclick="openModal('event')">+ Nouvel événement</button>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Date</th><th>Type</th><th>Titre</th><th>Actions</th></tr></thead><tbody id="events-list"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Date</th><th>Type</th><th>Titre</th><th>Afficher sur</th><th>Actions</th></tr></thead><tbody id="events-list"></tbody></table></div>
   </div>
 
   <!-- ===== RÉSEAUX SOCIAUX ===== -->
@@ -578,18 +578,20 @@ async function loadEvents() {
   const d = await api('events');
   const el = document.getElementById('events-list');
   const types = {jazz:'🎵 Jazz',vin:'🍷 Vins',dj:'🎧 DJ',special:'✨ Spécial',prive:'🔒 Privé'};
+  const displayLabels = {both:'📄 Les deux',evenements:'🎭 Événements',accueil:'🏠 Accueil'};
   el.innerHTML = (d.data||[]).map(e => `
     <tr>
       <td>${statusBadge(e.status)}</td>
       <td>${fmtDate(e.date)}</td>
       <td>${types[e.type]||e.type}</td>
       <td><strong>${e.title}</strong><br><small style="color:var(--text-dim)">${truncate(e.description,60)}</small></td>
+      <td><span style="font-size:.85em">${displayLabels[e.display]||'📄 Les deux'}</span></td>
       <td class="btn-group">
         <button class="btn btn--sm btn--ghost" onclick="editEvent('${e.id}')">Modifier</button>
         <button class="btn btn--sm btn--danger" onclick="deleteItem('events','${e.id}')">×</button>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="5"><div class="empty"><p class="empty__icon">🎭</p><p class="empty__text">Aucun événement</p></div></td></tr>';
+  `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">🎭</p><p class="empty__text">Aucun événement</p></div></td></tr>';
 }
 
 async function loadSocial() {
@@ -675,6 +677,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="evt-type"><option value="jazz">🎵 Jazz</option><option value="vin">🍷 Vins</option><option value="dj">🎧 DJ</option><option value="special">✨ Spécial</option><option value="prive">🔒 Privé</option></select></div>
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="evt-date"></div>
           <div class="form-group"><label class="form-label">Heure</label><input type="time" class="form-input" id="evt-time" value="20:00"></div>
+          <div class="form-group"><label class="form-label">Afficher sur</label><select class="form-select" id="evt-display"><option value="both">📄 Les deux pages</option><option value="evenements">🎭 Page Événements</option><option value="accueil">🏠 Page d'accueil</option></select></div>
           <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="evt-desc" placeholder="Description de l'événement"></textarea></div>
         </div>
         <div class="modal__actions">
@@ -830,6 +833,7 @@ async function saveEvent() {
     date: document.getElementById('evt-date').value,
     time: document.getElementById('evt-time').value,
     type: document.getElementById('evt-type').value,
+    display: document.getElementById('evt-display').value,
     description: document.getElementById('evt-desc').value,
   });
   closeModal(); loadEvents();
@@ -887,10 +891,11 @@ async function editEvent(id) {
     document.getElementById('evt-date').value = e.date||'';
     document.getElementById('evt-time').value = e.time||'';
     document.getElementById('evt-type').value = e.type||'special';
+    document.getElementById('evt-display').value = e.display||'both';
     document.getElementById('evt-desc').value = e.description||'';
     // Override save to PATCH
     document.querySelector('#modal-content .btn--primary').onclick = async () => {
-      await api('events','PATCH',{id, title:document.getElementById('evt-title').value, date:document.getElementById('evt-date').value, time:document.getElementById('evt-time').value, type:document.getElementById('evt-type').value, description:document.getElementById('evt-desc').value});
+      await api('events','PATCH',{id, title:document.getElementById('evt-title').value, date:document.getElementById('evt-date').value, time:document.getElementById('evt-time').value, type:document.getElementById('evt-type').value, display:document.getElementById('evt-display').value, description:document.getElementById('evt-desc').value});
       closeModal(); loadEvents();
     };
   }, 50);

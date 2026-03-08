@@ -140,6 +140,7 @@ try {
                     'date' => sanitize($input['date'] ?? ''),
                     'time' => sanitize($input['time'] ?? ''),
                     'type' => sanitize($input['type'] ?? 'special'),
+                    'display' => sanitize($input['display'] ?? 'both'),
                     'description' => sanitize($input['description'] ?? ''),
                     'status' => 'actif',
                     'created' => date('Y-m-d H:i:s'),
@@ -153,7 +154,7 @@ try {
                 $id = $input['id'] ?? '';
                 foreach ($data as &$evt) {
                     if ($evt['id'] === $id) {
-                        foreach (['title','date','time','type','description','status'] as $field) {
+                        foreach (['title','date','time','type','display','description','status'] as $field) {
                             if (isset($input[$field])) $evt[$field] = sanitize($input[$field]);
                         }
                         $evt['updated'] = date('Y-m-d H:i:s');
