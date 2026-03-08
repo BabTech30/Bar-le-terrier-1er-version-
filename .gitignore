@@ -1,0 +1,9 @@
+# Données du dashboard (ne pas écraser lors des déploiements)
+data/*.json
+!data/.gitkeep
+
+# Uploads
+uploads/
+
+# PHP
+*.log
