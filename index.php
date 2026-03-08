@@ -966,10 +966,23 @@ async function loadReviews() {
   const d = await api('reviews');
   const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
   const el = document.getElementById('reviews-list');
-  el.innerHTML = (d.data||[]).map(r => `
-    <tr>
+  const reviews = d.data || [];
+  const pending = reviews.filter(r => r.submitted_by === 'visiteur' && !r.visible);
+
+  // Notification avis en attente de modération
+  let pendingHtml = '';
+  if (pending.length > 0) {
+    pendingHtml = `<tr><td colspan="7" style="background:rgba(200,164,92,.1);padding:.6rem 1rem;font-size:.85rem;color:var(--or)">
+      ${pending.length} avis de visiteur(s) en attente de validation — cliquez "Afficher" pour les publier
+    </td></tr>`;
+  }
+
+  el.innerHTML = pendingHtml + reviews.map(r => {
+    const isPending = r.submitted_by === 'visiteur' && !r.visible;
+    return `
+    <tr${isPending ? ' style="background:rgba(200,164,92,.05)"' : ''}>
       <td style="color:var(--or);font-size:1rem">${stars(r.rating||5)}</td>
-      <td><strong>${r.client}</strong></td>
+      <td><strong>${r.client}</strong>${r.submitted_by === 'visiteur' ? ' <span style="font-size:.65rem;color:var(--or);border:1px solid var(--or);padding:.1rem .3rem;border-radius:3px">visiteur</span>' : ''}</td>
       <td>${truncate(r.comment,50)}</td>
       <td>${r.source||'—'}</td>
       <td>${fmtDate(r.date)}</td>
@@ -979,8 +992,8 @@ async function loadReviews() {
         <button class="btn btn--sm btn--ghost" onclick="toggleReviewVisibility('${r.id}',${!r.visible})">${r.visible?'Masquer':'Afficher'}</button>
         <button class="btn btn--sm btn--danger" onclick="deleteItem('reviews','${r.id}')">×</button>
       </td>
-    </tr>
-  `).join('') || '<tr><td colspan="7"><div class="empty"><p class="empty__icon">⭐</p><p class="empty__text">Aucun avis</p></div></td></tr>';
+    </tr>`;
+  }).join('') || '<tr><td colspan="7"><div class="empty"><p class="empty__icon">⭐</p><p class="empty__text">Aucun avis</p></div></td></tr>';
 }
 
 async function saveReview() {

@@ -15,10 +15,14 @@ header('X-Content-Type-Options: nosniff');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews'])) {
-    // Skip auth for public read-only endpoints
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'submit-review'])) {
+    // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
-    if ($method !== 'GET') {
+    if ($action === 'submit-review') {
+        if ($method !== 'POST') {
+            jsonResponse(['error' => 'Méthode non autorisée'], 405);
+        }
+    } elseif ($method !== 'GET') {
         jsonResponse(['error' => 'Méthode non autorisée'], 405);
     }
 } else {
@@ -719,6 +723,72 @@ try {
                 $avg = round(array_sum(array_column($visible, 'rating')) / count($visible), 1);
             }
             jsonResponse(['data' => $visible, 'count' => count($visible), 'average' => $avg]);
+            break;
+
+        // ============================
+        // SOUMISSION AVIS PUBLIC (formulaire visiteurs)
+        // ============================
+        case 'submit-review':
+            $input = json_decode(file_get_contents('php://input'), true);
+
+            // Anti-spam : champ honeypot (doit rester vide)
+            if (!empty($input['website'] ?? '')) {
+                // Bot détecté — répondre OK pour ne pas alerter le bot
+                jsonResponse(['success' => true, 'message' => 'Merci pour votre avis !']);
+            }
+
+            // Rate limiting simple : max 3 avis par IP par heure
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $rateLimitFile = DATA_DIR . '_ratelimit_reviews.json';
+            $rateData = file_exists($rateLimitFile) ? (json_decode(file_get_contents($rateLimitFile), true) ?: []) : [];
+            $oneHourAgo = time() - 3600;
+            // Nettoyer les anciennes entrées
+            $rateData = array_filter($rateData, fn($entry) => ($entry['time'] ?? 0) > $oneHourAgo);
+            $ipCount = count(array_filter($rateData, fn($entry) => ($entry['ip'] ?? '') === $ip));
+            if ($ipCount >= 3) {
+                jsonResponse(['error' => 'Vous avez déjà soumis plusieurs avis récemment. Réessayez plus tard.'], 429);
+            }
+
+            // Validation
+            $client = trim($input['client'] ?? '');
+            $comment = trim($input['comment'] ?? '');
+            $rating = intval($input['rating'] ?? 0);
+
+            if (empty($client) || mb_strlen($client) < 2) {
+                jsonResponse(['error' => 'Veuillez indiquer votre nom (au moins 2 caractères).'], 400);
+            }
+            if (empty($comment) || mb_strlen($comment) < 10) {
+                jsonResponse(['error' => 'Votre avis doit contenir au moins 10 caractères.'], 400);
+            }
+            if (mb_strlen($comment) > 1000) {
+                jsonResponse(['error' => 'Votre avis ne peut pas dépasser 1000 caractères.'], 400);
+            }
+            if ($rating < 1 || $rating > 5) {
+                jsonResponse(['error' => 'La note doit être entre 1 et 5.'], 400);
+            }
+
+            // Sauvegarder l'avis (visible = false par défaut → modération)
+            $review = [
+                'id' => generateId(),
+                'client' => sanitize($client),
+                'rating' => $rating,
+                'comment' => sanitize($comment),
+                'source' => 'site-web',
+                'date' => date('Y-m-d'),
+                'visible' => false, // Nécessite validation admin
+                'created' => date('Y-m-d H:i:s'),
+                'submitted_by' => 'visiteur',
+            ];
+
+            $data = loadData('reviews');
+            $data[] = $review;
+            saveData('reviews', $data);
+
+            // Enregistrer pour le rate limiting
+            $rateData[] = ['ip' => $ip, 'time' => time()];
+            file_put_contents($rateLimitFile, json_encode(array_values($rateData)));
+
+            jsonResponse(['success' => true, 'message' => 'Merci pour votre avis ! Il sera publié après validation.']);
             break;
 
         default:

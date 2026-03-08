@@ -257,19 +257,19 @@
   <!-- HEADER -->
   <header class="header">
     <div class="header__inner">
-      <a href="index.html" class="header__logo">Le Terrier</a>
+      <a href="/" class="header__logo">Le Terrier</a>
       <button class="burger" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
       <nav class="nav">
         <ul class="nav__list">
-          <li><a href="index.html" class="nav__link active">Accueil</a></li>
-          <li><a href="concept.html" class="nav__link">Le Concept</a></li>
-          <li><a href="carte.html" class="nav__link">Notre Carte</a></li>
-          <li><a href="evenements.html" class="nav__link">Événements</a></li>
-          <li><a href="galerie.html" class="nav__link">Galerie</a></li>
-          <li><a href="contact.html" class="nav__link">Contact</a></li>
-          <li><a href="boutique.html" class="nav__link">Boutique</a></li>
+          <li><a href="/" class="nav__link active">Accueil</a></li>
+          <li><a href="/concept" class="nav__link">Le Concept</a></li>
+          <li><a href="/carte" class="nav__link">Notre Carte</a></li>
+          <li><a href="/evenements" class="nav__link">Événements</a></li>
+          <li><a href="/galerie" class="nav__link">Galerie</a></li>
+          <li><a href="/contact" class="nav__link">Contact</a></li>
+          <li><a href="/boutique" class="nav__link">Boutique</a></li>
         </ul>
       </nav>
     </div>
@@ -290,7 +290,7 @@
       <p class="hero__sur">Bar à Cocktails & Tapas</p>
       <h1 class="hero__title">Le Terrier</h1>
       <p class="hero__sub">Entrez dans le repaire</p>
-      <a href="carte.html" class="btn">Découvrir la carte</a>
+      <a href="/carte" class="btn">Découvrir la carte</a>
     </div>
     <div class="hero__scroll">
       <span>Découvrir</span>
@@ -335,8 +335,63 @@
     </div>
   </section>
 
+  <!-- ENCADRÉ ÉVÉNEMENTS — Prochains événements -->
+  <section class="section-pad bg-accent" id="events-highlight">
+    <div class="container">
+      <div class="stitle reveal">
+        <p class="stitle__sur">Ne manquez rien</p>
+        <h2 class="stitle__main">Prochains Événements</h2>
+        <span class="gold-sep"></span>
+      </div>
+      <div class="events-highlight reveal">
+        <div class="events-highlight__list">
+
+          <div class="events-highlight__item">
+            <div class="events-highlight__date">
+              <span class="events-highlight__day">15</span>
+              <span class="events-highlight__month">Mars</span>
+            </div>
+            <div class="events-highlight__content">
+              <p class="events-highlight__tag">Soirée d'ouverture</p>
+              <h3 class="events-highlight__title">Inauguration du Terrier</h3>
+              <p class="events-highlight__text">Cocktail de bienvenue offert, carte complète, musique live. Sur réservation.</p>
+            </div>
+          </div>
+
+          <div class="events-highlight__item">
+            <div class="events-highlight__date">
+              <span class="events-highlight__day">22</span>
+              <span class="events-highlight__month">Mars</span>
+            </div>
+            <div class="events-highlight__content">
+              <p class="events-highlight__tag">Jazz</p>
+              <h3 class="events-highlight__title">Jazz au Terrier — Trio acoustique</h3>
+              <p class="events-highlight__text">Guitare, contrebasse et voix. Ambiance feutrée, entrée libre.</p>
+            </div>
+          </div>
+
+          <div class="events-highlight__item">
+            <div class="events-highlight__date">
+              <span class="events-highlight__day">29</span>
+              <span class="events-highlight__month">Mars</span>
+            </div>
+            <div class="events-highlight__content">
+              <p class="events-highlight__tag">Dégustation</p>
+              <h3 class="events-highlight__title">Les Vins du Languedoc</h3>
+              <p class="events-highlight__text">5 cuvées locales, tapas assorties. Places limitées.</p>
+            </div>
+          </div>
+
+        </div>
+        <div class="events-highlight__cta">
+          <a href="/evenements" class="btn">Voir tous les événements</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- JOURNAL DU TERRIER — modifier les 3 cartes ici -->
-  <section class="section-pad bg-accent">
+  <section class="section-pad">
     <div class="container">
       <div class="stitle reveal">
         <p class="stitle__sur">Les dernières nouvelles</p>
@@ -382,8 +437,39 @@
         <div class="reviews-grid" id="reviews-grid">
           <!-- Loaded dynamically from API -->
         </div>
-        <!-- LIEN GOOGLE REVIEWS — remplacer par votre lien Google Business -->
-        <a href="https://search.google.com/local/writereview?placeid=VOTRE_PLACE_ID" class="btn" target="_blank" rel="noopener">Laisser un avis sur Google</a>
+        <button class="btn" id="open-review-form">Laisser un avis</button>
+
+        <!-- FORMULAIRE AVIS PUBLIC -->
+        <div id="review-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);align-items:center;justify-content:center">
+          <div style="background:#2e1620;border:1px solid rgba(200,164,92,.3);border-radius:12px;padding:2rem;max-width:480px;width:90%;position:relative">
+            <button id="close-review-modal" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:rgba(245,240,232,.5);font-size:1.3rem;cursor:pointer">&times;</button>
+            <h3 style="font-family:var(--font-display);color:var(--or);margin-bottom:.3rem;font-size:1.1rem">Votre avis compte</h3>
+            <p style="font-size:.8rem;color:rgba(245,240,232,.5);margin-bottom:1.2rem">Partagez votre experience au Terrier</p>
+            <form id="public-review-form">
+              <div style="margin-bottom:.8rem">
+                <label style="display:block;font-size:.75rem;color:rgba(245,240,232,.6);margin-bottom:.3rem">Votre nom</label>
+                <input type="text" id="pr-client" required minlength="2" maxlength="60" placeholder="Jean D." style="width:100%;padding:.5rem .7rem;background:rgba(0,0,0,.3);border:1px solid rgba(200,164,92,.2);border-radius:6px;color:#F5F0E8;font-size:.85rem">
+              </div>
+              <div style="margin-bottom:.8rem">
+                <label style="display:block;font-size:.75rem;color:rgba(245,240,232,.6);margin-bottom:.3rem">Note</label>
+                <div id="pr-stars" style="font-size:1.5rem;cursor:pointer;color:rgba(245,240,232,.3);letter-spacing:.3rem">
+                  <span data-star="1">★</span><span data-star="2">★</span><span data-star="3">★</span><span data-star="4">★</span><span data-star="5">★</span>
+                </div>
+                <input type="hidden" id="pr-rating" value="0">
+              </div>
+              <div style="margin-bottom:.8rem">
+                <label style="display:block;font-size:.75rem;color:rgba(245,240,232,.6);margin-bottom:.3rem">Votre avis</label>
+                <textarea id="pr-comment" required minlength="10" maxlength="1000" rows="4" placeholder="Ambiance, cocktails, service..." style="width:100%;padding:.5rem .7rem;background:rgba(0,0,0,.3);border:1px solid rgba(200,164,92,.2);border-radius:6px;color:#F5F0E8;font-size:.85rem;resize:vertical"></textarea>
+              </div>
+              <!-- Honeypot anti-spam (invisible) -->
+              <div style="position:absolute;left:-9999px" aria-hidden="true">
+                <input type="text" name="website" id="pr-website" tabindex="-1" autocomplete="off">
+              </div>
+              <p id="pr-message" style="font-size:.8rem;margin-bottom:.8rem;display:none"></p>
+              <button type="submit" class="btn btn--filled" id="pr-submit" style="width:100%">Envoyer mon avis</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -395,12 +481,12 @@
       <h2 class="stitle__main">Prêt à entrer dans le repaire ?</h2>
       <span class="gold-sep"></span>
       <p class="cta-text">Mercredi au dimanche, de 17h à minuit. Près de Codognan, à 15 minutes de Nîmes.</p>
-      <a href="contact.html" class="btn btn--filled">Réserver</a>
+      <a href="/contact" class="btn btn--filled">Réserver</a>
     </div>
   </section>
 
   <!-- FLOATING CTA -->
-  <a href="contact.html" class="float-cta">Réserver</a>
+  <a href="/contact" class="float-cta">Réserver</a>
 
   </main>
 
@@ -418,7 +504,7 @@
           </div>
           <div style="position:absolute;left:-5000px" aria-hidden="true"><input type="text" name="b_honey" tabindex="-1" autocomplete="off"></div>
         </form>
-        <p class="newsletter__legal">En vous inscrivant, vous acceptez notre <a href="politique-confidentialite.html">politique de confidentialité</a>. Désinscription à tout moment.</p>
+        <p class="newsletter__legal">En vous inscrivant, vous acceptez notre <a href="/politique-confidentialite">politique de confidentialité</a>. Désinscription à tout moment.</p>
       </div>
     </div>
   </section>
@@ -447,34 +533,33 @@
       <div class="footer__links footer__links--cols">
         <div class="footer__col">
           <p class="footer__col-title">Le Terrier</p>
-          <a href="concept.html">Le Concept</a>
-          <a href="carte.html">Notre Carte</a>
-          <a href="evenements.html">Événements</a>
-          <a href="galerie.html">Galerie</a>
+          <a href="/concept">Le Concept</a>
+          <a href="/carte">Notre Carte</a>
+          <a href="/evenements">Événements</a>
+          <a href="/galerie">Galerie</a>
         </div>
         <div class="footer__col">
           <p class="footer__col-title">Infos</p>
-          <a href="contact.html">Contact & Accès</a>
-          <a href="boutique.html">Boutique</a>
-          <a href="mentions-legales.html">Mentions légales</a>
-          <a href="politique-confidentialite.html">Confidentialité</a>
+          <a href="/contact">Contact & Accès</a>
+          <a href="/boutique">Boutique</a>
+          <a href="/mentions-legales">Mentions légales</a>
+          <a href="/politique-confidentialite">Confidentialité</a>
         </div>
       </div>
       <div class="footer__bottom">
         L’abus d’alcool est dangereux pour la santé. À consommer avec modération.<br>
         © 2026 Le Terrier — Tous droits réservés<br>
-        <span class="footer__credit">Crée avec IAmour pour Franck   by BAB</span><br>
-        <span class="footer__agency">Bab — Agence de communication 2.0 · Créateur d’outils &amp; de business en ligne personnalisés</span>
+        <span class="footer__credit">Design by BAB</span>
       </div>
     </div>
   </footer>
 
-  <script src="shared.js" defer></script>
+  <script src="shared.js?v=2" defer></script>
 
   <!-- COOKIE CONSENT -->
   <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Consentement cookies">
     <div class="cookie-banner__inner">
-      <p class="cookie-banner__text">Ce site utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre <a href="politique-confidentialite.html">politique de confidentialité</a>.</p>
+      <p class="cookie-banner__text">Ce site utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre <a href="/politique-confidentialite">politique de confidentialité</a>.</p>
       <div class="cookie-banner__actions">
         <button class="btn cookie-banner__accept" id="cookie-accept">Accepter</button>
         <button class="cookie-banner__refuse" id="cookie-refuse">Refuser</button>
