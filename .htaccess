@@ -3,6 +3,7 @@
 
 # Activer le moteur de reecriture
 RewriteEngine On
+RewriteBase /
 
 # Force HTTPS
 RewriteCond %{HTTPS} off
@@ -14,7 +15,7 @@ DirectoryIndex index.html
 
 # --- DASHBOARD ADMIN ---
 # /admin -> index.php (le dashboard)
-RewriteRule ^admin/?$ index.php [L]
+RewriteRule ^admin/?$ /index.php [L,QSA]
 
 # --- PROTECTION DES DONNEES ---
 # Bloquer l'acces direct au dossier data/
