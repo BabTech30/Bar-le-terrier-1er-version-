@@ -13,8 +13,9 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 DirectoryIndex index.html index.php
 
 # --- PROTECTION DES DONNEES ---
-# Bloquer l'acces direct au dossier data/
+# Bloquer l'acces direct au dossier data/ et backups
 RewriteRule ^data/ - [F,L]
+RewriteRule ^staging/data/ - [F,L]
 
 # --- PROTECTION UPLOADS (autoriser images uniquement) ---
 RewriteCond %{REQUEST_URI} ^/uploads/
