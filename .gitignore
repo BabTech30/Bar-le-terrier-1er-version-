@@ -1,6 +1,7 @@
 # Données du dashboard (ne pas écraser lors des déploiements)
 data/*.json
 data/backups/
+data/_ratelimit_*.json
 !data/.gitkeep
 
 # Données du staging (environnement de test)

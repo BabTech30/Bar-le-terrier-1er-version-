@@ -187,10 +187,64 @@ $reviewsNow = loadData('reviews');
 $checks[] = [
     'name' => 'Avis actuels dans reviews.json',
     'value' => count($reviewsNow) . ' avis',
-    'ok' => true,
+    'ok' => count($reviewsNow) > 0,
     'detail' => count($reviewsNow) > 0
         ? 'Dernier avis : ' . ($reviewsNow[count($reviewsNow)-1]['client'] ?? '?') . ' (' . ($reviewsNow[count($reviewsNow)-1]['date'] ?? '?') . ')'
-        : 'Le fichier est vide — les avis ont été perdus'
+        : 'Le fichier est vide — ajoutez des avis via le dashboard pour qu\'ils apparaissent sur le site'
+];
+
+// --- 10. Avis visibles vs masqués ---
+$visibleReviews = array_filter($reviewsNow, fn($r) => ($r['visible'] ?? true));
+$hiddenReviews = array_filter($reviewsNow, fn($r) => !($r['visible'] ?? true));
+$pendingReviews = array_filter($reviewsNow, fn($r) => ($r['submitted_by'] ?? '') === 'visiteur' && !($r['visible'] ?? true));
+$checks[] = [
+    'name' => 'Avis visibles sur le site',
+    'value' => count($visibleReviews) . ' visible(s), ' . count($hiddenReviews) . ' masqué(s)',
+    'ok' => count($visibleReviews) > 0,
+    'detail' => count($visibleReviews) === 0
+        ? 'PROBLÈME : Aucun avis visible ! Le site affichera "Aucun avis". Allez dans le dashboard → Avis → cochez "Visible"'
+        : 'OK — ces ' . count($visibleReviews) . ' avis sont affichés sur la page d\'accueil'
+];
+
+$checks[] = [
+    'name' => 'Avis visiteurs en attente de modération',
+    'value' => count($pendingReviews) . ' en attente',
+    'ok' => true,
+    'detail' => count($pendingReviews) > 0
+        ? 'Allez dans le dashboard → Avis → cliquez "Afficher" pour valider les avis soumis par les visiteurs'
+        : 'Aucun avis de visiteur en attente'
+];
+
+// --- 11. Test de l'endpoint public-reviews ---
+$publicData = loadData('reviews');
+$publicVisible = array_values(array_filter($publicData, fn($r) => ($r['visible'] ?? true)));
+$checks[] = [
+    'name' => 'Endpoint public-reviews',
+    'value' => count($publicVisible) > 0 ? count($publicVisible) . ' avis retournés' : 'VIDE — rien ne s\'affiche sur le site',
+    'ok' => count($publicVisible) > 0,
+    'detail' => count($publicVisible) === 0
+        ? 'L\'API retourne 0 avis visibles → le site affiche "Aucun avis". Solution : marquer des avis comme visibles dans le dashboard'
+        : 'L\'API retournera ces avis au site public'
+];
+
+// --- 12. Vérifier shared.js pour le chargement des avis ---
+$sharedJs = __DIR__ . '/shared.js';
+$checks[] = [
+    'name' => 'shared.js (chargement avis)',
+    'value' => file_exists($sharedJs) ? 'Présent' : 'MANQUANT',
+    'ok' => file_exists($sharedJs),
+    'detail' => file_exists($sharedJs)
+        ? (strpos(file_get_contents($sharedJs), 'public-reviews') !== false ? 'Contient le code de chargement des avis ✓' : 'ATTENTION : ne contient pas "public-reviews" — les avis ne seront pas chargés')
+        : 'Le fichier shared.js est nécessaire pour afficher les avis dynamiquement'
+];
+
+// --- 13. Vérifier index.html pour le formulaire public ---
+$indexHtml = __DIR__ . '/index.html';
+$checks[] = [
+    'name' => 'Formulaire avis public (index.html)',
+    'value' => file_exists($indexHtml) && strpos(file_get_contents($indexHtml), 'review-modal') !== false ? 'Présent' : 'MANQUANT',
+    'ok' => file_exists($indexHtml) && strpos(file_get_contents($indexHtml), 'review-modal') !== false,
+    'detail' => 'Le formulaire permet aux visiteurs de soumettre des avis (soumis en modération)'
 ];
 
 // --- AFFICHAGE ---
