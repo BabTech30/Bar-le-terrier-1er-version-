@@ -520,7 +520,8 @@
           html += '</div>';
         });
         reviewsGrid.innerHTML = html;
-        // Re-init reveal observer for new elements
+        // Make review cards visible (with animation if IntersectionObserver supported)
+        var revealEls = reviewsGrid.querySelectorAll('.reveal');
         if (typeof IntersectionObserver !== 'undefined') {
           var obs = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
@@ -530,7 +531,9 @@
               }
             });
           }, { threshold: 0.15 });
-          reviewsGrid.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+          revealEls.forEach(function(el) { obs.observe(el); });
+        } else {
+          revealEls.forEach(function(el) { el.classList.add('visible'); });
         }
       })
       .catch(function() {
