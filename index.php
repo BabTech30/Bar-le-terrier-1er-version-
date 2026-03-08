@@ -260,6 +260,7 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
     <div class="sidebar__link" data-section="gallery"><span>🖼️</span> <small>Galerie</small></div>
     <div class="sidebar__link" data-section="announcements"><span>📢</span> <small>Annonces</small></div>
+    <div class="sidebar__link" data-section="newsletter"><span>📧</span> <small>Newsletter</small></div>
   </nav>
   <div class="sidebar__footer">
     <div style="display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap">
@@ -390,6 +391,19 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Type</th><th>Titre</th><th>Contenu</th><th>Expire</th><th>Actions</th></tr></thead><tbody id="announcements-list"></tbody></table></div>
   </div>
 
+  <!-- ===== NEWSLETTER ===== -->
+  <div class="section" id="sec-newsletter">
+    <div class="main__header">
+      <h1 class="main__title">Newsletter</h1>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les visiteurs qui s'inscrivent à la newsletter sont enregistrés ici. Vous pouvez exporter la liste ou envoyer un email groupé.</p>
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+      <button class="btn btn--primary" onclick="exportNewsletter()">Exporter CSV</button>
+      <span id="nl-count" style="font-size:.8rem;color:var(--text-dim);align-self:center"></span>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Email</th><th>Date d'inscription</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="newsletter-list"></tbody></table></div>
+  </div>
+
 </div>
 
 <!-- MODAL -->
@@ -485,6 +499,7 @@ async function loadSection(name) {
     case 'observations': return loadObservations();
     case 'gallery': return loadGallery();
     case 'announcements': return loadAnnouncements();
+    case 'newsletter': return loadNewsletter();
   }
 }
 
@@ -1224,6 +1239,47 @@ async function editAnnouncement(id) {
 async function toggleAnnouncement(id, active) {
   await api('announcements','PATCH',{id, active});
   loadAnnouncements();
+}
+
+// ===== NEWSLETTER =====
+async function loadNewsletter() {
+  const d = await api('newsletter');
+  const list = d.data || d || [];
+  document.getElementById('nl-count').textContent = list.length + ' abonné' + (list.length > 1 ? 's' : '');
+  const tbody = document.getElementById('newsletter-list');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty"><p class="empty__text">Aucun abonné pour le moment</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(s => `<tr>
+    <td>${esc(s.email)}</td>
+    <td>${fmtDateTime(s.subscribed)}</td>
+    <td>${s.active ? '<span class="badge badge--confirmed">Actif</span>' : '<span class="badge badge--cancelled">Désabonné</span>'}</td>
+    <td><button class="btn-action btn-action--danger" onclick="removeSubscriber('${s.id}')">Supprimer</button></td>
+  </tr>`).join('');
+}
+
+async function removeSubscriber(id) {
+  if (!confirm('Supprimer cet abonné ?')) return;
+  await api('newsletter','DELETE',{id});
+  loadNewsletter();
+}
+
+function exportNewsletter() {
+  const rows = document.querySelectorAll('#newsletter-list tr');
+  if (!rows.length) { alert('Aucun abonné à exporter.'); return; }
+  let csv = 'Email,Date inscription,Statut\n';
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 3) {
+      csv += '"' + cells[0].textContent + '","' + cells[1].textContent + '","' + cells[2].textContent.trim() + '"\n';
+    }
+  });
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'newsletter-le-terrier.csv'; a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ===== UPLOAD HELPERS =====

@@ -15,10 +15,10 @@ header('X-Content-Type-Options: nosniff');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'submit-review'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'submit-review', 'subscribe-newsletter'])) {
     // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
-    if ($action === 'submit-review') {
+    if (in_array($action, ['submit-review', 'subscribe-newsletter'])) {
         if ($method !== 'POST') {
             jsonResponse(['error' => 'Méthode non autorisée'], 405);
         }
@@ -692,6 +692,25 @@ try {
             break;
 
         // ============================
+        // NEWSLETTER (Admin — gestion abonnés)
+        // ============================
+        case 'newsletter':
+            $data = loadData('newsletter');
+            if ($method === 'GET') {
+                usort($data, fn($a, $b) => strtotime($b['subscribed'] ?? 0) - strtotime($a['subscribed'] ?? 0));
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = $input['id'] ?? '';
+                $data = array_values(array_filter($data, fn($s) => ($s['id'] ?? '') !== $id));
+                saveData('newsletter', $data);
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
         // PUBLIC API (pas d'auth requise — géré séparément)
         // ============================
         case 'public-gallery':
@@ -789,6 +808,47 @@ try {
             file_put_contents($rateLimitFile, json_encode(array_values($rateData)));
 
             jsonResponse(['success' => true, 'message' => 'Merci pour votre avis ! Il sera publié après validation.']);
+            break;
+
+        // ============================
+        // INSCRIPTION NEWSLETTER
+        // ============================
+        case 'subscribe-newsletter':
+            $input = json_decode(file_get_contents('php://input'), true);
+
+            // Anti-spam : champ honeypot
+            if (!empty($input['b_honey'] ?? '')) {
+                jsonResponse(['success' => true, 'message' => 'Merci pour votre inscription !']);
+            }
+
+            $email = trim($input['email'] ?? '');
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                jsonResponse(['error' => 'Veuillez entrer une adresse email valide.'], 400);
+            }
+
+            // Vérifier doublon
+            $data = loadData('newsletter');
+            $exists = false;
+            foreach ($data as $sub) {
+                if (strtolower($sub['email'] ?? '') === strtolower($email)) {
+                    $exists = true;
+                    break;
+                }
+            }
+
+            if ($exists) {
+                jsonResponse(['success' => true, 'message' => 'Vous êtes déjà inscrit !']);
+            }
+
+            $data[] = [
+                'id' => generateId(),
+                'email' => sanitize($email),
+                'subscribed' => date('Y-m-d H:i:s'),
+                'active' => true,
+            ];
+            saveData('newsletter', $data);
+
+            jsonResponse(['success' => true, 'message' => 'Merci ! Vous recevrez nos prochaines actualités.']);
             break;
 
         default:
