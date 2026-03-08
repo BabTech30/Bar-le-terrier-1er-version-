@@ -1062,6 +1062,53 @@ body.has-announce .menu-nav { top: 88px; }
   color: var(--or);
 }
 
+/* --- ARDOISE DU TERRIER (Annonces homepage) --- */
+.ardoise-section { background: rgba(92,10,30,.06); }
+.ardoise {
+  max-width: 700px; margin: 0 auto;
+  background: rgba(13,5,9,.6);
+  border: 1px solid rgba(200,164,92,.2);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  position: relative;
+}
+.ardoise::before,
+.ardoise::after {
+  content: ''; position: absolute; width: 30px; height: 30px;
+  border-color: var(--or); border-style: solid;
+}
+.ardoise::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+.ardoise::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+.ardoise__item {
+  padding: .8rem 0;
+  border-bottom: 1px solid rgba(200,164,92,.08);
+}
+.ardoise__item:last-child { border-bottom: none; }
+.ardoise__type {
+  font-family: var(--font-ui); font-size: .58rem;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--or); margin-bottom: .2rem;
+}
+.ardoise__title {
+  font-family: var(--font-display); font-size: 1.05rem;
+  color: var(--creme); margin-bottom: .2rem;
+}
+.ardoise__text {
+  color: rgba(245,240,232,.55); font-size: .9rem;
+  font-style: italic;
+}
+.ardoise__link {
+  display: inline-block; margin-top: .4rem;
+  font-family: var(--font-ui); font-size: .62rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--or); border-bottom: 1px solid rgba(200,164,92,.3);
+  padding-bottom: .1rem;
+}
+.ardoise__link:hover { border-bottom-color: var(--or); }
+.ardoise__empty {
+  text-align: center; color: rgba(245,240,232,.3);
+  font-style: italic;
+}
+
 /* --- COCKTAIL ACCENT LINE (profile/accroche) --- */
 .menu-item__accent {
   font-family: var(--font-body);

@@ -455,6 +455,30 @@
     }
   });
 
+  /* --- ARDOISE DU TERRIER (Dynamic announcements on homepage) --- */
+  var ardoiseSection = document.getElementById('ardoise-section');
+  var ardoiseContent = document.getElementById('ardoise-content');
+  if (ardoiseSection && ardoiseContent) {
+    fetch('/api.php?action=public-announcements')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return;
+        ardoiseSection.style.display = '';
+        var types = {info:'Info',event:'Événement',promo:'Promotion',urgent:'Important',horaires:'Horaires'};
+        var html = '';
+        d.data.forEach(function(a) {
+          html += '<div class="ardoise__item">';
+          html += '<p class="ardoise__type">' + (types[a.type] || a.type) + '</p>';
+          html += '<p class="ardoise__title">' + (a.title || '') + '</p>';
+          if (a.content) html += '<p class="ardoise__text">' + a.content + '</p>';
+          if (a.link && a.link_text) html += '<a href="' + a.link + '" class="ardoise__link">' + a.link_text + '</a>';
+          html += '</div>';
+        });
+        ardoiseContent.innerHTML = html;
+      })
+      .catch(function() { /* silently fail — no announcements */ });
+  }
+
   /* --- NEWSLETTER FORM (Brevo integration) --- */
   var nlForm = document.querySelector('.newsletter__form');
   if (nlForm) {

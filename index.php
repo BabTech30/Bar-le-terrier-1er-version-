@@ -188,6 +188,25 @@ tr:hover{background:rgba(200,164,92,.03)}
 .empty__icon{font-size:2.5rem;margin-bottom:.8rem;opacity:.3}
 .empty__text{font-size:.85rem}
 
+/* GALLERY CARDS */
+.gallery-card{position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--surface2);aspect-ratio:4/3}
+.gallery-card img{width:100%;height:100%;object-fit:cover}
+.gallery-card__overlay{position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.8));display:flex;flex-direction:column;justify-content:flex-end;padding:.8rem;opacity:0;transition:opacity .2s}
+.gallery-card:hover .gallery-card__overlay{opacity:1}
+.gallery-card__title{font-family:'Playfair Display',serif;font-size:.85rem;color:#fff}
+.gallery-card__caption{font-size:.7rem;color:rgba(255,255,255,.6)}
+.gallery-card__actions{position:absolute;top:.5rem;right:.5rem;display:flex;gap:.3rem;opacity:0;transition:opacity .2s}
+.gallery-card:hover .gallery-card__actions{opacity:1}
+.gallery-card__placeholder{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:var(--text-dim);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase}
+.gallery-card__badge{position:absolute;top:.5rem;left:.5rem;font-size:.55rem;padding:.15rem .4rem;border-radius:2px;text-transform:uppercase;letter-spacing:.08em;font-family:'Josefin Sans',sans-serif}
+.gallery-card__badge--hidden{background:rgba(255,100,100,.2);color:#ff6464}
+.gallery-card__badge--visible{background:rgba(100,255,100,.15);color:#64ff64}
+
+/* DROP ZONE */
+.dropzone{border:2px dashed var(--border);border-radius:var(--radius);padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.dropzone:hover,.dropzone.dragover{border-color:var(--or);background:rgba(200,164,92,.05)}
+.dropzone__text{font-size:.75rem;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
+
 /* RESPONSIVE */
 @media(max-width:768px){
   .sidebar{width:60px;padding:1rem 0}
@@ -222,6 +241,8 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="boutique"><span>🛍️</span> <small>Boutique</small></div>
     <div class="sidebar__link" data-section="reviews"><span>⭐</span> <small>Avis clients</small></div>
     <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
+    <div class="sidebar__link" data-section="gallery"><span>🖼️</span> <small>Galerie</small></div>
+    <div class="sidebar__link" data-section="announcements"><span>📢</span> <small>Annonces</small></div>
   </nav>
   <div class="sidebar__footer">
     <a href="?logout=1" class="sidebar__logout">Déconnexion</a>
@@ -327,6 +348,26 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="table-wrap"><table><thead><tr><th>Priorité</th><th>Catégorie</th><th>Note</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="observations-list"></tbody></table></div>
   </div>
 
+  <!-- ===== GALERIE ===== -->
+  <div class="section" id="sec-gallery">
+    <div class="main__header">
+      <h1 class="main__title">Galerie photos</h1>
+      <button class="btn btn--primary" onclick="openModal('gallery')">+ Ajouter une photo</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les photos visibles apparaissent automatiquement sur la page Galerie du site.</p>
+    <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem"></div>
+  </div>
+
+  <!-- ===== ANNONCES ===== -->
+  <div class="section" id="sec-announcements">
+    <div class="main__header">
+      <h1 class="main__title">Annonces & Infos</h1>
+      <button class="btn btn--primary" onclick="openModal('announcement')">+ Nouvelle annonce</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les annonces actives apparaissent sur la page d'accueil dans l'encadré "Ardoise du Terrier".</p>
+    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Type</th><th>Titre</th><th>Contenu</th><th>Expire</th><th>Actions</th></tr></thead><tbody id="announcements-list"></tbody></table></div>
+  </div>
+
 </div>
 
 <!-- MODAL -->
@@ -337,6 +378,14 @@ tr:hover{background:rgba(200,164,92,.03)}
 <script>
 const API = '/api.php';
 const CSRF_TOKEN = '<?= $csrfToken ?>';
+
+// ===== XSS PROTECTION =====
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
 
 // ===== NAVIGATION =====
 document.querySelectorAll('.sidebar__link').forEach(link => {
@@ -391,6 +440,8 @@ async function loadSection(name) {
     case 'boutique': return loadBoutique();
     case 'reviews': return loadReviews();
     case 'observations': return loadObservations();
+    case 'gallery': return loadGallery();
+    case 'announcements': return loadAnnouncements();
   }
 }
 
@@ -528,12 +579,12 @@ async function viewMessage(id) {
   if (!m) return;
   if (m.status === 'nouveau') await api('messages','PATCH',{id,status:'lu'});
   document.getElementById('modal-content').innerHTML = `
-    <p class="modal__title">${m.subject||'Message'}</p>
-    <p style="margin-bottom:.5rem"><strong>${m.name}</strong> · <a href="mailto:${m.email}">${m.email}</a>${m.phone?' · <a href="tel:'+m.phone+'">'+m.phone+'</a>':''}</p>
+    <p class="modal__title">${esc(m.subject||'Message')}</p>
+    <p style="margin-bottom:.5rem"><strong>${esc(m.name)}</strong> · <a href="mailto:${esc(m.email)}">${esc(m.email)}</a>${m.phone?' · <a href="tel:'+esc(m.phone)+'">'+esc(m.phone)+'</a>':''}</p>
     <p style="font-size:.7rem;color:var(--text-dim);margin-bottom:1rem">${fmtDateTime(m.date)}</p>
-    <div style="background:var(--surface2);padding:1rem;border-radius:var(--radius);white-space:pre-wrap;font-family:'Cormorant Garamond',serif;font-size:.95rem;line-height:1.6">${m.message}</div>
+    <div style="background:var(--surface2);padding:1rem;border-radius:var(--radius);white-space:pre-wrap;font-family:'Cormorant Garamond',serif;font-size:.95rem;line-height:1.6">${esc(m.message)}</div>
     <div class="modal__actions">
-      <a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject||'')}" class="btn btn--primary">Répondre par email</a>
+      <a href="mailto:${esc(m.email)}?subject=Re: ${encodeURIComponent(m.subject||'')}" class="btn btn--primary">Répondre par email</a>
       <button class="btn btn--ghost" onclick="closeModal()">Fermer</button>
     </div>
   `;
@@ -634,6 +685,48 @@ function openModal(type) {
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveObservation()">Ajouter</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      break;
+    case 'gallery':
+      mc.innerHTML = `
+        <p class="modal__title">Ajouter une photo</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="gal-title" placeholder="Cocktail Signature"></div>
+          <div class="form-group"><label class="form-label">Catégorie</label><select class="form-select" id="gal-category"><option value="ambiance">Ambiance</option><option value="cocktails">Cocktails</option><option value="tapas">Tapas</option><option value="decor">Décor</option><option value="events">Événements</option><option value="equipe">Équipe</option></select></div>
+          <div class="form-group form-group--full"><label class="form-label">Légende</label><input class="form-input" id="gal-caption" placeholder="Description courte de la photo"></div>
+          <div class="form-group form-group--full">
+            <label class="form-label">Photo</label>
+            <div class="dropzone" id="gal-dropzone" onclick="document.getElementById('gal-file').click()">
+              <p class="dropzone__text">Cliquez ou glissez une image ici (JPG, PNG, WebP · max 5 Mo)</p>
+              <input type="file" id="gal-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewUpload(this)">
+            </div>
+            <div id="gal-preview" style="margin-top:.5rem"></div>
+            <input type="hidden" id="gal-image-url">
+          </div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="gal-visible" checked> <span class="form-label" style="margin:0">Visible sur le site</span></label></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" onclick="saveGallery()">Ajouter</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      // Setup drag and drop
+      setTimeout(() => setupDropzone('gal-dropzone', 'gal-file'), 50);
+      break;
+    case 'announcement':
+      mc.innerHTML = `
+        <p class="modal__title">Nouvelle annonce</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="ann-title" placeholder="Soirée Jazz ce vendredi"></div>
+          <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="ann-type"><option value="info">ℹ️ Info générale</option><option value="event">🎭 Événement</option><option value="promo">🎁 Promotion</option><option value="urgent">🔴 Urgent</option><option value="horaires">🕐 Horaires</option></select></div>
+          <div class="form-group form-group--full"><label class="form-label">Contenu</label><textarea class="form-textarea" id="ann-content" placeholder="Le texte de votre annonce..."></textarea></div>
+          <div class="form-group"><label class="form-label">Lien (optionnel)</label><input class="form-input" id="ann-link" placeholder="evenements.html"></div>
+          <div class="form-group"><label class="form-label">Texte du lien</label><input class="form-input" id="ann-link-text" placeholder="En savoir plus"></div>
+          <div class="form-group"><label class="form-label">Date d'expiration</label><input type="date" class="form-input" id="ann-expires"><small style="color:var(--text-dim);font-size:.65rem">Laisser vide = permanent</small></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="ann-active" checked> <span class="form-label" style="margin:0">Active immédiatement</span></label></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" onclick="saveAnnouncement()">Créer</button>
           <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
         </div>`;
       break;
@@ -932,6 +1025,176 @@ async function editObservation(id) {
 async function completeObservation(id) {
   await api('observations','PATCH',{id, status:'fait'});
   loadObservations();
+}
+
+// ===== GALERIE =====
+async function loadGallery() {
+  const d = await api('gallery');
+  const el = document.getElementById('gallery-grid');
+  const cats = {ambiance:'Ambiance',cocktails:'Cocktails',tapas:'Tapas',decor:'Décor',events:'Événements',equipe:'Équipe'};
+  el.innerHTML = (d.data||[]).map(p => `
+    <div class="gallery-card">
+      ${p.image ? '<img src="/'+esc(p.image)+'" alt="'+esc(p.title)+'">' : '<div class="gallery-card__placeholder">Pas d\'image</div>'}
+      <span class="gallery-card__badge ${p.visible?'gallery-card__badge--visible':'gallery-card__badge--hidden'}">${p.visible?'Visible':'Masqué'}</span>
+      <div class="gallery-card__actions">
+        <button class="btn btn--sm btn--ghost" onclick="editGallery('${p.id}')" style="background:rgba(0,0,0,.6)">Modifier</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('gallery','${p.id}')" style="background:rgba(0,0,0,.6)">×</button>
+      </div>
+      <div class="gallery-card__overlay">
+        <p class="gallery-card__title">${esc(p.title)}</p>
+        <p class="gallery-card__caption">${esc(cats[p.category]||p.category)} ${p.caption ? '· '+esc(p.caption) : ''}</p>
+      </div>
+    </div>
+  `).join('') || '<div style="grid-column:1/-1;text-align:center;padding:3rem"><p style="font-size:1.5rem;margin-bottom:.5rem">🖼️</p><p style="color:var(--text-dim)">Aucune photo dans la galerie</p></div>';
+}
+
+async function saveGallery() {
+  // Upload image first if present
+  const fileInput = document.getElementById('gal-file');
+  let imageUrl = document.getElementById('gal-image-url').value;
+
+  if (fileInput && fileInput.files.length > 0) {
+    const formData = new FormData();
+    formData.append('image', fileInput.files[0]);
+    formData.append('csrf_token', CSRF_TOKEN);
+    const uploadRes = await fetch(API + '?action=upload', {method:'POST', body: formData});
+    const uploadData = await uploadRes.json();
+    if (uploadData.success) {
+      imageUrl = uploadData.url;
+    } else {
+      alert('Erreur upload: ' + (uploadData.error || 'Erreur inconnue'));
+      return;
+    }
+  }
+
+  await api('gallery','POST',{
+    title: document.getElementById('gal-title').value,
+    caption: document.getElementById('gal-caption').value,
+    category: document.getElementById('gal-category').value,
+    image: imageUrl,
+    visible: document.getElementById('gal-visible').checked,
+  });
+  closeModal(); loadGallery();
+}
+
+async function editGallery(id) {
+  const d = await api('gallery');
+  const p = (d.data||[]).find(x => x.id === id);
+  if (!p) return;
+  openModal('gallery');
+  setTimeout(() => {
+    document.getElementById('gal-title').value = p.title||'';
+    document.getElementById('gal-caption').value = p.caption||'';
+    document.getElementById('gal-category').value = p.category||'ambiance';
+    document.getElementById('gal-image-url').value = p.image||'';
+    document.getElementById('gal-visible').checked = p.visible !== false;
+    if (p.image) {
+      document.getElementById('gal-preview').innerHTML = '<img src="/'+esc(p.image)+'" style="max-height:120px;border-radius:4px">';
+    }
+    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+      const fileInput = document.getElementById('gal-file');
+      let imageUrl = document.getElementById('gal-image-url').value;
+      if (fileInput && fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        formData.append('csrf_token', CSRF_TOKEN);
+        const uploadRes = await fetch(API + '?action=upload', {method:'POST', body: formData});
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) imageUrl = uploadData.url;
+      }
+      await api('gallery','PATCH',{id, title:document.getElementById('gal-title').value, caption:document.getElementById('gal-caption').value, category:document.getElementById('gal-category').value, image:imageUrl, visible:document.getElementById('gal-visible').checked});
+      closeModal(); loadGallery();
+    };
+  }, 50);
+}
+
+// ===== ANNONCES =====
+async function loadAnnouncements() {
+  const d = await api('announcements');
+  const types = {info:'ℹ️ Info',event:'🎭 Événement',promo:'🎁 Promo',urgent:'🔴 Urgent',horaires:'🕐 Horaires'};
+  const el = document.getElementById('announcements-list');
+  el.innerHTML = (d.data||[]).map(a => `
+    <tr>
+      <td>${a.active ? '<span class="badge badge--confirmed">Active</span>' : '<span class="badge badge--draft">Inactive</span>'}</td>
+      <td>${types[a.type]||esc(a.type)}</td>
+      <td><strong>${esc(a.title)}</strong></td>
+      <td>${esc(truncate(a.content,50))}</td>
+      <td>${a.expires ? fmtDate(a.expires) : '<span style="color:var(--text-dim)">Permanent</span>'}</td>
+      <td class="btn-group">
+        <button class="btn btn--sm btn--ghost" onclick="editAnnouncement('${a.id}')">Modifier</button>
+        <button class="btn btn--sm btn--ghost" onclick="toggleAnnouncement('${a.id}',${!a.active})">${a.active?'Désactiver':'Activer'}</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('announcements','${a.id}')">×</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📢</p><p class="empty__text">Aucune annonce</p></div></td></tr>';
+}
+
+async function saveAnnouncement() {
+  await api('announcements','POST',{
+    title: document.getElementById('ann-title').value,
+    content: document.getElementById('ann-content').value,
+    type: document.getElementById('ann-type').value,
+    link: document.getElementById('ann-link').value,
+    link_text: document.getElementById('ann-link-text').value,
+    expires: document.getElementById('ann-expires').value,
+    active: document.getElementById('ann-active').checked,
+  });
+  closeModal(); loadAnnouncements();
+}
+
+async function editAnnouncement(id) {
+  const d = await api('announcements');
+  const a = (d.data||[]).find(x => x.id === id);
+  if (!a) return;
+  openModal('announcement');
+  setTimeout(() => {
+    document.getElementById('ann-title').value = a.title||'';
+    document.getElementById('ann-content').value = a.content||'';
+    document.getElementById('ann-type').value = a.type||'info';
+    document.getElementById('ann-link').value = a.link||'';
+    document.getElementById('ann-link-text').value = a.link_text||'';
+    document.getElementById('ann-expires').value = a.expires||'';
+    document.getElementById('ann-active').checked = a.active !== false;
+    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+      await api('announcements','PATCH',{id, title:document.getElementById('ann-title').value, content:document.getElementById('ann-content').value, type:document.getElementById('ann-type').value, link:document.getElementById('ann-link').value, link_text:document.getElementById('ann-link-text').value, expires:document.getElementById('ann-expires').value, active:document.getElementById('ann-active').checked});
+      closeModal(); loadAnnouncements();
+    };
+  }, 50);
+}
+
+async function toggleAnnouncement(id, active) {
+  await api('announcements','PATCH',{id, active});
+  loadAnnouncements();
+}
+
+// ===== UPLOAD HELPERS =====
+function setupDropzone(dropzoneId, fileInputId) {
+  const dz = document.getElementById(dropzoneId);
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    const fi = document.getElementById(fileInputId);
+    if (e.dataTransfer.files.length && fi) {
+      fi.files = e.dataTransfer.files;
+      previewUpload(fi);
+    }
+  });
+}
+
+function previewUpload(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 5 * 1024 * 1024) { alert('Fichier trop volumineux (max 5 Mo)'); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const preview = document.getElementById('gal-preview');
+    if (preview) preview.innerHTML = '<img src="'+e.target.result+'" style="max-height:120px;border-radius:4px;margin-top:.5rem"><p style="font-size:.65rem;color:var(--text-dim);margin-top:.3rem">'+esc(file.name)+' ('+Math.round(file.size/1024)+' Ko)</p>';
+    const dz = document.getElementById('gal-dropzone');
+    if (dz) dz.querySelector('.dropzone__text').textContent = 'Image sélectionnée : ' + file.name;
+  };
+  reader.readAsDataURL(file);
 }
 
 // ===== KEYBOARD SHORTCUT =====
