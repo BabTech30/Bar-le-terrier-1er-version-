@@ -15,7 +15,7 @@ header('X-Content-Type-Options: nosniff');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews'])) {
     // Skip auth for public read-only endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     if ($method !== 'GET') {
@@ -707,6 +707,18 @@ try {
             }));
             usort($active, fn($a, $b) => ($a['order'] ?? 99) - ($b['order'] ?? 99));
             jsonResponse(['data' => $active, 'count' => count($active)]);
+            break;
+
+        case 'public-reviews':
+            $data = loadData('reviews');
+            $visible = array_values(array_filter($data, fn($r) => ($r['visible'] ?? true)));
+            usort($visible, fn($a, $b) => strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0));
+            // Calculate average rating
+            $avg = 0;
+            if (count($visible) > 0) {
+                $avg = round(array_sum(array_column($visible, 'rating')) / count($visible), 1);
+            }
+            jsonResponse(['data' => $visible, 'count' => count($visible), 'average' => $avg]);
             break;
 
         default:
