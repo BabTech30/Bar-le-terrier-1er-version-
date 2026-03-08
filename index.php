@@ -82,7 +82,9 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;bac
   </form>
 </div>
 </body></html>
-<?php exit; endif; ?>
+<?php exit; endif;
+$csrfToken = generateCsrfToken();
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -319,6 +321,7 @@ tr:hover{background:rgba(200,164,92,.03)}
 
 <script>
 const API = 'api.php';
+const CSRF_TOKEN = '<?= $csrfToken ?>';
 
 // ===== NAVIGATION =====
 document.querySelectorAll('.sidebar__link').forEach(link => {
@@ -345,7 +348,7 @@ if (todayEl) todayEl.textContent = new Date().toLocaleDateString('fr-FR', {weekd
 
 // ===== API HELPERS =====
 async function api(action, method='GET', body=null) {
-  const opts = {method, headers:{'Content-Type':'application/json'}};
+  const opts = {method, headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN}};
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(API + '?action=' + action, opts);
   return res.json();

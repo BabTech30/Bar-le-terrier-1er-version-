@@ -21,8 +21,16 @@ if (!isset($_SESSION['lt_admin_auth']) || $_SESSION['lt_admin_auth'] !== true) {
 // Refresh session
 $_SESSION['lt_admin_last'] = time();
 
-// --- ROUTING ---
+// --- CSRF CHECK for state-changing requests ---
 $method = $_SERVER['REQUEST_METHOD'];
+if (in_array($method, ['POST', 'PATCH', 'DELETE'])) {
+    $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCsrfToken($csrfToken)) {
+        jsonResponse(['error' => 'Token CSRF invalide'], 403);
+    }
+}
+
+// --- ROUTING ---
 $action = $_GET['action'] ?? '';
 $entity = $_GET['entity'] ?? '';
 
