@@ -431,8 +431,29 @@ if (todayEl) todayEl.textContent = new Date().toLocaleDateString('fr-FR', {weekd
 async function api(action, method='GET', body=null) {
   const opts = {method, headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN}};
   if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(API + '?action=' + action, opts);
-  return res.json();
+  try {
+    const res = await fetch(API + '?action=' + action, opts);
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data.error || 'Erreur ' + res.status;
+      if (res.status === 401) {
+        alert('Session expirée. Veuillez vous reconnecter.');
+        window.location.reload();
+        return {data:[], error: msg};
+      }
+      if (res.status === 403) {
+        alert('Token de sécurité expiré. La page va se recharger.');
+        window.location.reload();
+        return {data:[], error: msg};
+      }
+      alert('Erreur API : ' + msg);
+      return {data:[], error: msg};
+    }
+    return data;
+  } catch(e) {
+    alert('Erreur réseau : impossible de contacter le serveur.');
+    return {data:[], error: e.message};
+  }
 }
 
 // ===== STATUS HELPERS =====
@@ -958,7 +979,7 @@ async function loadReviews() {
 }
 
 async function saveReview() {
-  await api('reviews','POST',{
+  const result = await api('reviews','POST',{
     client: document.getElementById('rv-client').value,
     rating: document.getElementById('rv-rating').value,
     comment: document.getElementById('rv-comment').value,
@@ -966,6 +987,7 @@ async function saveReview() {
     date: document.getElementById('rv-date').value,
     visible: document.getElementById('rv-visible').checked,
   });
+  if (result.error) return;
   closeModal(); loadReviews();
 }
 
