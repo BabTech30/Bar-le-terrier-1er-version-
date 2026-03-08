@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lt_login'])) {
     if ($user === ADMIN_USER && password_verify($pass, ADMIN_HASH)) {
         $_SESSION['lt_admin_auth'] = true;
         $_SESSION['lt_admin_last'] = time();
-        header('Location: index.php');
+        header('Location: admin');
         exit;
     } else {
         $loginError = 'Identifiants incorrects';
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lt_login'])) {
 // --- HANDLE LOGOUT ---
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: index.php');
+    header('Location: admin');
     exit;
 }
 
