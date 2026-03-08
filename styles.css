@@ -759,6 +759,12 @@ body.has-announce .menu-nav { top: 88px; }
   letter-spacing: .1em; text-transform: uppercase;
   color: rgba(200,164,92,.35);
 }
+.footer__agency {
+  display: inline-block; margin-top: .2rem;
+  font-family: var(--font-ui); font-size: .55rem;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(200,164,92,.25);
+}
 
 /* --- PREMIUM FOOTER (v2) --- */
 .footer__inner {
