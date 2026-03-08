@@ -10,7 +10,7 @@
 // Mot de passe du dashboard (changer IMMÉDIATEMENT après installation)
 // Pour générer un hash : php -r "echo password_hash('votre_mot_de_passe', PASSWORD_DEFAULT);"
 define('ADMIN_USER', 'admin');
-define('ADMIN_HASH', '$2y$12$IUvePPz7wsQM45Co58KHEepk7/o.wpDJuUwNsXmsIEPeE38.GPDTq');
+define('ADMIN_HASH', '$2y$12$pXZYcUjXETCG9ayn5pVHkuv0HL5pi7K3ux04SjeZm5NJkxXZ.zacy');
 
 // --- EMAIL ---
 define('CONTACT_EMAIL', 'barleterrier@gmail.com');
