@@ -13,10 +13,6 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # Servir index.html comme page d'accueil (pas index.php)
 DirectoryIndex index.html
 
-# --- DASHBOARD ADMIN ---
-# /admin -> index.php (le dashboard)
-RewriteRule ^admin/?$ /index.php [L,QSA]
-
 # --- PROTECTION DES DONNEES ---
 # Bloquer l'acces direct au dossier data/
 RewriteRule ^data/ - [F,L]
