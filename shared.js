@@ -10,22 +10,52 @@
   /* --- REDUCED MOTION CHECK --- */
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* --- ANNOUNCEMENT BANNER --- */
+  /* --- ANNOUNCEMENT BANNER (Dynamic from dashboard) --- */
   var announce = document.querySelector('.announce');
   if (announce) {
     if (sessionStorage.getItem('lt-announce-closed')) {
       announce.classList.add('hidden');
       document.body.classList.remove('has-announce');
     } else {
-      document.body.classList.add('has-announce');
-      var closeBtn = announce.querySelector('.announce__close');
-      if (closeBtn) {
-        closeBtn.addEventListener('click', function () {
-          announce.classList.add('hidden');
-          document.body.classList.remove('has-announce');
-          sessionStorage.setItem('lt-announce-closed', '1');
+      // Load banner text from API
+      fetch('/api.php?action=public-banner')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (!d.data || !d.data.active || !d.data.text) {
+            announce.classList.add('hidden');
+            document.body.classList.remove('has-announce');
+            return;
+          }
+          // Update text (keep close button)
+          var closeBtn = announce.querySelector('.announce__close');
+          var div = document.createElement('div');
+          div.textContent = d.data.text;
+          announce.innerHTML = '';
+          announce.appendChild(document.createTextNode(div.textContent + ' '));
+          var newClose = document.createElement('button');
+          newClose.className = 'announce__close';
+          newClose.setAttribute('aria-label', 'Fermer');
+          newClose.innerHTML = '&times;';
+          announce.appendChild(newClose);
+          document.body.classList.add('has-announce');
+          newClose.addEventListener('click', function () {
+            announce.classList.add('hidden');
+            document.body.classList.remove('has-announce');
+            sessionStorage.setItem('lt-announce-closed', '1');
+          });
+        })
+        .catch(function() {
+          // Fallback: show existing static text
+          document.body.classList.add('has-announce');
+          var closeBtn = announce.querySelector('.announce__close');
+          if (closeBtn) {
+            closeBtn.addEventListener('click', function () {
+              announce.classList.add('hidden');
+              document.body.classList.remove('has-announce');
+              sessionStorage.setItem('lt-announce-closed', '1');
+            });
+          }
         });
-      }
     }
   }
 
@@ -701,6 +731,46 @@
       .catch(function(err) { console.warn('[Le Terrier] Chargement événements échoué:', err.message); });
   }
   loadPublicEvents();
+
+  /* --- JOURNAL DU TERRIER (Dynamic from dashboard) --- */
+  var journalGrid = document.getElementById('journal-grid');
+  if (journalGrid) {
+    fetch('/api.php?action=public-journal')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return;
+        var delays = ['reveal-d1', 'reveal-d2', 'reveal-d3'];
+        var html = '';
+        var div = document.createElement('div');
+        d.data.forEach(function(j, i) {
+          div.textContent = j.date || '';
+          var safeDate = div.innerHTML;
+          div.textContent = j.title || '';
+          var safeTitle = div.innerHTML;
+          div.textContent = j.content || '';
+          var safeContent = div.innerHTML;
+          html += '<div class="card reveal ' + (delays[i] || '') + '">';
+          html += '<p class="journal__date">' + safeDate + '</p>';
+          html += '<h3 class="card__title">' + safeTitle + '</h3>';
+          html += '<p class="card__text">' + safeContent + '</p>';
+          html += '</div>';
+        });
+        journalGrid.innerHTML = html;
+        // Trigger reveal animations
+        var revealEls = journalGrid.querySelectorAll('.reveal');
+        if (typeof IntersectionObserver !== 'undefined') {
+          var obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) { entry.target.classList.add('visible'); obs.unobserve(entry.target); }
+            });
+          }, { threshold: 0.15 });
+          revealEls.forEach(function(el) { obs.observe(el); });
+        } else {
+          revealEls.forEach(function(el) { el.classList.add('visible'); });
+        }
+      })
+      .catch(function() { /* silently fail */ });
+  }
 
   /* --- NEWSLETTER FORM (sauvegarde locale + Brevo fallback) --- */
   var nlForm = document.querySelector('.newsletter__form');

@@ -300,6 +300,8 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
     <div class="sidebar__link" data-section="gallery"><span>🖼️</span> <small>Galerie</small></div>
     <div class="sidebar__link" data-section="announcements"><span>📢</span> <small>Annonces</small></div>
+    <div class="sidebar__link" data-section="journal"><span>📰</span> <small>Journal</small></div>
+    <div class="sidebar__link" data-section="banner"><span>🔔</span> <small>Bandeau</small></div>
     <div class="sidebar__link" data-section="newsletter"><span>📧</span> <small>Newsletter</small></div>
   </nav>
   <div class="sidebar__footer">
@@ -441,6 +443,41 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Type</th><th>Titre</th><th>Contenu</th><th>Expire</th><th>Actions</th></tr></thead><tbody id="announcements-list"></tbody></table></div>
   </div>
 
+  <!-- ===== JOURNAL DU TERRIER ===== -->
+  <div class="section" id="sec-journal">
+    <div class="main__header">
+      <h1 class="main__title">Journal du Terrier</h1>
+      <button class="btn btn--primary" onclick="openModal('journal')">+ Nouvel article</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les 3 derniers articles actifs apparaissent sur la page d'accueil dans la section "Journal du Terrier".</p>
+    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Date</th><th>Titre</th><th>Contenu</th><th>Ordre</th><th>Actions</th></tr></thead><tbody id="journal-list"></tbody></table></div>
+  </div>
+
+  <!-- ===== BANDEAU ANNONCE ===== -->
+  <div class="section" id="sec-banner">
+    <div class="main__header">
+      <h1 class="main__title">Bandeau d'annonce</h1>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Le bandeau s'affiche en haut de toutes les pages du site. Modifiez le texte ici.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem">
+      <div class="form-group">
+        <label class="form-label">Texte du bandeau</label>
+        <input class="form-input" id="banner-text" placeholder="Ouverture prochaine — Restez connectés">
+        <button class="mic-btn" onclick="startDictation('banner-text')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button>
+      </div>
+      <div class="form-group" style="margin-top:1rem">
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+          <input type="checkbox" id="banner-active">
+          <span class="form-label" style="margin:0">Bandeau visible sur le site</span>
+        </label>
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:1rem">
+        <button class="btn btn--primary" onclick="saveBanner()">Sauvegarder</button>
+        <span id="banner-status" style="font-size:.75rem;color:var(--text-dim);align-self:center"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== NEWSLETTER ===== -->
   <div class="section" id="sec-newsletter">
     <div class="main__header">
@@ -565,6 +602,8 @@ async function loadSection(name) {
     case 'observations': return loadObservations();
     case 'gallery': return loadGallery();
     case 'announcements': return loadAnnouncements();
+    case 'journal': return loadJournal();
+    case 'banner': return loadBanner();
     case 'newsletter': return loadNewsletter();
   }
 }
@@ -733,7 +772,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="evt-date"></div>
           <div class="form-group"><label class="form-label">Heure</label><input type="time" class="form-input" id="evt-time" value="20:00"></div>
           <div class="form-group"><label class="form-label">Afficher sur</label><select class="form-select" id="evt-display"><option value="both">📄 Les deux pages</option><option value="evenements">🎭 Page Événements</option><option value="accueil">🏠 Page d'accueil</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="evt-desc" placeholder="Description de l'événement"></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="evt-desc" placeholder="Description de l'événement"></textarea><button class="mic-btn" onclick="startDictation('evt-desc')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveEvent()">Créer</button>
@@ -748,7 +787,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Plateforme</label><select class="form-select" id="soc-platform"><option value="instagram">📸 Instagram</option><option value="facebook">📘 Facebook</option><option value="both">📸📘 Les deux</option></select></div>
           <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="soc-type"><option value="photo">Photo</option><option value="reel">Reel/Vidéo</option><option value="story">Story</option><option value="carousel">Carrousel</option></select></div>
           <div class="form-group"><label class="form-label">Statut</label><select class="form-select" id="soc-status"><option value="brouillon">Brouillon</option><option value="planifié">Planifié</option><option value="publié">Publié</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Légende</label><textarea class="form-textarea" id="soc-caption" placeholder="Texte du post"></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Légende</label><textarea class="form-textarea" id="soc-caption" placeholder="Texte du post"></textarea><button class="mic-btn" onclick="startDictation('soc-caption')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
           <div class="form-group form-group--full"><label class="form-label">Hashtags</label><input class="form-input" id="soc-hashtags" placeholder="#LeTerrierBar #Nîmes #Cocktails"></div>
         </div>
         <div class="modal__actions">
@@ -796,7 +835,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Note (1-5)</label><select class="form-select" id="rv-rating"><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option><option value="2">★★☆☆☆ (2)</option><option value="1">★☆☆☆☆ (1)</option></select></div>
           <div class="form-group"><label class="form-label">Source</label><select class="form-select" id="rv-source"><option value="google">Google</option><option value="tripadvisor">TripAdvisor</option><option value="instagram">Instagram</option><option value="bouche-a-oreille">Bouche à oreille</option><option value="autre">Autre</option></select></div>
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="rv-date"></div>
-          <div class="form-group form-group--full"><label class="form-label">Commentaire</label><textarea class="form-textarea" id="rv-comment" placeholder="Super ambiance, cocktails incroyables..."></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Commentaire</label><textarea class="form-textarea" id="rv-comment" placeholder="Super ambiance, cocktails incroyables..."></textarea><button class="mic-btn" onclick="startDictation('rv-comment')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
           <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rv-visible" checked> <span class="form-label" style="margin:0">Visible sur le site</span></label></div>
         </div>
         <div class="modal__actions">
@@ -810,7 +849,7 @@ function openModal(type) {
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Catégorie</label><select class="form-select" id="obs-category"><option value="general">Général</option><option value="bug">Bug / Problème</option><option value="amelioration">Amélioration</option><option value="contenu">Contenu à modifier</option><option value="securite">Sécurité</option><option value="design">Design</option></select></div>
           <div class="form-group"><label class="form-label">Priorité</label><select class="form-select" id="obs-priority"><option value="haute">Haute</option><option value="moyenne" selected>Moyenne</option><option value="basse">Basse</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Note / Observation</label><textarea class="form-textarea" id="obs-note" placeholder="Décrire l'observation, le problème ou l'amélioration souhaitée..."></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Note / Observation</label><textarea class="form-textarea" id="obs-note" placeholder="Décrire l'observation, le problème ou l'amélioration souhaitée..."></textarea><button class="mic-btn" onclick="startDictation('obs-note')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveObservation()">Ajouter</button>
@@ -848,7 +887,7 @@ function openModal(type) {
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="ann-title" placeholder="Soirée Jazz ce vendredi"></div>
           <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="ann-type"><option value="info">ℹ️ Info générale</option><option value="event">🎭 Événement</option><option value="promo">🎁 Promotion</option><option value="urgent">🔴 Urgent</option><option value="horaires">🕐 Horaires</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Contenu</label><textarea class="form-textarea" id="ann-content" placeholder="Le texte de votre annonce..."></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Contenu</label><textarea class="form-textarea" id="ann-content" placeholder="Le texte de votre annonce..."></textarea><button class="mic-btn" onclick="startDictation('ann-content')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
           <div class="form-group"><label class="form-label">Lien (optionnel)</label><input class="form-input" id="ann-link" placeholder="evenements.html"></div>
           <div class="form-group"><label class="form-label">Texte du lien</label><input class="form-input" id="ann-link-text" placeholder="En savoir plus"></div>
           <div class="form-group"><label class="form-label">Date d'expiration</label><input type="date" class="form-input" id="ann-expires"><small style="color:var(--text-dim);font-size:.65rem">Laisser vide = permanent</small></div>
@@ -856,6 +895,20 @@ function openModal(type) {
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveAnnouncement()">Créer</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      break;
+    case 'journal':
+      mc.innerHTML = `
+        <p class="modal__title">Nouvel article</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="jnl-title" placeholder="Les travaux avancent"><button class="mic-btn" onclick="startDictation('jnl-title')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
+          <div class="form-group"><label class="form-label">Date affichée</label><input class="form-input" id="jnl-date" placeholder="Mars 2026"></div>
+          <div class="form-group form-group--full"><label class="form-label">Contenu</label><textarea class="form-textarea" id="jnl-content" placeholder="Le texte de l'article..."></textarea><button class="mic-btn" onclick="startDictation('jnl-content')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="jnl-active" checked> <span class="form-label" style="margin:0">Actif sur le site</span></label></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" onclick="saveJournal()">Créer</button>
           <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
         </div>`;
       break;
@@ -1569,6 +1622,114 @@ function previewUpload(input) {
     if (dz) dz.querySelector('.dropzone__text').textContent = 'Image sélectionnée : ' + file.name;
   };
   reader.readAsDataURL(file);
+}
+
+// ===== JOURNAL DU TERRIER =====
+async function loadJournal() {
+  const d = await api('journal');
+  const el = document.getElementById('journal-list');
+  el.innerHTML = (d.data||[]).map(j => `
+    <tr>
+      <td>${j.active ? '<span class="badge badge--confirmed">Actif</span>' : '<span class="badge badge--draft">Inactif</span>'}</td>
+      <td>${esc(j.date)}</td>
+      <td><strong>${esc(j.title)}</strong></td>
+      <td>${esc(truncate(j.content,60))}</td>
+      <td>${j.order||'—'}</td>
+      <td class="btn-group">
+        <button class="btn btn--sm btn--ghost" onclick="editJournal('${esc(j.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--ghost" onclick="toggleJournal('${esc(j.id)}',${!j.active})">${j.active?'Désactiver':'Activer'}</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('journal','${esc(j.id)}')">×</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📰</p><p class="empty__text">Aucun article</p></div></td></tr>';
+}
+
+async function saveJournal() {
+  const title = document.getElementById('jnl-title').value;
+  const content = document.getElementById('jnl-content').value;
+  if (!title || !content) { toast('Titre et contenu requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
+  await api('journal','POST',{
+    title, content,
+    date: document.getElementById('jnl-date').value,
+    active: document.getElementById('jnl-active').checked,
+  });
+  btnReset(btn);
+  toast('Article créé', 'success');
+  closeModal(); loadJournal();
+}
+
+async function editJournal(id) {
+  const d = await api('journal');
+  const j = (d.data||[]).find(x => x.id === id);
+  if (!j) return;
+  openModal('journal');
+  setTimeout(() => {
+    document.getElementById('jnl-title').value = j.title||'';
+    document.getElementById('jnl-content').value = j.content||'';
+    document.getElementById('jnl-date').value = j.date||'';
+    document.getElementById('jnl-active').checked = j.active !== false;
+    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+      await api('journal','PATCH',{id, title:document.getElementById('jnl-title').value, content:document.getElementById('jnl-content').value, date:document.getElementById('jnl-date').value, active:document.getElementById('jnl-active').checked});
+      closeModal(); loadJournal();
+    };
+  }, 50);
+}
+
+async function toggleJournal(id, active) {
+  await api('journal','PATCH',{id, active});
+  loadJournal();
+}
+
+// ===== BANDEAU ANNONCE =====
+async function loadBanner() {
+  const d = await api('banner');
+  const data = d.data || {};
+  document.getElementById('banner-text').value = data.text || '';
+  document.getElementById('banner-active').checked = data.active !== false;
+  document.getElementById('banner-status').textContent = data.updated ? 'Dernière mise à jour : ' + data.updated : '';
+}
+
+async function saveBanner() {
+  const text = document.getElementById('banner-text').value;
+  const active = document.getElementById('banner-active').checked;
+  await api('banner','PATCH',{text, active});
+  toast('Bandeau mis à jour', 'success');
+  document.getElementById('banner-status').textContent = 'Sauvegardé ✓';
+}
+
+// ===== DICTEE VOCALE (Web Speech API) =====
+function startDictation(inputId) {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { toast('Dictée vocale non supportée par ce navigateur. Utilisez Chrome ou Edge.', 'warning'); return; }
+  var recognition = new SpeechRecognition();
+  recognition.lang = 'fr-FR';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  var origValue = input.value;
+  var btn = input.parentElement.querySelector('.mic-btn');
+  if (btn) { btn.style.background = 'rgba(200,164,92,.3)'; btn.textContent = '🎤 Écoute...'; }
+  recognition.onresult = function(event) {
+    var transcript = '';
+    for (var i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    input.value = origValue ? origValue + ' ' + transcript : transcript;
+    // For textarea
+    if (input.tagName === 'TEXTAREA') input.style.height = 'auto';
+  };
+  recognition.onend = function() {
+    if (btn) { btn.style.background = ''; btn.textContent = '🎤 Dicter'; }
+  };
+  recognition.onerror = function(e) {
+    if (btn) { btn.style.background = ''; btn.textContent = '🎤 Dicter'; }
+    if (e.error === 'not-allowed') toast('Accès au micro refusé. Autorisez le micro dans les paramètres du navigateur.', 'error');
+    else if (e.error !== 'aborted') toast('Erreur de dictée : ' + e.error, 'error');
+  };
+  recognition.start();
 }
 
 // ===== KEYBOARD SHORTCUT =====

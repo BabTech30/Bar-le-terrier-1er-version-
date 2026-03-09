@@ -16,7 +16,7 @@ header('X-Frame-Options: DENY');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'public-events', 'submit-review', 'subscribe-newsletter'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'public-events', 'public-journal', 'public-banner', 'submit-review', 'subscribe-newsletter'])) {
     // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     if (in_array($action, ['submit-review', 'subscribe-newsletter'])) {
@@ -754,6 +754,77 @@ try {
             break;
 
         // ============================
+        // JOURNAL DU TERRIER (Admin)
+        // ============================
+        case 'journal':
+            $data = loadData('journal');
+            if ($method === 'GET') {
+                usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $entry = [
+                    'id' => generateId(),
+                    'date' => sanitize($input['date'] ?? ''),
+                    'title' => sanitize($input['title'] ?? ''),
+                    'content' => sanitize($input['content'] ?? ''),
+                    'active' => $input['active'] ?? true,
+                    'order' => count($data) + 1,
+                    'created' => date('Y-m-d'),
+                ];
+                $data[] = $entry;
+                saveData('journal', $data);
+                jsonResponse(['success' => true, 'id' => $entry['id']]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = requireId($input);
+                foreach ($data as &$j) {
+                    if ($j['id'] === $id) {
+                        if (isset($input['title'])) $j['title'] = sanitize($input['title']);
+                        if (isset($input['content'])) $j['content'] = sanitize($input['content']);
+                        if (isset($input['date'])) $j['date'] = sanitize($input['date']);
+                        if (isset($input['active'])) $j['active'] = (bool)$input['active'];
+                        if (isset($input['order'])) $j['order'] = (int)$input['order'];
+                        break;
+                    }
+                }
+                unset($j);
+                saveData('journal', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = requireId($input);
+                $data = array_values(array_filter($data, function($j) use ($id) { return ($j['id'] ?? '') !== $id; }));
+                saveData('journal', $data);
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
+        // BANDEAU ANNONCE (Admin)
+        // ============================
+        case 'banner':
+            $file = DATA_DIR . 'banner.json';
+            $data = file_exists($file) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+            if ($method === 'GET') {
+                jsonResponse(['data' => $data]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                if (isset($input['text'])) $data['text'] = sanitize($input['text']);
+                if (isset($input['active'])) $data['active'] = (bool)$input['active'];
+                $data['updated'] = date('Y-m-d');
+                file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
         // NEWSLETTER (Admin — gestion abonnés)
         // ============================
         case 'newsletter':
@@ -810,6 +881,18 @@ try {
             }));
             usort($active, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
             jsonResponse(['data' => $active, 'count' => count($active)]);
+            break;
+
+        case 'public-journal':
+            $data = loadData('journal');
+            $active = array_values(array_filter($data, function($j) { return ($j['active'] ?? true); }));
+            usort($active, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+            jsonResponse(['data' => array_slice($active, 0, 3)]);
+            break;
+
+        case 'public-banner':
+            $data = json_decode(file_get_contents(DATA_DIR . 'banner.json'), true) ?: ['text' => '', 'active' => false];
+            jsonResponse(['data' => $data]);
             break;
 
         case 'public-reviews':
