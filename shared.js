@@ -10,22 +10,52 @@
   /* --- REDUCED MOTION CHECK --- */
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* --- ANNOUNCEMENT BANNER --- */
+  /* --- ANNOUNCEMENT BANNER (Dynamic from dashboard) --- */
   var announce = document.querySelector('.announce');
   if (announce) {
     if (sessionStorage.getItem('lt-announce-closed')) {
       announce.classList.add('hidden');
       document.body.classList.remove('has-announce');
     } else {
-      document.body.classList.add('has-announce');
-      var closeBtn = announce.querySelector('.announce__close');
-      if (closeBtn) {
-        closeBtn.addEventListener('click', function () {
-          announce.classList.add('hidden');
-          document.body.classList.remove('has-announce');
-          sessionStorage.setItem('lt-announce-closed', '1');
+      // Load banner text from API
+      fetch('/api.php?action=public-banner')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (!d.data || !d.data.active || !d.data.text) {
+            announce.classList.add('hidden');
+            document.body.classList.remove('has-announce');
+            return;
+          }
+          // Update text (keep close button)
+          var closeBtn = announce.querySelector('.announce__close');
+          var div = document.createElement('div');
+          div.textContent = d.data.text;
+          announce.innerHTML = '';
+          announce.appendChild(document.createTextNode(div.textContent + ' '));
+          var newClose = document.createElement('button');
+          newClose.className = 'announce__close';
+          newClose.setAttribute('aria-label', 'Fermer');
+          newClose.innerHTML = '&times;';
+          announce.appendChild(newClose);
+          document.body.classList.add('has-announce');
+          newClose.addEventListener('click', function () {
+            announce.classList.add('hidden');
+            document.body.classList.remove('has-announce');
+            sessionStorage.setItem('lt-announce-closed', '1');
+          });
+        })
+        .catch(function() {
+          // Fallback: show existing static text
+          document.body.classList.add('has-announce');
+          var closeBtn = announce.querySelector('.announce__close');
+          if (closeBtn) {
+            closeBtn.addEventListener('click', function () {
+              announce.classList.add('hidden');
+              document.body.classList.remove('has-announce');
+              sessionStorage.setItem('lt-announce-closed', '1');
+            });
+          }
         });
-      }
     }
   }
 
@@ -627,6 +657,119 @@
         });
       });
     }
+  }
+
+  /* --- DYNAMIC EVENTS (loaded from API) --- */
+  var MONTHS_FR = ['Jan','Fév','Mars','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+  var EVENT_TYPES = {jazz:'Jazz',vin:'Dégustation',dj:'DJ Set',special:'Spécial',prive:'Privé'};
+
+  // Render event cards (shared helper)
+  function renderEvents(container, items, tpl) {
+    var html = '';
+    items.forEach(function(evt) {
+      var dt = new Date(evt.date + 'T00:00:00');
+      var day = String(dt.getDate()).padStart(2, '0');
+      var month = MONTHS_FR[dt.getMonth()];
+      var tag = EVENT_TYPES[evt.type] || evt.type || 'Événement';
+      var div = document.createElement('div');
+      div.textContent = evt.title || '';
+      var safeTitle = div.innerHTML;
+      div.textContent = evt.description || '';
+      var safeDesc = div.innerHTML;
+      div.textContent = tag;
+      var safeTag = div.innerHTML;
+      html += tpl(day, month, safeTag, safeTitle, safeDesc);
+    });
+    container.innerHTML = html;
+  }
+
+  function loadPublicEvents() {
+    var eventsList = document.querySelector('.events-list');
+    var eventsHighlight = document.querySelector('.events-highlight__list');
+    if (!eventsList && !eventsHighlight) return;
+
+    fetch('/api.php?action=public-events')
+      .then(function(r) {
+        if (!r.ok) throw new Error('API events: ' + r.status);
+        return r.json();
+      })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return;
+
+        // Page événements — full list
+        if (eventsList) {
+          var items = d.data.filter(function(e) {
+            return e.display === 'both' || e.display === 'evenements';
+          });
+          if (items.length) {
+            renderEvents(eventsList, items, function(day, month, tag, title, desc) {
+              return '<div class="event reveal visible">'
+                + '<div class="event__date"><span class="event__day">' + day + '</span><span class="event__month">' + month + '</span></div>'
+                + '<div class="event__info"><p class="event__tag">' + tag + '</p>'
+                + '<h3 class="event__title">' + title + '</h3>'
+                + '<p class="event__text">' + desc + '</p></div></div>';
+            });
+          }
+        }
+
+        // Page accueil — highlights (max 3)
+        if (eventsHighlight) {
+          var items2 = d.data.filter(function(e) {
+            return e.display === 'both' || e.display === 'accueil';
+          }).slice(0, 3);
+          if (items2.length) {
+            renderEvents(eventsHighlight, items2, function(day, month, tag, title, desc) {
+              return '<div class="events-highlight__item">'
+                + '<div class="events-highlight__date"><span class="events-highlight__day">' + day + '</span><span class="events-highlight__month">' + month + '</span></div>'
+                + '<div class="events-highlight__content"><p class="events-highlight__tag">' + tag + '</p>'
+                + '<h3 class="events-highlight__title">' + title + '</h3>'
+                + '<p class="events-highlight__text">' + desc + '</p></div></div>';
+            });
+          }
+        }
+      })
+      .catch(function(err) { console.warn('[Le Terrier] Chargement événements échoué:', err.message); });
+  }
+  loadPublicEvents();
+
+  /* --- JOURNAL DU TERRIER (Dynamic from dashboard) --- */
+  var journalGrid = document.getElementById('journal-grid');
+  if (journalGrid) {
+    fetch('/api.php?action=public-journal')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return;
+        var delays = ['reveal-d1', 'reveal-d2', 'reveal-d3'];
+        var html = '';
+        var div = document.createElement('div');
+        d.data.forEach(function(j, i) {
+          div.textContent = j.date || '';
+          var safeDate = div.innerHTML;
+          div.textContent = j.title || '';
+          var safeTitle = div.innerHTML;
+          div.textContent = j.content || '';
+          var safeContent = div.innerHTML;
+          html += '<div class="card reveal ' + (delays[i] || '') + '">';
+          html += '<p class="journal__date">' + safeDate + '</p>';
+          html += '<h3 class="card__title">' + safeTitle + '</h3>';
+          html += '<p class="card__text">' + safeContent + '</p>';
+          html += '</div>';
+        });
+        journalGrid.innerHTML = html;
+        // Trigger reveal animations
+        var revealEls = journalGrid.querySelectorAll('.reveal');
+        if (typeof IntersectionObserver !== 'undefined') {
+          var obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) { entry.target.classList.add('visible'); obs.unobserve(entry.target); }
+            });
+          }, { threshold: 0.15 });
+          revealEls.forEach(function(el) { obs.observe(el); });
+        } else {
+          revealEls.forEach(function(el) { el.classList.add('visible'); });
+        }
+      })
+      .catch(function() { /* silently fail */ });
   }
 
   /* --- NEWSLETTER FORM (sauvegarde locale + Brevo fallback) --- */

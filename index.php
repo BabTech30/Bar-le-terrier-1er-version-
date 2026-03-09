@@ -239,6 +239,25 @@ tr:hover{background:rgba(200,164,92,.03)}
 .dropzone:hover,.dropzone.dragover{border-color:var(--or);background:rgba(200,164,92,.05)}
 .dropzone__text{font-size:.75rem;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
 
+/* TOAST NOTIFICATIONS */
+.toast-container{position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.6rem;pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:.8rem;padding:.8rem 1.2rem;border-radius:var(--radius);font-size:.8rem;letter-spacing:.02em;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:toastIn .3s ease;max-width:380px;border:1px solid}
+.toast--success{background:rgba(26,40,26,.95);border-color:rgba(76,175,80,.3);color:var(--green)}
+.toast--error{background:rgba(40,20,20,.95);border-color:rgba(244,67,54,.3);color:var(--red)}
+.toast--warning{background:rgba(40,30,15,.95);border-color:rgba(255,152,0,.3);color:var(--orange)}
+.toast--info{background:rgba(20,25,40,.95);border-color:rgba(66,165,245,.3);color:var(--blue)}
+.toast__icon{font-size:1.1rem;flex-shrink:0}
+.toast__close{margin-left:auto;cursor:pointer;opacity:.5;font-size:.9rem;flex-shrink:0}
+.toast__close:hover{opacity:1}
+.toast.removing{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)}}
+
+/* LOADING STATE */
+.btn.loading{opacity:.6;pointer-events:none;position:relative}
+.btn.loading::after{content:'';width:14px;height:14px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;margin-left:.5rem;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* RESPONSIVE */
 @media(max-width:768px){
   .sidebar{width:60px;padding:1rem 0}
@@ -254,10 +273,15 @@ tr:hover{background:rgba(200,164,92,.03)}
 @media(max-width:480px){
   .cards{grid-template-columns:1fr}
   .main__header{flex-direction:column;gap:.5rem;align-items:flex-start}
+  .btn,.btn--sm,.btn-action{min-height:36px;min-width:36px;font-size:.65rem;padding:.5rem .8rem}
+  .btn-group{gap:.4rem}
+  td{padding:.5rem .6rem;font-size:.75rem}
+  .toast{max-width:90vw;font-size:.75rem}
 }
 </style>
 </head>
 <body>
+<div class="toast-container" id="toast-container"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -276,6 +300,8 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
     <div class="sidebar__link" data-section="gallery"><span>🖼️</span> <small>Galerie</small></div>
     <div class="sidebar__link" data-section="announcements"><span>📢</span> <small>Annonces</small></div>
+    <div class="sidebar__link" data-section="journal"><span>📰</span> <small>Journal</small></div>
+    <div class="sidebar__link" data-section="banner"><span>🔔</span> <small>Bandeau</small></div>
     <div class="sidebar__link" data-section="newsletter"><span>📧</span> <small>Newsletter</small></div>
   </nav>
   <div class="sidebar__footer">
@@ -417,6 +443,41 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Type</th><th>Titre</th><th>Contenu</th><th>Expire</th><th>Actions</th></tr></thead><tbody id="announcements-list"></tbody></table></div>
   </div>
 
+  <!-- ===== JOURNAL DU TERRIER ===== -->
+  <div class="section" id="sec-journal">
+    <div class="main__header">
+      <h1 class="main__title">Journal du Terrier</h1>
+      <button class="btn btn--primary" onclick="openModal('journal')">+ Nouvel article</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les 3 derniers articles actifs apparaissent sur la page d'accueil dans la section "Journal du Terrier".</p>
+    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Date</th><th>Titre</th><th>Contenu</th><th>Ordre</th><th>Actions</th></tr></thead><tbody id="journal-list"></tbody></table></div>
+  </div>
+
+  <!-- ===== BANDEAU ANNONCE ===== -->
+  <div class="section" id="sec-banner">
+    <div class="main__header">
+      <h1 class="main__title">Bandeau d'annonce</h1>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Le bandeau s'affiche en haut de toutes les pages du site. Modifiez le texte ici.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem">
+      <div class="form-group">
+        <label class="form-label">Texte du bandeau</label>
+        <input class="form-input" id="banner-text" placeholder="Ouverture prochaine — Restez connectés">
+        <button class="mic-btn" onclick="startDictation('banner-text')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button>
+      </div>
+      <div class="form-group" style="margin-top:1rem">
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+          <input type="checkbox" id="banner-active">
+          <span class="form-label" style="margin:0">Bandeau visible sur le site</span>
+        </label>
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:1rem">
+        <button class="btn btn--primary" onclick="saveBanner()">Sauvegarder</button>
+        <span id="banner-status" style="font-size:.75rem;color:var(--text-dim);align-self:center"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== NEWSLETTER ===== -->
   <div class="section" id="sec-newsletter">
     <div class="main__header">
@@ -440,6 +501,17 @@ tr:hover{background:rgba(200,164,92,.03)}
 <script>
 const API = '/api.php';
 const CSRF_TOKEN = '<?= $csrfToken ?>';
+
+// ===== TOAST NOTIFICATIONS =====
+const TOAST_ICONS = {success:'✓',error:'✕',warning:'⚠',info:'ℹ'};
+function toast(message, type='info', duration=4000) {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast toast--' + type;
+  el.innerHTML = '<span class="toast__icon">' + TOAST_ICONS[type] + '</span><span>' + esc(message) + '</span><span class="toast__close" onclick="this.parentElement.classList.add(\'removing\');setTimeout(()=>this.parentElement.remove(),300)">×</span>';
+  container.appendChild(el);
+  if (duration > 0) setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 300); }, duration);
+}
 
 // ===== XSS PROTECTION =====
 function esc(s) {
@@ -472,6 +544,10 @@ setInterval(updateClock, 30000); updateClock();
 const todayEl = document.getElementById('today-date');
 if (todayEl) todayEl.textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
+// ===== LOADING STATE HELPERS =====
+function btnLoading(btn) { if (btn) { btn.classList.add('loading'); btn.disabled = true; } }
+function btnReset(btn) { if (btn) { btn.classList.remove('loading'); btn.disabled = false; } }
+
 // ===== API HELPERS =====
 async function api(action, method='GET', body=null) {
   const opts = {method, headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN}};
@@ -482,21 +558,21 @@ async function api(action, method='GET', body=null) {
     if (!res.ok) {
       const msg = data.error || 'Erreur ' + res.status;
       if (res.status === 401) {
-        alert('Session expirée. Veuillez vous reconnecter.');
-        window.location.reload();
+        toast('Session expirée. Reconnexion...', 'warning');
+        setTimeout(() => window.location.reload(), 1500);
         return {data:[], error: msg};
       }
       if (res.status === 403) {
-        alert('Token de sécurité expiré. La page va se recharger.');
-        window.location.reload();
+        toast('Token expiré. Rechargement...', 'warning');
+        setTimeout(() => window.location.reload(), 1500);
         return {data:[], error: msg};
       }
-      alert('Erreur API : ' + msg);
+      toast('Erreur : ' + msg, 'error');
       return {data:[], error: msg};
     }
     return data;
   } catch(e) {
-    alert('Erreur réseau : impossible de contacter le serveur.');
+    toast('Erreur réseau : impossible de contacter le serveur', 'error', 6000);
     return {data:[], error: e.message};
   }
 }
@@ -526,6 +602,8 @@ async function loadSection(name) {
     case 'observations': return loadObservations();
     case 'gallery': return loadGallery();
     case 'announcements': return loadAnnouncements();
+    case 'journal': return loadJournal();
+    case 'banner': return loadBanner();
     case 'newsletter': return loadNewsletter();
   }
 }
@@ -657,6 +735,7 @@ async function updateResa(id, status) { await api('reservations','PATCH',{id,sta
 async function deleteItem(entity, id) {
   if (!confirm('Supprimer cet élément ?')) return;
   await api(entity, 'DELETE', {id});
+  toast('Élément supprimé', 'success');
   loadSection(document.querySelector('.sidebar__link.active')?.dataset.section || 'overview');
 }
 
@@ -693,7 +772,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="evt-date"></div>
           <div class="form-group"><label class="form-label">Heure</label><input type="time" class="form-input" id="evt-time" value="20:00"></div>
           <div class="form-group"><label class="form-label">Afficher sur</label><select class="form-select" id="evt-display"><option value="both">📄 Les deux pages</option><option value="evenements">🎭 Page Événements</option><option value="accueil">🏠 Page d'accueil</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="evt-desc" placeholder="Description de l'événement"></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="evt-desc" placeholder="Description de l'événement"></textarea><button class="mic-btn" onclick="startDictation('evt-desc')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveEvent()">Créer</button>
@@ -708,7 +787,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Plateforme</label><select class="form-select" id="soc-platform"><option value="instagram">📸 Instagram</option><option value="facebook">📘 Facebook</option><option value="both">📸📘 Les deux</option></select></div>
           <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="soc-type"><option value="photo">Photo</option><option value="reel">Reel/Vidéo</option><option value="story">Story</option><option value="carousel">Carrousel</option></select></div>
           <div class="form-group"><label class="form-label">Statut</label><select class="form-select" id="soc-status"><option value="brouillon">Brouillon</option><option value="planifié">Planifié</option><option value="publié">Publié</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Légende</label><textarea class="form-textarea" id="soc-caption" placeholder="Texte du post"></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Légende</label><textarea class="form-textarea" id="soc-caption" placeholder="Texte du post"></textarea><button class="mic-btn" onclick="startDictation('soc-caption')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
           <div class="form-group form-group--full"><label class="form-label">Hashtags</label><input class="form-input" id="soc-hashtags" placeholder="#LeTerrierBar #Nîmes #Cocktails"></div>
         </div>
         <div class="modal__actions">
@@ -756,7 +835,7 @@ function openModal(type) {
           <div class="form-group"><label class="form-label">Note (1-5)</label><select class="form-select" id="rv-rating"><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option><option value="2">★★☆☆☆ (2)</option><option value="1">★☆☆☆☆ (1)</option></select></div>
           <div class="form-group"><label class="form-label">Source</label><select class="form-select" id="rv-source"><option value="google">Google</option><option value="tripadvisor">TripAdvisor</option><option value="instagram">Instagram</option><option value="bouche-a-oreille">Bouche à oreille</option><option value="autre">Autre</option></select></div>
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="rv-date"></div>
-          <div class="form-group form-group--full"><label class="form-label">Commentaire</label><textarea class="form-textarea" id="rv-comment" placeholder="Super ambiance, cocktails incroyables..."></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Commentaire</label><textarea class="form-textarea" id="rv-comment" placeholder="Super ambiance, cocktails incroyables..."></textarea><button class="mic-btn" onclick="startDictation('rv-comment')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
           <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rv-visible" checked> <span class="form-label" style="margin:0">Visible sur le site</span></label></div>
         </div>
         <div class="modal__actions">
@@ -770,7 +849,7 @@ function openModal(type) {
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Catégorie</label><select class="form-select" id="obs-category"><option value="general">Général</option><option value="bug">Bug / Problème</option><option value="amelioration">Amélioration</option><option value="contenu">Contenu à modifier</option><option value="securite">Sécurité</option><option value="design">Design</option></select></div>
           <div class="form-group"><label class="form-label">Priorité</label><select class="form-select" id="obs-priority"><option value="haute">Haute</option><option value="moyenne" selected>Moyenne</option><option value="basse">Basse</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Note / Observation</label><textarea class="form-textarea" id="obs-note" placeholder="Décrire l'observation, le problème ou l'amélioration souhaitée..."></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Note / Observation</label><textarea class="form-textarea" id="obs-note" placeholder="Décrire l'observation, le problème ou l'amélioration souhaitée..."></textarea><button class="mic-btn" onclick="startDictation('obs-note')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveObservation()">Ajouter</button>
@@ -796,11 +875,14 @@ function openModal(type) {
           <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="gal-visible" checked> <span class="form-label" style="margin:0">Visible sur le site</span></label></div>
         </div>
         <div class="modal__actions">
-          <button class="btn btn--primary" onclick="saveGallery()">Ajouter</button>
+          <button class="btn btn--primary" id="gal-save-btn">Ajouter</button>
           <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
         </div>`;
-      // Setup drag and drop
-      setTimeout(() => setupDropzone('gal-dropzone', 'gal-file'), 50);
+      // Setup drag and drop + bind save handler
+      setTimeout(() => {
+        setupDropzone('gal-dropzone', 'gal-file');
+        document.getElementById('gal-save-btn').onclick = saveGallery;
+      }, 50);
       break;
     case 'announcement':
       mc.innerHTML = `
@@ -808,7 +890,7 @@ function openModal(type) {
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="ann-title" placeholder="Soirée Jazz ce vendredi"></div>
           <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="ann-type"><option value="info">ℹ️ Info générale</option><option value="event">🎭 Événement</option><option value="promo">🎁 Promotion</option><option value="urgent">🔴 Urgent</option><option value="horaires">🕐 Horaires</option></select></div>
-          <div class="form-group form-group--full"><label class="form-label">Contenu</label><textarea class="form-textarea" id="ann-content" placeholder="Le texte de votre annonce..."></textarea></div>
+          <div class="form-group form-group--full"><label class="form-label">Contenu</label><textarea class="form-textarea" id="ann-content" placeholder="Le texte de votre annonce..."></textarea><button class="mic-btn" onclick="startDictation('ann-content')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
           <div class="form-group"><label class="form-label">Lien (optionnel)</label><input class="form-input" id="ann-link" placeholder="evenements.html"></div>
           <div class="form-group"><label class="form-label">Texte du lien</label><input class="form-input" id="ann-link-text" placeholder="En savoir plus"></div>
           <div class="form-group"><label class="form-label">Date d'expiration</label><input type="date" class="form-input" id="ann-expires"><small style="color:var(--text-dim);font-size:.65rem">Laisser vide = permanent</small></div>
@@ -816,6 +898,20 @@ function openModal(type) {
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveAnnouncement()">Créer</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      break;
+    case 'journal':
+      mc.innerHTML = `
+        <p class="modal__title">Nouvel article</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="jnl-title" placeholder="Les travaux avancent"><button class="mic-btn" onclick="startDictation('jnl-title')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
+          <div class="form-group"><label class="form-label">Date affichée</label><input class="form-input" id="jnl-date" placeholder="Mars 2026"></div>
+          <div class="form-group form-group--full"><label class="form-label">Contenu</label><textarea class="form-textarea" id="jnl-content" placeholder="Le texte de l'article..."></textarea><button class="mic-btn" onclick="startDictation('jnl-content')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="jnl-active" checked> <span class="form-label" style="margin:0">Actif sur le site</span></label></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" onclick="saveJournal()">Créer</button>
           <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
         </div>`;
       break;
@@ -843,38 +939,56 @@ function closeModal() { document.getElementById('modal-overlay').classList.remov
 
 // ===== SAVE FUNCTIONS =====
 async function saveEvent() {
+  const title = document.getElementById('evt-title').value;
+  const date = document.getElementById('evt-date').value;
+  if (!title || !date) { toast('Titre et date requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('events','POST',{
-    title: document.getElementById('evt-title').value,
-    date: document.getElementById('evt-date').value,
+    title, date,
     time: document.getElementById('evt-time').value,
     type: document.getElementById('evt-type').value,
     display: document.getElementById('evt-display').value,
     description: document.getElementById('evt-desc').value,
   });
+  btnReset(btn);
+  toast('Événement créé', 'success');
   closeModal(); loadEvents();
 }
 
 async function saveSocial() {
+  const caption = document.getElementById('soc-caption').value;
+  if (!caption) { toast('Contenu du post requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('social','POST',{
     date: document.getElementById('soc-date').value,
     platform: document.getElementById('soc-platform').value,
     type: document.getElementById('soc-type').value,
     status: document.getElementById('soc-status').value,
-    caption: document.getElementById('soc-caption').value,
+    caption,
     hashtags: document.getElementById('soc-hashtags').value,
   });
+  btnReset(btn);
+  toast('Post créé', 'success');
   closeModal(); loadSocial();
 }
 
 async function saveFinance() {
+  const client = document.getElementById('fin-client').value;
+  const amount = document.getElementById('fin-amount').value;
+  if (!client || !amount) { toast('Client et montant requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('finances','POST',{
-    client: document.getElementById('fin-client').value,
+    client, amount,
     date_event: document.getElementById('fin-date-event').value,
-    amount: document.getElementById('fin-amount').value,
     guests: document.getElementById('fin-guests').value,
     description: document.getElementById('fin-desc').value,
     notes: document.getElementById('fin-notes').value,
   });
+  btnReset(btn);
+  toast('Devis créé', 'success');
   closeModal(); loadFinances();
 }
 
@@ -976,15 +1090,21 @@ async function loadBoutique() {
 }
 
 async function saveBoutique() {
+  const name = document.getElementById('bq-name').value;
+  const price = document.getElementById('bq-price').value;
+  if (!name || !price) { toast('Nom et prix requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('boutique','POST',{
-    name: document.getElementById('bq-name').value,
+    name, price,
     category: document.getElementById('bq-category').value,
-    price: document.getElementById('bq-price').value,
     stock: document.getElementById('bq-stock').value,
     description: document.getElementById('bq-desc').value,
     image: document.getElementById('bq-image').value,
     status: document.getElementById('bq-status').value,
   });
+  btnReset(btn);
+  toast('Produit ajouté', 'success');
   closeModal(); loadBoutique();
 }
 
@@ -1044,15 +1164,21 @@ async function loadReviews() {
 }
 
 async function saveReview() {
+  const client = document.getElementById('rv-client').value;
+  const comment = document.getElementById('rv-comment').value;
+  if (!client || !comment) { toast('Nom et commentaire requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   const result = await api('reviews','POST',{
-    client: document.getElementById('rv-client').value,
+    client, comment,
     rating: document.getElementById('rv-rating').value,
-    comment: document.getElementById('rv-comment').value,
     source: document.getElementById('rv-source').value,
     date: document.getElementById('rv-date').value,
     visible: document.getElementById('rv-visible').checked,
   });
+  btnReset(btn);
   if (result.error) return;
+  toast('Avis ajouté', 'success');
   closeModal(); loadReviews();
 }
 
@@ -1102,11 +1228,17 @@ async function loadObservations() {
 }
 
 async function saveObservation() {
+  const note = document.getElementById('obs-note').value;
+  if (!note) { toast('Note requise', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('observations','POST',{
-    note: document.getElementById('obs-note').value,
+    note,
     category: document.getElementById('obs-category').value,
     priority: document.getElementById('obs-priority').value,
   });
+  btnReset(btn);
+  toast('Observation ajoutée', 'success');
   closeModal(); loadObservations();
 }
 
@@ -1167,11 +1299,13 @@ async function saveGallery() {
     if (uploadData.success) {
       imageUrl = uploadData.url;
     } else {
-      alert('Erreur upload: ' + (uploadData.error || 'Erreur inconnue'));
+      toast('Erreur upload: ' + (uploadData.error || 'Erreur inconnue'), 'error');
       return;
     }
   }
 
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('gallery','POST',{
     title: document.getElementById('gal-title').value,
     caption: document.getElementById('gal-caption').value,
@@ -1179,6 +1313,8 @@ async function saveGallery() {
     image: imageUrl,
     visible: document.getElementById('gal-visible').checked,
   });
+  btnReset(btn);
+  toast('Photo ajoutée', 'success');
   closeModal(); loadGallery();
 }
 
@@ -1188,6 +1324,11 @@ async function editGallery(id) {
   if (!p) return;
   openModal('gallery');
   setTimeout(() => {
+    // Update modal title and button for edit mode
+    document.querySelector('#modal-content .modal__title').textContent = 'Modifier la photo';
+    const saveBtn = document.getElementById('gal-save-btn');
+    saveBtn.textContent = 'Enregistrer';
+    // Fill form with existing data
     document.getElementById('gal-title').value = p.title||'';
     document.getElementById('gal-caption').value = p.caption||'';
     document.getElementById('gal-category').value = p.category||'ambiance';
@@ -1196,18 +1337,29 @@ async function editGallery(id) {
     if (p.image) {
       document.getElementById('gal-preview').innerHTML = '<img src="/'+esc(p.image)+'" style="max-height:120px;border-radius:4px">';
     }
-    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+    // Replace save handler with PATCH
+    saveBtn.onclick = async () => {
       const fileInput = document.getElementById('gal-file');
       let imageUrl = document.getElementById('gal-image-url').value;
       if (fileInput && fileInput.files.length > 0) {
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
         formData.append('csrf_token', CSRF_TOKEN);
+        btnLoading(saveBtn);
         const uploadRes = await fetch(API + '?action=upload', {method:'POST', body: formData});
         const uploadData = await uploadRes.json();
-        if (uploadData.success) imageUrl = uploadData.url;
+        if (uploadData.success) {
+          imageUrl = uploadData.url;
+        } else {
+          toast('Erreur upload: ' + (uploadData.error || 'Erreur inconnue'), 'error');
+          btnReset(saveBtn);
+          return;
+        }
       }
+      btnLoading(saveBtn);
       await api('gallery','PATCH',{id, title:document.getElementById('gal-title').value, caption:document.getElementById('gal-caption').value, category:document.getElementById('gal-category').value, image:imageUrl, visible:document.getElementById('gal-visible').checked});
+      btnReset(saveBtn);
+      toast('Photo modifiée', 'success');
       closeModal(); loadGallery();
     };
   }, 50);
@@ -1236,15 +1388,21 @@ async function loadAnnouncements() {
 }
 
 async function saveAnnouncement() {
+  const title = document.getElementById('ann-title').value;
+  const content = document.getElementById('ann-content').value;
+  if (!title || !content) { toast('Titre et contenu requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('announcements','POST',{
-    title: document.getElementById('ann-title').value,
-    content: document.getElementById('ann-content').value,
+    title, content,
     type: document.getElementById('ann-type').value,
     link: document.getElementById('ann-link').value,
     link_text: document.getElementById('ann-link-text').value,
     expires: document.getElementById('ann-expires').value,
     active: document.getElementById('ann-active').checked,
   });
+  btnReset(btn);
+  toast('Annonce créée', 'success');
   closeModal(); loadAnnouncements();
 }
 
@@ -1352,8 +1510,12 @@ async function saveNewCarteItem() {
     description: document.getElementById('ci-desc').value,
     accent: document.getElementById('ci-accent').value || undefined,
   };
-  if (!item.name || !item.price) { alert('Nom et prix requis'); return; }
+  if (!item.name || !item.price) { toast('Nom et prix requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('carte', 'PATCH', { category_id: catId, type: 'add', item });
+  btnReset(btn);
+  toast('Plat ajouté', 'success');
   closeModal();
   loadCarte();
 }
@@ -1427,14 +1589,19 @@ async function removeSubscriber(id) {
   loadNewsletter();
 }
 
+function csvEscape(str) {
+  str = String(str).replace(/"/g, '""');
+  return '"' + str + '"';
+}
+
 function exportNewsletter() {
   const rows = document.querySelectorAll('#newsletter-list tr');
-  if (!rows.length) { alert('Aucun abonné à exporter.'); return; }
-  let csv = 'Email,Date inscription,Statut\n';
+  if (!rows.length) { toast('Aucun abonné à exporter', 'info'); return; }
+  let csv = '\uFEFFEmail,Date inscription,Statut\n';
   rows.forEach(row => {
     const cells = row.querySelectorAll('td');
     if (cells.length >= 3) {
-      csv += '"' + cells[0].textContent + '","' + cells[1].textContent + '","' + cells[2].textContent.trim() + '"\n';
+      csv += csvEscape(cells[0].textContent) + ',' + csvEscape(cells[1].textContent) + ',' + csvEscape(cells[2].textContent.trim()) + '\n';
     }
   });
   const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
@@ -1454,7 +1621,9 @@ function setupDropzone(dropzoneId, fileInputId) {
     e.preventDefault(); dz.classList.remove('dragover');
     const fi = document.getElementById(fileInputId);
     if (e.dataTransfer.files.length && fi) {
-      fi.files = e.dataTransfer.files;
+      const dt = new DataTransfer();
+      for (const f of e.dataTransfer.files) dt.items.add(f);
+      fi.files = dt.files;
       previewUpload(fi);
     }
   });
@@ -1463,7 +1632,7 @@ function setupDropzone(dropzoneId, fileInputId) {
 function previewUpload(input) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
-  if (file.size > 5 * 1024 * 1024) { alert('Fichier trop volumineux (max 5 Mo)'); input.value = ''; return; }
+  if (file.size > 5 * 1024 * 1024) { toast('Fichier trop volumineux (max 5 Mo)', 'error'); input.value = ''; return; }
   const reader = new FileReader();
   reader.onload = (e) => {
     const preview = document.getElementById('gal-preview');
@@ -1472,6 +1641,114 @@ function previewUpload(input) {
     if (dz) dz.querySelector('.dropzone__text').textContent = 'Image sélectionnée : ' + file.name;
   };
   reader.readAsDataURL(file);
+}
+
+// ===== JOURNAL DU TERRIER =====
+async function loadJournal() {
+  const d = await api('journal');
+  const el = document.getElementById('journal-list');
+  el.innerHTML = (d.data||[]).map(j => `
+    <tr>
+      <td>${j.active ? '<span class="badge badge--confirmed">Actif</span>' : '<span class="badge badge--draft">Inactif</span>'}</td>
+      <td>${esc(j.date)}</td>
+      <td><strong>${esc(j.title)}</strong></td>
+      <td>${esc(truncate(j.content,60))}</td>
+      <td>${j.order||'—'}</td>
+      <td class="btn-group">
+        <button class="btn btn--sm btn--ghost" onclick="editJournal('${esc(j.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--ghost" onclick="toggleJournal('${esc(j.id)}',${!j.active})">${j.active?'Désactiver':'Activer'}</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('journal','${esc(j.id)}')">×</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📰</p><p class="empty__text">Aucun article</p></div></td></tr>';
+}
+
+async function saveJournal() {
+  const title = document.getElementById('jnl-title').value;
+  const content = document.getElementById('jnl-content').value;
+  if (!title || !content) { toast('Titre et contenu requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
+  await api('journal','POST',{
+    title, content,
+    date: document.getElementById('jnl-date').value,
+    active: document.getElementById('jnl-active').checked,
+  });
+  btnReset(btn);
+  toast('Article créé', 'success');
+  closeModal(); loadJournal();
+}
+
+async function editJournal(id) {
+  const d = await api('journal');
+  const j = (d.data||[]).find(x => x.id === id);
+  if (!j) return;
+  openModal('journal');
+  setTimeout(() => {
+    document.getElementById('jnl-title').value = j.title||'';
+    document.getElementById('jnl-content').value = j.content||'';
+    document.getElementById('jnl-date').value = j.date||'';
+    document.getElementById('jnl-active').checked = j.active !== false;
+    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+      await api('journal','PATCH',{id, title:document.getElementById('jnl-title').value, content:document.getElementById('jnl-content').value, date:document.getElementById('jnl-date').value, active:document.getElementById('jnl-active').checked});
+      closeModal(); loadJournal();
+    };
+  }, 50);
+}
+
+async function toggleJournal(id, active) {
+  await api('journal','PATCH',{id, active});
+  loadJournal();
+}
+
+// ===== BANDEAU ANNONCE =====
+async function loadBanner() {
+  const d = await api('banner');
+  const data = d.data || {};
+  document.getElementById('banner-text').value = data.text || '';
+  document.getElementById('banner-active').checked = data.active !== false;
+  document.getElementById('banner-status').textContent = data.updated ? 'Dernière mise à jour : ' + data.updated : '';
+}
+
+async function saveBanner() {
+  const text = document.getElementById('banner-text').value;
+  const active = document.getElementById('banner-active').checked;
+  await api('banner','PATCH',{text, active});
+  toast('Bandeau mis à jour', 'success');
+  document.getElementById('banner-status').textContent = 'Sauvegardé ✓';
+}
+
+// ===== DICTEE VOCALE (Web Speech API) =====
+function startDictation(inputId) {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { toast('Dictée vocale non supportée par ce navigateur. Utilisez Chrome ou Edge.', 'warning'); return; }
+  var recognition = new SpeechRecognition();
+  recognition.lang = 'fr-FR';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  var origValue = input.value;
+  var btn = input.parentElement.querySelector('.mic-btn');
+  if (btn) { btn.style.background = 'rgba(200,164,92,.3)'; btn.textContent = '🎤 Écoute...'; }
+  recognition.onresult = function(event) {
+    var transcript = '';
+    for (var i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    input.value = origValue ? origValue + ' ' + transcript : transcript;
+    // For textarea
+    if (input.tagName === 'TEXTAREA') input.style.height = 'auto';
+  };
+  recognition.onend = function() {
+    if (btn) { btn.style.background = ''; btn.textContent = '🎤 Dicter'; }
+  };
+  recognition.onerror = function(e) {
+    if (btn) { btn.style.background = ''; btn.textContent = '🎤 Dicter'; }
+    if (e.error === 'not-allowed') toast('Accès au micro refusé. Autorisez le micro dans les paramètres du navigateur.', 'error');
+    else if (e.error !== 'aborted') toast('Erreur de dictée : ' + e.error, 'error');
+  };
+  recognition.start();
 }
 
 // ===== KEYBOARD SHORTCUT =====

@@ -389,34 +389,16 @@
     </div>
   </section>
 
-  <!-- JOURNAL DU TERRIER — modifier les 3 cartes ici -->
-  <section class="section-pad">
+  <!-- JOURNAL DU TERRIER — Chargé dynamiquement depuis le dashboard -->
+  <section class="section-pad" id="journal-section">
     <div class="container">
       <div class="stitle reveal">
         <p class="stitle__sur">Les dernières nouvelles</p>
         <h2 class="stitle__main">Journal du Terrier</h2>
         <span class="gold-sep"></span>
       </div>
-      <div class="journal-grid">
-
-        <div class="card reveal reveal-d1">
-          <p class="journal__date">Février 2026</p>
-          <h3 class="card__title">Les travaux avancent</h3>
-          <p class="card__text">Le repaire prend forme. Les murs respirent déjà le bordeaux et l'or. Bientôt, on vous ouvre la porte.</p>
-        </div>
-
-        <div class="card reveal reveal-d2">
-          <p class="journal__date">Février 2026</p>
-          <h3 class="card__title">La carte se dessine</h3>
-          <p class="card__text">Cocktails classiques et élaborés, tapas du marché, planches à partager, vins de la région. On a pensé chaque détail pour vous.</p>
-        </div>
-
-        <div class="card reveal reveal-d3">
-          <p class="journal__date">Bientôt</p>
-          <h3 class="card__title">Save the date</h3>
-          <p class="card__text">La date d'ouverture arrive. Suivez-nous sur Instagram pour être les premiers à entrer dans le repaire.</p>
-        </div>
-
+      <div class="journal-grid" id="journal-grid">
+        <!-- Rempli dynamiquement par JS -->
       </div>
     </div>
   </section>
@@ -553,7 +535,7 @@
     </div>
   </footer>
 
-  <script src="shared.js?v=3" defer></script>
+  <script src="shared.js?v=5" defer></script>
 
   <!-- COOKIE CONSENT -->
   <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Consentement cookies">

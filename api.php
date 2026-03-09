@@ -16,7 +16,7 @@ header('X-Frame-Options: DENY');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'submit-review', 'subscribe-newsletter'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'public-events', 'public-journal', 'public-banner', 'submit-review', 'subscribe-newsletter'])) {
     // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     if (in_array($action, ['submit-review', 'subscribe-newsletter'])) {
@@ -53,6 +53,15 @@ if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews
 // Reset action for routing (already set above)
 $method = $_SERVER['REQUEST_METHOD'];
 
+// --- HELPERS ---
+function requireId(array $input): string {
+    $id = (string)($input['id'] ?? '');
+    if ($id === '') {
+        jsonResponse(['error' => 'ID requis'], 400);
+    }
+    return $id;
+}
+
 // --- ROUTING ---
 $entity = $_GET['entity'] ?? '';
 
@@ -71,7 +80,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $status = $input['status'] ?? '';
                 foreach ($data as &$msg) {
                     if ($msg['id'] === $id) {
@@ -85,7 +94,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($m) use ($id) { return $m['id'] !== $id; }));
                 saveData('messages', $data);
                 jsonResponse(['success' => true]);
@@ -103,7 +112,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$resa) {
                     if ($resa['id'] === $id) {
                         $resa['status'] = $input['status'] ?? $resa['status'];
@@ -117,7 +126,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($r) use ($id) { return $r['id'] !== $id; }));
                 saveData('reservations', $data);
                 jsonResponse(['success' => true]);
@@ -152,7 +161,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$evt) {
                     if ($evt['id'] === $id) {
                         foreach (['title','date','time','type','display','description','status'] as $field) {
@@ -167,7 +176,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($e) use ($id) { return $e['id'] !== $id; }));
                 saveData('events', $data);
                 jsonResponse(['success' => true]);
@@ -202,7 +211,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$post) {
                     if ($post['id'] === $id) {
                         foreach (['date','platform','type','caption','hashtags','status','notes'] as $field) {
@@ -217,7 +226,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($p) use ($id) { return $p['id'] !== $id; }));
                 saveData('social', $data);
                 jsonResponse(['success' => true]);
@@ -244,9 +253,9 @@ try {
                     'description' => sanitize($input['description'] ?? ''),
                     'date' => sanitize($input['date'] ?? date('Y-m-d')),
                     'date_event' => sanitize($input['date_event'] ?? ''),
-                    'amount' => floatval($input['amount'] ?? 0),
-                    'tva_rate' => floatval($input['tva_rate'] ?? 10),
-                    'guests' => intval($input['guests'] ?? 0),
+                    'amount' => max(0, floatval($input['amount'] ?? 0)),
+                    'tva_rate' => max(0, min(100, floatval($input['tva_rate'] ?? 10))),
+                    'guests' => max(0, intval($input['guests'] ?? 0)),
                     'status' => 'brouillon',
                     'notes' => sanitize($input['notes'] ?? ''),
                     'created' => date('Y-m-d H:i:s'),
@@ -257,7 +266,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$quote) {
                     if ($quote['id'] === $id) {
                         foreach (['client','description','date','date_event','amount','tva_rate','guests','status','notes'] as $field) {
@@ -275,7 +284,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($f) use ($id) { return $f['id'] !== $id; }));
                 saveData('finances', $data);
                 jsonResponse(['success' => true]);
@@ -310,7 +319,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$product) {
                     if ($product['id'] === $id) {
                         foreach (['name','category','description','image','status'] as $field) {
@@ -327,7 +336,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($p) use ($id) { return $p['id'] !== $id; }));
                 saveData('boutique', $data);
                 jsonResponse(['success' => true]);
@@ -361,7 +370,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$review) {
                     if ($review['id'] === $id) {
                         foreach (['client','comment','source','date'] as $field) {
@@ -378,7 +387,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($r) use ($id) { return $r['id'] !== $id; }));
                 saveData('reviews', $data);
                 jsonResponse(['success' => true]);
@@ -417,7 +426,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$obs) {
                     if ($obs['id'] === $id) {
                         foreach (['note','category','priority','status'] as $field) {
@@ -432,7 +441,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($o) use ($id) { return $o['id'] !== $id; }));
                 saveData('observations', $data);
                 jsonResponse(['success' => true]);
@@ -556,11 +565,17 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$photo) {
                     if ($photo['id'] === $id) {
-                        foreach (['title','caption','category','image'] as $field) {
+                        foreach (['title','caption','category'] as $field) {
                             if (isset($input[$field])) $photo[$field] = sanitize($input[$field]);
+                        }
+                        if (isset($input['image'])) {
+                            $img = sanitize($input['image']);
+                            if ($img === '' || strpos($img, 'uploads/gallery/') === 0) {
+                                $photo['image'] = $img;
+                            }
                         }
                         if (isset($input['visible'])) $photo['visible'] = (bool)$input['visible'];
                         if (isset($input['order'])) $photo['order'] = intval($input['order']);
@@ -573,7 +588,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 // Supprimer le fichier image associé (avec validation du chemin)
                 foreach ($data as $photo) {
                     if ($photo['id'] === $id && !empty($photo['image'])) {
@@ -620,7 +635,7 @@ try {
             }
             if ($method === 'PATCH') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 foreach ($data as &$ann) {
                     if ($ann['id'] === $id) {
                         foreach (['title','content','type','link','link_text','expires'] as $field) {
@@ -641,7 +656,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($a) use ($id) { return $a['id'] !== $id; }));
                 saveData('announcements', $data);
                 jsonResponse(['success' => true]);
@@ -672,12 +687,8 @@ try {
                 jsonResponse(['error' => 'Type de fichier non autorisé (JPG, PNG, WebP uniquement)'], 400);
             }
 
-            $ext = match($mimeType) {
-                'image/jpeg' => 'jpg',
-                'image/png' => 'png',
-                'image/webp' => 'webp',
-                default => 'jpg',
-            };
+            $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            $ext = $extMap[$mimeType] ?? 'jpg';
 
             $filename = 'gallery-' . bin2hex(random_bytes(8)) . '.' . $ext;
             $destPath = UPLOADS_DIR . 'gallery/' . $filename;
@@ -749,6 +760,77 @@ try {
             break;
 
         // ============================
+        // JOURNAL DU TERRIER (Admin)
+        // ============================
+        case 'journal':
+            $data = loadData('journal');
+            if ($method === 'GET') {
+                usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $entry = [
+                    'id' => generateId(),
+                    'date' => sanitize($input['date'] ?? ''),
+                    'title' => sanitize($input['title'] ?? ''),
+                    'content' => sanitize($input['content'] ?? ''),
+                    'active' => $input['active'] ?? true,
+                    'order' => count($data) + 1,
+                    'created' => date('Y-m-d'),
+                ];
+                $data[] = $entry;
+                saveData('journal', $data);
+                jsonResponse(['success' => true, 'id' => $entry['id']]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = requireId($input);
+                foreach ($data as &$j) {
+                    if ($j['id'] === $id) {
+                        if (isset($input['title'])) $j['title'] = sanitize($input['title']);
+                        if (isset($input['content'])) $j['content'] = sanitize($input['content']);
+                        if (isset($input['date'])) $j['date'] = sanitize($input['date']);
+                        if (isset($input['active'])) $j['active'] = (bool)$input['active'];
+                        if (isset($input['order'])) $j['order'] = (int)$input['order'];
+                        break;
+                    }
+                }
+                unset($j);
+                saveData('journal', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = requireId($input);
+                $data = array_values(array_filter($data, function($j) use ($id) { return ($j['id'] ?? '') !== $id; }));
+                saveData('journal', $data);
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
+        // BANDEAU ANNONCE (Admin)
+        // ============================
+        case 'banner':
+            $file = DATA_DIR . 'banner.json';
+            $data = file_exists($file) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+            if ($method === 'GET') {
+                jsonResponse(['data' => $data]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                if (isset($input['text'])) $data['text'] = sanitize($input['text']);
+                if (isset($input['active'])) $data['active'] = (bool)$input['active'];
+                $data['updated'] = date('Y-m-d');
+                file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
         // NEWSLETTER (Admin — gestion abonnés)
         // ============================
         case 'newsletter':
@@ -759,7 +841,7 @@ try {
             }
             if ($method === 'DELETE') {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $id = $input['id'] ?? '';
+                $id = requireId($input);
                 $data = array_values(array_filter($data, function($s) use ($id) { return ($s['id'] ?? '') !== $id; }));
                 saveData('newsletter', $data);
                 jsonResponse(['success' => true]);
@@ -774,6 +856,18 @@ try {
             $data = loadData('carte');
             usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
             jsonResponse(['data' => $data]);
+            break;
+
+        case 'public-events':
+            $data = loadData('events');
+            $now = date('Y-m-d');
+            $active = array_values(array_filter($data, function($e) use ($now) {
+                if (($e['status'] ?? '') !== 'actif') return false;
+                if (!empty($e['date']) && $e['date'] < $now) return false;
+                return true;
+            }));
+            usort($active, function($a, $b) { return strtotime($a['date'] ?? 0) - strtotime($b['date'] ?? 0); });
+            jsonResponse(['data' => $active, 'count' => count($active)]);
             break;
 
         case 'public-gallery':
@@ -793,6 +887,18 @@ try {
             }));
             usort($active, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
             jsonResponse(['data' => $active, 'count' => count($active)]);
+            break;
+
+        case 'public-journal':
+            $data = loadData('journal');
+            $active = array_values(array_filter($data, function($j) { return ($j['active'] ?? true); }));
+            usort($active, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+            jsonResponse(['data' => array_slice($active, 0, 3)]);
+            break;
+
+        case 'public-banner':
+            $data = json_decode(file_get_contents(DATA_DIR . 'banner.json'), true) ?: ['text' => '', 'active' => false];
+            jsonResponse(['data' => $data]);
             break;
 
         case 'public-reviews':
