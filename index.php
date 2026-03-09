@@ -1427,14 +1427,19 @@ async function removeSubscriber(id) {
   loadNewsletter();
 }
 
+function csvEscape(str) {
+  str = String(str).replace(/"/g, '""');
+  return '"' + str + '"';
+}
+
 function exportNewsletter() {
   const rows = document.querySelectorAll('#newsletter-list tr');
   if (!rows.length) { alert('Aucun abonné à exporter.'); return; }
-  let csv = 'Email,Date inscription,Statut\n';
+  let csv = '\uFEFFEmail,Date inscription,Statut\n';
   rows.forEach(row => {
     const cells = row.querySelectorAll('td');
     if (cells.length >= 3) {
-      csv += '"' + cells[0].textContent + '","' + cells[1].textContent + '","' + cells[2].textContent.trim() + '"\n';
+      csv += csvEscape(cells[0].textContent) + ',' + csvEscape(cells[1].textContent) + ',' + csvEscape(cells[2].textContent.trim()) + '\n';
     }
   });
   const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
@@ -1454,7 +1459,9 @@ function setupDropzone(dropzoneId, fileInputId) {
     e.preventDefault(); dz.classList.remove('dragover');
     const fi = document.getElementById(fileInputId);
     if (e.dataTransfer.files.length && fi) {
-      fi.files = e.dataTransfer.files;
+      const dt = new DataTransfer();
+      for (const f of e.dataTransfer.files) dt.items.add(f);
+      fi.files = dt.files;
       previewUpload(fi);
     }
   });
