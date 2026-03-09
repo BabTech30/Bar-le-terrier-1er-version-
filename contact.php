@@ -8,7 +8,7 @@
  * ============================================================
  */
 
-require_once __DIR__ . '/../admin/config.php';
+require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -49,8 +49,8 @@ $guests = sanitize($_POST['guests'] ?? '');
 $date = sanitize($_POST['date'] ?? '');
 
 // Validation
-if (empty($name) || !$email || empty($message)) {
-    jsonResponse(['error' => 'Nom, email et message sont requis.'], 400);
+if (empty($name) || !$email) {
+    jsonResponse(['error' => 'Nom et email sont requis.'], 400);
 }
 
 if (strlen($message) > 5000 || strlen($name) > 200) {
@@ -100,6 +100,28 @@ $messageData = [
 $messages = loadData('messages');
 $messages[] = $messageData;
 saveData('messages', $messages);
+
+// Si c'est une réservation, stocker aussi dans reservations.json pour le dashboard
+$time = sanitize($_POST['time'] ?? '');
+if (in_array($subject, ['Réservation', 'Privatisation'])) {
+    $reservation = [
+        'id' => generateId(),
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'date_resa' => $date,
+        'time' => $time,
+        'guests' => is_numeric($guests) ? intval($guests) : $guests,
+        'message' => $message,
+        'status' => 'en attente',
+        'notes' => $subject === 'Privatisation' ? 'Privatisation' : '',
+        'date' => date('Y-m-d H:i:s'),
+        'ip' => $ip,
+    ];
+    $reservations = loadData('reservations');
+    $reservations[] = $reservation;
+    saveData('reservations', $reservations);
+}
 
 // Réponse
 if ($emailSent) {

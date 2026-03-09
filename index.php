@@ -278,6 +278,8 @@ tr:hover{background:rgba(200,164,92,.03)}
   td{padding:.5rem .6rem;font-size:.75rem}
   .toast{max-width:90vw;font-size:.75rem}
 }
+.mic-btn{display:inline-flex;align-items:center;gap:.3rem;margin-top:.4rem;background:rgba(200,164,92,.12)!important;border:1px solid rgba(200,164,92,.5)!important;color:var(--or)!important;padding:.45rem .8rem!important;border-radius:6px!important;cursor:pointer;font-size:.8rem!important;transition:all .2s}
+.mic-btn:hover{background:rgba(200,164,92,.25)!important;border-color:var(--or)!important;transform:scale(1.02)}
 </style>
 </head>
 <body>

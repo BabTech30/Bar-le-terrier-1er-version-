@@ -46,12 +46,17 @@ if (!is_dir(UPLOADS_DIR . 'gallery/')) {
 }
 
 // Initialiser les fichiers JSON s'ils n'existent pas
-$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations', 'gallery', 'announcements', 'newsletter', 'carte'];
+$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations', 'gallery', 'announcements', 'newsletter', 'carte', 'journal'];
 foreach ($dataFiles as $file) {
     $path = DATA_DIR . $file . '.json';
     if (!file_exists($path)) {
         file_put_contents($path, json_encode([], JSON_PRETTY_PRINT));
     }
+}
+// Banner est un objet, pas un tableau
+$bannerPath = DATA_DIR . 'banner.json';
+if (!file_exists($bannerPath)) {
+    file_put_contents($bannerPath, json_encode(['text' => '', 'active' => false, 'updated' => date('Y-m-d')], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 
 // --- FONCTIONS UTILITAIRES ---
