@@ -16,7 +16,7 @@ header('X-Frame-Options: DENY');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'submit-review', 'subscribe-newsletter'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'public-events', 'submit-review', 'subscribe-newsletter'])) {
     // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     if (in_array($action, ['submit-review', 'subscribe-newsletter'])) {
@@ -779,6 +779,18 @@ try {
             $data = loadData('carte');
             usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
             jsonResponse(['data' => $data]);
+            break;
+
+        case 'public-events':
+            $data = loadData('events');
+            $now = date('Y-m-d');
+            $active = array_values(array_filter($data, function($e) use ($now) {
+                if (($e['status'] ?? '') !== 'actif') return false;
+                if (!empty($e['date']) && $e['date'] < $now) return false;
+                return true;
+            }));
+            usort($active, function($a, $b) { return strtotime($a['date'] ?? 0) - strtotime($b['date'] ?? 0); });
+            jsonResponse(['data' => $active, 'count' => count($active)]);
             break;
 
         case 'public-gallery':

@@ -629,6 +629,80 @@
     }
   }
 
+  /* --- DYNAMIC EVENTS (loaded from API) --- */
+  var MONTHS_FR = ['Jan','Fév','Mars','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+  var EVENT_TYPES = {jazz:'Jazz',vin:'Dégustation',dj:'DJ Set',special:'Spécial',prive:'Privé'};
+
+  // Page événements — full list
+  var eventsList = document.querySelector('.events-list');
+  if (eventsList) {
+    fetch('/api.php?action=public-events')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return;
+        var items = d.data.filter(function(e) {
+          return e.display === 'both' || e.display === 'evenements';
+        });
+        if (!items.length) return;
+        var html = '';
+        items.forEach(function(evt) {
+          var dt = new Date(evt.date + 'T00:00:00');
+          var day = String(dt.getDate()).padStart(2, '0');
+          var month = MONTHS_FR[dt.getMonth()];
+          var tag = EVENT_TYPES[evt.type] || evt.type || 'Événement';
+          var div = document.createElement('div');
+          div.textContent = evt.title || '';
+          var safeTitle = div.innerHTML;
+          div.textContent = evt.description || '';
+          var safeDesc = div.innerHTML;
+          div.textContent = tag;
+          var safeTag = div.innerHTML;
+          html += '<div class="event reveal visible">';
+          html += '<div class="event__date"><span class="event__day">' + day + '</span><span class="event__month">' + month + '</span></div>';
+          html += '<div class="event__info"><p class="event__tag">' + safeTag + '</p>';
+          html += '<h3 class="event__title">' + safeTitle + '</h3>';
+          html += '<p class="event__text">' + safeDesc + '</p></div></div>';
+        });
+        eventsList.innerHTML = html;
+      })
+      .catch(function() { /* keep static fallback */ });
+  }
+
+  // Page accueil — highlights (max 3)
+  var eventsHighlight = document.querySelector('.events-highlight__list');
+  if (eventsHighlight) {
+    fetch('/api.php?action=public-events')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return;
+        var html = '';
+        var items = d.data.filter(function(e) {
+          return e.display === 'both' || e.display === 'accueil';
+        }).slice(0, 3);
+        if (!items.length) return;
+        items.forEach(function(evt) {
+          var dt = new Date(evt.date + 'T00:00:00');
+          var day = String(dt.getDate()).padStart(2, '0');
+          var month = MONTHS_FR[dt.getMonth()];
+          var tag = EVENT_TYPES[evt.type] || evt.type || 'Événement';
+          var div = document.createElement('div');
+          div.textContent = evt.title || '';
+          var safeTitle = div.innerHTML;
+          div.textContent = evt.description || '';
+          var safeDesc = div.innerHTML;
+          div.textContent = tag;
+          var safeTag = div.innerHTML;
+          html += '<div class="events-highlight__item">';
+          html += '<div class="events-highlight__date"><span class="events-highlight__day">' + day + '</span><span class="events-highlight__month">' + month + '</span></div>';
+          html += '<div class="events-highlight__content"><p class="events-highlight__tag">' + safeTag + '</p>';
+          html += '<h3 class="events-highlight__title">' + safeTitle + '</h3>';
+          html += '<p class="events-highlight__text">' + safeDesc + '</p></div></div>';
+        });
+        eventsHighlight.innerHTML = html;
+      })
+      .catch(function() { /* keep static fallback */ });
+  }
+
   /* --- NEWSLETTER FORM (sauvegarde locale + Brevo fallback) --- */
   var nlForm = document.querySelector('.newsletter__form');
   if (nlForm) {
