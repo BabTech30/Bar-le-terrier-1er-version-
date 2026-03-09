@@ -1,0 +1,203 @@
+[
+    {
+        "id": "formules",
+        "category": "Nos Formules",
+        "subtitle": "Les Rituels",
+        "note": "Tapas au choix parmi Petites Tapas & Tapas",
+        "order": 1,
+        "items": [
+            {"id": "f1", "name": "L'Entrée du Terrier", "price": "25", "description": "3 tapas au choix + 1 cocktail", "accent": "L'initiation parfaite"},
+            {"id": "f2", "name": "La Tanière", "price": "40", "description": "5 tapas au choix + 2 cocktails", "accent": "Pour s'installer confortablement", "featured": true},
+            {"id": "f3", "name": "Le Festin du Renard", "price": "55", "description": "7 tapas au choix + 2 cocktails + 1 planche à partager", "accent": "L'expérience complète · Pour deux"}
+        ]
+    },
+    {
+        "id": "cocktails",
+        "category": "Cocktails",
+        "subtitle": "Au bar",
+        "order": 2,
+        "subcategories": [
+            {
+                "name": "Classiques — 8 €",
+                "items": [
+                    {"id": "ck1", "name": "White Russian", "price": "8", "description": "Vodka, Kahlúa, crème fraîche", "accent": "Gourmand, velouté, un dessert liquide"},
+                    {"id": "ck2", "name": "Caipirinha", "price": "8", "description": "Cachaça, citron vert, sucre de canne pilé", "accent": "Brut, frais, le Brésil dans un verre"},
+                    {"id": "ck3", "name": "Dry Martini", "price": "8", "description": "Gin, vermouth dry, olive ou zeste citron", "accent": "Sec, élégant, l'intemporel"},
+                    {"id": "ck4", "name": "Gin Tonic", "price": "8", "description": "Gin, tonic premium, botaniques du moment", "accent": "Net, frais, infini de possibilités"},
+                    {"id": "ck5", "name": "Moscow Mule", "price": "8", "description": "Vodka, ginger beer, citron vert", "accent": "Piquant, rafraîchissant, cuivré"},
+                    {"id": "ck6", "name": "Cuba Libre", "price": "8", "description": "Rhum ambré, cola artisanal, citron vert", "accent": "Simple, franc, toujours efficace"}
+                ]
+            },
+            {
+                "name": "Élaborés — 9 €",
+                "items": [
+                    {"id": "ck7", "name": "Margarita", "price": "9", "description": "Tequila, Cointreau, citron vert frais, givrage sel", "accent": "Vif, équilibré, la référence mexicaine"},
+                    {"id": "ck8", "name": "Mojito", "price": "9", "description": "Rhum blanc, menthe fraîche, citron vert, sucre de canne, soda", "accent": "Frais, herbacé, le classique absolu"},
+                    {"id": "ck9", "name": "Mojito Gingembre", "price": "9", "description": "Rhum blanc, menthe, sirop gingembre, ginger beer", "accent": "Piquant, aromatique, le twist qui change tout"}
+                ]
+            },
+            {
+                "name": "Mojitos Saisonniers — 10 €",
+                "items": [
+                    {"id": "ck10", "name": "Mojito Fraise", "price": "10", "description": "Rhum blanc, fraises fraîches, menthe, citron vert, sucre de canne", "accent": "Fruité, printanier, irrésistible"},
+                    {"id": "ck11", "name": "Mojito Framboise", "price": "10", "description": "Rhum blanc, framboises fraîches, menthe, citron vert, sucre de canne", "accent": "Acidulé, intense, la couleur de l'été"}
+                ]
+            }
+        ]
+    },
+    {
+        "id": "sans-alcool",
+        "category": "Sans Alcool",
+        "subtitle": "Sobrement",
+        "note": "Le goût, sans compromis",
+        "order": 3,
+        "items": [
+            {"id": "sa1", "name": "Virgin Mojito", "price": "7", "description": "Menthe fraîche, citron vert, sucre de canne, soda", "accent": "Frais, herbacé, le classique revisité"},
+            {"id": "sa2", "name": "Bora Bora", "price": "7", "description": "Jus d'ananas, fruit de la passion, grenadine, citron", "accent": "Exotique, coloré, voyage garanti"}
+        ]
+    },
+    {
+        "id": "shooters",
+        "category": "Shooters",
+        "subtitle": "En un shot",
+        "price_label": "4 € pièce",
+        "order": 4,
+        "items": [
+            {"id": "sh1", "name": "L'Orgasme", "price": "4", "description": "Crème de menthe, vanille, tequila, Baileys"},
+            {"id": "sh2", "name": "Kamikaze", "price": "4", "description": "Vodka, citron vert, Cointreau"},
+            {"id": "sh3", "name": "Madeleine", "price": "4", "description": "Amaretto, jus d'ananas, triple sec"},
+            {"id": "sh4", "name": "B-52", "price": "4", "description": "Kahlúa, Baileys, Grand Marnier — en couches"},
+            {"id": "sh5", "name": "Tequila Paf", "price": "4", "description": "Tequila, tonic — claqué au comptoir"}
+        ]
+    },
+    {
+        "id": "petites-tapas",
+        "category": "Petites Tapas",
+        "subtitle": "Pour commencer",
+        "price_label": "5 — 6 €",
+        "order": 5,
+        "items": [
+            {"id": "pt1", "name": "Olives Cassées & Amandes Grillées", "price": "5", "description": "Olives de Nîmes, amandes torréfiées, fleur de sel de Camargue, romarin"},
+            {"id": "pt2", "name": "Pan con Tomate — Anchois de Collioure", "price": "5", "description": "Pain grillé frotté tomate, ail, anchois, huile d'olive vierge · x4"},
+            {"id": "pt3", "name": "Pan con Tomate — Mozzarella", "price": "5", "description": "Pain grillé frotté tomate, fior di latte, basilic frais · x4"},
+            {"id": "pt4", "name": "Légumes Grillés du Moment", "price": "5", "description": "Courgettes, aubergines, poivrons, oignons rouges, huile d'olive, thym, balsamique"},
+            {"id": "pt5", "name": "Croquetas au Jambon Ibérique", "price": "6", "description": "Béchamel fondante, jambon Bellota, panure croustillante · x4"},
+            {"id": "pt6", "name": "Piquillos Farcis à la Brandade", "price": "6", "description": "Poivrons piquillos, brandade de Nîmes, huile d'olive fumée · x4"},
+            {"id": "pt7", "name": "Œufs Mimosa Truffés", "price": "6", "description": "Œufs durs, mayonnaise maison, huile de truffe noire, copeaux de truffe d'été, ciboulette"},
+            {"id": "pt8", "name": "Mini Planche de Fromages", "price": "6", "description": "3-4 fromages de saison, confiture de figue, noix, pain"}
+        ]
+    },
+    {
+        "id": "tapas",
+        "category": "Tapas",
+        "subtitle": "Terre & Mer",
+        "price_label": "8 — 10 €",
+        "order": 6,
+        "subcategories": [
+            {
+                "name": "De la Mer",
+                "items": [
+                    {"id": "t1", "name": "Poulpe Frit, Aïoli Safrané", "price": "9", "description": "Poulpe en tempura légère, aïoli au safran des Cévennes"},
+                    {"id": "t2", "name": "Gambas à la Plancha", "price": "9", "description": "Gambas entières grillées, ail confit, piment doux, persil plat · 4 pièces"},
+                    {"id": "t3", "name": "Tataki de Thon Rouge", "price": "10", "description": "Thon rouge snacké, sésame noir, ponzu maison, ciboulette · ~120 g"}
+                ]
+            },
+            {
+                "name": "De la Terre",
+                "items": [
+                    {"id": "t4", "name": "Poulet Grillé Mariné", "price": "8", "description": "Haut de cuisse fermier, marinade olive-citron-paprika fumé-cumin"},
+                    {"id": "t5", "name": "Magret de Canard Grillé", "price": "9", "description": "Magret mariné miel-soja-gingembre, sésame, roquette"},
+                    {"id": "t6", "name": "Tataki de Bœuf de l'Aubrac", "price": "10", "description": "Bœuf d'Aubrac snacké, roquette, parmesan 24 mois, vinaigrette truffe · ~120 g"}
+                ]
+            }
+        ]
+    },
+    {
+        "id": "planches",
+        "category": "Les Planches",
+        "subtitle": "À partager",
+        "order": 7,
+        "items": [
+            {"id": "pl1", "name": "Planche Fromages Affinés", "price": "14", "description": "4-5 fromages de saison, confiture de figue, miel, noix · ~200 g"},
+            {"id": "pl2", "name": "Planche Charcuterie", "price": "14", "description": "Jambon Bellota, lomo, chorizo ibérique, pickles, olives, pain cristal · ~180 g"},
+            {"id": "pl3", "name": "Planche du Chasseur", "price": "16", "description": "Trio de viandes grillées (bœuf, canard, poulet), roquette, parmesan, vinaigrette truffe"},
+            {"id": "pl4", "name": "Planche du Pêcheur", "price": "16", "description": "Trio gambas, poulpe, thon — aïoli safrané, citron, mesclun"}
+        ]
+    },
+    {
+        "id": "grande-tablee",
+        "category": "La Grande Tablée",
+        "subtitle": "À partager",
+        "order": 8,
+        "items": [
+            {"id": "gt1", "name": "La Grande Tablée", "price": "28", "description": "Planche signature à partager — fromages affinés, viandes grillées, poissons, charcuterie ibérique. Le meilleur du Terrier sur une planche.", "accent": "Incluse dans la formule « Le Festin du Renard »"}
+        ]
+    },
+    {
+        "id": "spiritueux",
+        "category": "Spiritueux",
+        "subtitle": "Pour les connaisseurs",
+        "note": "Servis en verre dégustation · 4 cl",
+        "order": 9,
+        "subcategories": [
+            {
+                "name": "Whiskies",
+                "items": [
+                    {"id": "sp1", "name": "Johnnie Walker Black Label", "price": "8", "description": "Blend — Fumé doux, fruits secs, vanille caramélisée"},
+                    {"id": "sp2", "name": "Glenlivet 12 ans", "price": "9", "description": "Speyside — Floral, pomme mûre, miel délicat"},
+                    {"id": "sp3", "name": "Ardbeg 10 ans", "price": "10", "description": "Islay — Tourbe intense, citron, fumée maritime"},
+                    {"id": "sp4", "name": "Balvenie DoubleWood 12 ans", "price": "10", "description": "Speyside — Miel, vanille, chêne épicé, double maturation"},
+                    {"id": "sp5", "name": "Laphroaig 10 ans", "price": "10", "description": "Islay — Tourbe médicinale, iode, sel marin, finale longue"},
+                    {"id": "sp6", "name": "Lagavulin 16 ans", "price": "12", "description": "Islay — Tourbe noble, fruits secs, sherry, complexité rare"}
+                ]
+            },
+            {
+                "name": "Rhums",
+                "items": [
+                    {"id": "sp7", "name": "Doorly's 12 ans", "price": "9", "description": "Barbade — Vanille, caramel beurré, épices douces"},
+                    {"id": "sp8", "name": "Clairin Sajous", "price": "9", "description": "Haïti — Canne fraîche, agrumes, floral, brut de colonne"},
+                    {"id": "sp9", "name": "Hampden Estate 8 ans", "price": "10", "description": "Jamaïque — Esters puissants, fruits tropicaux, funk jamaïcain"},
+                    {"id": "sp10", "name": "El Dorado 12 ans", "price": "10", "description": "Guyana — Caramel, épices chaudes, boisé, rondeur enveloppante"},
+                    {"id": "sp11", "name": "Appleton Estate 12 ans", "price": "10", "description": "Jamaïque — Orange confite, vanille, chêne, complexité élégante"},
+                    {"id": "sp12", "name": "J.M XO", "price": "12", "description": "Martinique — Cacao, épices créoles, canne noble, finale interminable"}
+                ]
+            }
+        ]
+    },
+    {
+        "id": "vins",
+        "category": "Vins au Verre",
+        "subtitle": "Du terroir",
+        "order": 10,
+        "subcategories": [
+            {
+                "name": "Blancs",
+                "items": [
+                    {"id": "v1", "name": "Picpoul de Pinet", "price": "5", "description": "Blanc · 12 cl"},
+                    {"id": "v2", "name": "Costières de Nîmes", "price": "6", "description": "Blanc · 12 cl"}
+                ]
+            },
+            {
+                "name": "Rosés",
+                "items": [
+                    {"id": "v3", "name": "Costières de Nîmes", "price": "5", "description": "Rosé · 12 cl"},
+                    {"id": "v4", "name": "Tavel", "price": "6", "description": "Rosé · 12 cl"}
+                ]
+            },
+            {
+                "name": "Rouges",
+                "items": [
+                    {"id": "v5", "name": "Costières de Nîmes", "price": "6", "description": "Rouge · 12 cl"},
+                    {"id": "v6", "name": "Pic Saint-Loup", "price": "7", "description": "Rouge · 12 cl"}
+                ]
+            },
+            {
+                "name": "Cuvées Premium",
+                "items": [
+                    {"id": "v7", "name": "Terrasses du Larzac", "price": "8", "description": "Rouge · 10 cl"},
+                    {"id": "v8", "name": "Châteauneuf-du-Pape", "price": "9", "description": "Rouge · 10 cl"}
+                ]
+            }
+        ]
+    }
+]
