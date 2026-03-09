@@ -1,54 +1,59 @@
 [
     {
         "id": "formules",
-        "category": "Formules",
+        "category": "Nos Formules",
         "subtitle": "Les Rituels",
-        "note": "Tapas au choix parmi Petites Tapas & Tapas uniquement",
+        "note": "Tapas au choix parmi Petites Tapas & Tapas",
         "order": 1,
         "items": [
-            {"id": "f1", "name": "L'Entrée du Terrier", "price": "23", "description": "3 tapas au choix + 1 cocktail", "accent": "L'initiation parfaite"},
+            {"id": "f1", "name": "L'Entrée du Terrier", "price": "25", "description": "3 tapas au choix + 1 cocktail", "accent": "L'initiation parfaite"},
             {"id": "f2", "name": "La Tanière", "price": "40", "description": "5 tapas au choix + 2 cocktails", "accent": "Pour s'installer confortablement", "featured": true},
             {"id": "f3", "name": "Le Festin du Renard", "price": "55", "description": "7 tapas au choix + 2 cocktails + 1 planche à partager", "accent": "L'expérience complète · Pour deux"}
         ]
     },
     {
-        "id": "signatures",
-        "category": "Cocktails Signatures",
-        "subtitle": "Créations du Terrier",
-        "price_label": "10 €",
+        "id": "cocktails",
+        "category": "Cocktails",
+        "subtitle": "Au bar",
         "order": 2,
-        "items": [
-            {"id": "s1", "name": "Le Terrier", "price": "10", "description": "Gin, miel de garrigue, thym frais, citron, tonic artisanal", "accent": "Frais, herbacé, ancré dans le Sud — notre carte de visite"},
-            {"id": "s2", "name": "L'Embuscade", "price": "10", "description": "Mezcal, pamplemousse rose, sirop de romarin, piment d'Espelette", "accent": "Fumé, surprenant, avec une morsure finale"},
-            {"id": "s3", "name": "Nuit Fauve", "price": "10", "description": "Rhum ambré, passion, lait de coco, vanille, zeste de combava", "accent": "Rond, enveloppant, tropical — le cocktail du velours"},
-            {"id": "s4", "name": "Le Refuge", "price": "10", "description": "Bourbon, sirop d'érable, bitter orange, cerise amarena, zeste fumé", "accent": "Un Old Fashioned revisité — chaud, réconfortant"},
-            {"id": "s5", "name": "Brume d'Été", "price": "10", "description": "Vodka, concombre, basilic frais, citron vert, fleur de sureau", "accent": "Léger, cristallin, le cocktail d'ouverture de soirée"},
-            {"id": "s6", "name": "Terre Rouge", "price": "10", "description": "Tequila reposado, betterave, gingembre, agave, citron", "accent": "Terreux, original, d'un rouge profond spectaculaire"}
-        ]
-    },
-    {
-        "id": "classiques",
-        "category": "Classiques Revisités",
-        "subtitle": "Nos interprétations",
-        "price_label": "9 €",
-        "order": 3,
-        "items": [
-            {"id": "c1", "name": "Spritz des Garrigues", "price": "9", "description": "Aperol, prosecco, lavande, olive verte", "accent": "Le Spritz local — la lavande change tout"},
-            {"id": "c2", "name": "Negroni du Sud", "price": "9", "description": "Gin, Campari, vermouth rouge infusé au romarin", "accent": "Amer, puissant, parfumé"},
-            {"id": "c3", "name": "Mojito Sauvage", "price": "9", "description": "Rhum blanc, menthe sauvage, citron vert, sirop thym-citron", "accent": "Plus complexe, plus garrigue"},
-            {"id": "c4", "name": "Paloma Rosée", "price": "9", "description": "Tequila, pamplemousse, hibiscus, sel de Camargue", "accent": "Rose, salée — le Mexique croise le sud de la France"}
+        "subcategories": [
+            {
+                "name": "Classiques — 8 €",
+                "items": [
+                    {"id": "ck1", "name": "White Russian", "price": "8", "description": "Vodka, Kahlúa, crème fraîche", "accent": "Gourmand, velouté, un dessert liquide"},
+                    {"id": "ck2", "name": "Caipirinha", "price": "8", "description": "Cachaça, citron vert, sucre de canne pilé", "accent": "Brut, frais, le Brésil dans un verre"},
+                    {"id": "ck3", "name": "Dry Martini", "price": "8", "description": "Gin, vermouth dry, olive ou zeste citron", "accent": "Sec, élégant, l'intemporel"},
+                    {"id": "ck4", "name": "Gin Tonic", "price": "8", "description": "Gin, tonic premium, botaniques du moment", "accent": "Net, frais, infini de possibilités"},
+                    {"id": "ck5", "name": "Moscow Mule", "price": "8", "description": "Vodka, ginger beer, citron vert", "accent": "Piquant, rafraîchissant, cuivré"},
+                    {"id": "ck6", "name": "Cuba Libre", "price": "8", "description": "Rhum ambré, cola artisanal, citron vert", "accent": "Simple, franc, toujours efficace"}
+                ]
+            },
+            {
+                "name": "Élaborés — 9 €",
+                "items": [
+                    {"id": "ck7", "name": "Margarita", "price": "9", "description": "Tequila, Cointreau, citron vert frais, givrage sel", "accent": "Vif, équilibré, la référence mexicaine"},
+                    {"id": "ck8", "name": "Mojito", "price": "9", "description": "Rhum blanc, menthe fraîche, citron vert, sucre de canne, soda", "accent": "Frais, herbacé, le classique absolu"},
+                    {"id": "ck9", "name": "Mojito Gingembre", "price": "9", "description": "Rhum blanc, menthe, sirop gingembre, ginger beer", "accent": "Piquant, aromatique, le twist qui change tout"}
+                ]
+            },
+            {
+                "name": "Mojitos Saisonniers — 10 €",
+                "items": [
+                    {"id": "ck10", "name": "Mojito Fraise", "price": "10", "description": "Rhum blanc, fraises fraîches, menthe, citron vert, sucre de canne", "accent": "Fruité, printanier, irrésistible"},
+                    {"id": "ck11", "name": "Mojito Framboise", "price": "10", "description": "Rhum blanc, framboises fraîches, menthe, citron vert, sucre de canne", "accent": "Acidulé, intense, la couleur de l'été"}
+                ]
+            }
         ]
     },
     {
         "id": "sans-alcool",
         "category": "Sans Alcool",
         "subtitle": "Sobrement",
-        "price_label": "Le goût, sans compromis · 7 €",
-        "order": 4,
+        "note": "Le goût, sans compromis",
+        "order": 3,
         "items": [
-            {"id": "sa1", "name": "Le Doux Terrier", "price": "7", "description": "Tonic artisanal, miel, thym, citron, ginger beer", "accent": "Le miroir sans alcool de notre signature"},
-            {"id": "sa2", "name": "Jardin Secret", "price": "7", "description": "Concombre, basilic, pomme verte, citron vert, eau pétillante", "accent": "Vert, frais, élégant"},
-            {"id": "sa3", "name": "Flamme Douce", "price": "7", "description": "Passion, mangue, gingembre, piment doux, lait de coco", "accent": "Exotique et épicé, sans compromis"}
+            {"id": "sa1", "name": "Virgin Mojito", "price": "7", "description": "Menthe fraîche, citron vert, sucre de canne, soda", "accent": "Frais, herbacé, le classique revisité"},
+            {"id": "sa2", "name": "Bora Bora", "price": "7", "description": "Jus d'ananas, fruit de la passion, grenadine, citron", "accent": "Exotique, coloré, voyage garanti"}
         ]
     },
     {
@@ -56,7 +61,7 @@
         "category": "Shooters",
         "subtitle": "En un shot",
         "price_label": "4 € pièce",
-        "order": 5,
+        "order": 4,
         "items": [
             {"id": "sh1", "name": "L'Orgasme", "price": "4", "description": "Crème de menthe, vanille, tequila, Baileys"},
             {"id": "sh2", "name": "Kamikaze", "price": "4", "description": "Vodka, citron vert, Cointreau"},
@@ -70,14 +75,16 @@
         "category": "Petites Tapas",
         "subtitle": "Pour commencer",
         "price_label": "5 — 6 €",
-        "order": 6,
+        "order": 5,
         "items": [
-            {"id": "pt1", "name": "Olives Cassées & Amandes Grillées", "price": "5", "description": "Olives de Nîmes, amandes, fleur de sel, romarin"},
-            {"id": "pt2", "name": "Verrines Gaspacho & Chèvre", "price": "5", "description": "Gaspacho de betterave, crème de chèvre frais, noisettes torréfiées"},
-            {"id": "pt3", "name": "Pan con Tomate & Anchois de Collioure", "price": "6", "description": "Pain grillé frotté tomate, ail, anchois, huile d'olive vierge"},
-            {"id": "pt4", "name": "Croquetas au Jambon Ibérique", "price": "6", "description": "Béchamel fondante, jambon Bellota, panure croustillante · x3"},
-            {"id": "pt5", "name": "Piquillos Farcis à la Brandade", "price": "6", "description": "Poivrons piquillos, brandade de Nîmes, huile d'olive fumée"},
-            {"id": "pt6", "name": "Œuf Parfait, Parmesan & Truffe", "price": "6", "description": "Œuf basse température, fondue de parmesan, copeaux de truffe d'été"}
+            {"id": "pt1", "name": "Olives Cassées & Amandes Grillées", "price": "5", "description": "Olives de Nîmes, amandes torréfiées, fleur de sel de Camargue, romarin"},
+            {"id": "pt2", "name": "Pan con Tomate — Anchois de Collioure", "price": "5", "description": "Pain grillé frotté tomate, ail, anchois, huile d'olive vierge · x4"},
+            {"id": "pt3", "name": "Pan con Tomate — Mozzarella", "price": "5", "description": "Pain grillé frotté tomate, fior di latte, basilic frais · x4"},
+            {"id": "pt4", "name": "Légumes Grillés du Moment", "price": "5", "description": "Courgettes, aubergines, poivrons, oignons rouges, huile d'olive, thym, balsamique"},
+            {"id": "pt5", "name": "Croquetas au Jambon Ibérique", "price": "6", "description": "Béchamel fondante, jambon Bellota, panure croustillante · x4"},
+            {"id": "pt6", "name": "Piquillos Farcis à la Brandade", "price": "6", "description": "Poivrons piquillos, brandade de Nîmes, huile d'olive fumée · x4"},
+            {"id": "pt7", "name": "Œufs Mimosa Truffés", "price": "6", "description": "Œufs durs, mayonnaise maison, huile de truffe noire, copeaux de truffe d'été, ciboulette"},
+            {"id": "pt8", "name": "Mini Planche de Fromages", "price": "6", "description": "3-4 fromages de saison, confiture de figue, noix, pain"}
         ]
     },
     {
@@ -85,36 +92,45 @@
         "category": "Tapas",
         "subtitle": "Terre & Mer",
         "price_label": "8 — 10 €",
-        "order": 7,
-        "items": [
-            {"id": "t1", "name": "Calamars Frits, Aïoli Safrané", "price": "8", "description": "Calamars en tempura légère, aïoli au safran des Cévennes"},
-            {"id": "t2", "name": "Burrata, Tomates Confites & Pistache", "price": "9", "description": "Burrata des Pouilles, tomates séchées, pesto pistache-basilic · Burrata 125 g"},
-            {"id": "t3", "name": "Champignons à la Plancha", "price": "9", "description": "Champignons de saison grillés, jaune d'œuf confit, copeaux ibériques"},
-            {"id": "t4", "name": "Tataki de Thon Rouge", "price": "10", "description": "Thon rouge snacké, sésame noir, ponzu maison, ciboulette · ~120 g"},
-            {"id": "t5", "name": "Gambas à la Plancha", "price": "10", "description": "Gambas entières grillées, ail confit, piment doux, persil plat · 4 pièces"},
-            {"id": "t6", "name": "Tataki de Bœuf de l'Aubrac", "price": "10", "description": "Bœuf d'Aubrac snacké, roquette, parmesan 24 mois, vinaigrette truffe · ~120 g"}
+        "order": 6,
+        "subcategories": [
+            {
+                "name": "De la Mer",
+                "items": [
+                    {"id": "t1", "name": "Poulpe Frit, Aïoli Safrané", "price": "9", "description": "Poulpe en tempura légère, aïoli au safran des Cévennes"},
+                    {"id": "t2", "name": "Gambas à la Plancha", "price": "9", "description": "Gambas entières grillées, ail confit, piment doux, persil plat · 4 pièces"},
+                    {"id": "t3", "name": "Tataki de Thon Rouge", "price": "10", "description": "Thon rouge snacké, sésame noir, ponzu maison, ciboulette · ~120 g"}
+                ]
+            },
+            {
+                "name": "De la Terre",
+                "items": [
+                    {"id": "t4", "name": "Poulet Grillé Mariné", "price": "8", "description": "Haut de cuisse fermier, marinade olive-citron-paprika fumé-cumin"},
+                    {"id": "t5", "name": "Magret de Canard Grillé", "price": "9", "description": "Magret mariné miel-soja-gingembre, sésame, roquette"},
+                    {"id": "t6", "name": "Tataki de Bœuf de l'Aubrac", "price": "10", "description": "Bœuf d'Aubrac snacké, roquette, parmesan 24 mois, vinaigrette truffe · ~120 g"}
+                ]
+            }
         ]
     },
     {
-        "id": "tapas-signatures",
-        "category": "Tapas Signatures",
-        "subtitle": "Les incontournables",
-        "price_label": "12 — 16 €",
-        "order": 8,
+        "id": "planches",
+        "category": "Les Planches",
+        "subtitle": "À partager",
+        "order": 7,
         "items": [
-            {"id": "ts1", "name": "Planche de Fromages Affinés", "price": "12", "description": "Ossau-iraty, comté 18 mois, roquefort, chèvre cendré, confiture de figue · 5 fromages · ~200 g"},
-            {"id": "ts2", "name": "Tartare de Bœuf Aubrac au Couteau", "price": "14", "description": "Bœuf coupé au couteau, câpres, échalotes, jaune d'œuf, tuiles de pain · ~150 g · Coupé minute"},
-            {"id": "ts3", "name": "Poulpe Grillé", "price": "15", "description": "Poulpe tendre grillé, grenailles confites, pimentón de la Vera · ~160 g · Cuisson basse température"},
-            {"id": "ts4", "name": "Planche Ibérique \"Grand Cru\"", "price": "16", "description": "Jambon Bellota 36 mois, lomo, chorizo ibérique, pan cristal, tomate · Planche ~180 g charcuterie"}
+            {"id": "pl1", "name": "Planche Fromages Affinés", "price": "14", "description": "4-5 fromages de saison, confiture de figue, miel, noix · ~200 g"},
+            {"id": "pl2", "name": "Planche Charcuterie", "price": "14", "description": "Jambon Bellota, lomo, chorizo ibérique, pickles, olives, pain cristal · ~180 g"},
+            {"id": "pl3", "name": "Planche du Chasseur", "price": "16", "description": "Trio de viandes grillées (bœuf, canard, poulet), roquette, parmesan, vinaigrette truffe"},
+            {"id": "pl4", "name": "Planche du Pêcheur", "price": "16", "description": "Trio gambas, poulpe, thon — aïoli safrané, citron, mesclun"}
         ]
     },
     {
         "id": "grande-tablee",
         "category": "La Grande Tablée",
         "subtitle": "À partager",
-        "order": 9,
+        "order": 8,
         "items": [
-            {"id": "gt1", "name": "La Grande Tablée", "price": "22", "description": "Planche signature à partager — croquetas, charcuterie ibérique, burrata, piquillos, olives, pan con tomate & gambas.", "accent": "Incluse dans la formule « Le Festin du Renard »"}
+            {"id": "gt1", "name": "La Grande Tablée", "price": "28", "description": "Planche signature à partager — fromages affinés, viandes grillées, poissons, charcuterie ibérique. Le meilleur du Terrier sur une planche.", "accent": "Incluse dans la formule « Le Festin du Renard »"}
         ]
     },
     {
@@ -122,7 +138,7 @@
         "category": "Spiritueux",
         "subtitle": "Pour les connaisseurs",
         "note": "Servis en verre dégustation · 4 cl",
-        "order": 10,
+        "order": 9,
         "subcategories": [
             {
                 "name": "Whiskies",
@@ -152,7 +168,7 @@
         "id": "vins",
         "category": "Vins au Verre",
         "subtitle": "Du terroir",
-        "order": 11,
+        "order": 10,
         "subcategories": [
             {
                 "name": "Blancs",
