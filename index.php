@@ -298,6 +298,7 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="sidebar__link" data-section="boutique"><span>🛍️</span> <small>Boutique</small></div>
     <div class="sidebar__link" data-section="reviews"><span>⭐</span> <small>Avis clients</small></div>
     <div class="sidebar__link" data-section="observations"><span>📋</span> <small>Observations</small></div>
+    <div class="sidebar__link" data-section="recurring"><span>🔁</span> <small>Rendez-vous</small></div>
     <div class="sidebar__link" data-section="gallery"><span>🖼️</span> <small>Galerie</small></div>
     <div class="sidebar__link" data-section="announcements"><span>📢</span> <small>Annonces</small></div>
     <div class="sidebar__link" data-section="journal"><span>📰</span> <small>Journal</small></div>
@@ -423,6 +424,16 @@ tr:hover{background:rgba(200,164,92,.03)}
     <div class="table-wrap"><table><thead><tr><th>Priorité</th><th>Catégorie</th><th>Note</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="observations-list"></tbody></table></div>
   </div>
 
+  <!-- ===== RENDEZ-VOUS RÉCURRENTS ===== -->
+  <div class="section" id="sec-recurring">
+    <div class="main__header">
+      <h1 class="main__title">Rendez-vous récurrents</h1>
+      <button class="btn btn--primary" onclick="openModal('recurring')">+ Nouveau rendez-vous</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Les rendez-vous actifs apparaissent sur la page Événements dans la section "Chaque semaine · Nos Rendez-vous".</p>
+    <div class="table-wrap"><table><thead><tr><th>Statut</th><th>Jour</th><th>Titre</th><th>Description</th><th>Ordre</th><th>Actions</th></tr></thead><tbody id="recurring-list"></tbody></table></div>
+  </div>
+
   <!-- ===== GALERIE ===== -->
   <div class="section" id="sec-gallery">
     <div class="main__header">
@@ -459,15 +470,19 @@ tr:hover{background:rgba(200,164,92,.03)}
       <h1 class="main__title">Bandeau d'annonce</h1>
     </div>
     <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:1rem">Le bandeau s'affiche en haut de toutes les pages du site. Modifiez le texte ici.</p>
+    <!-- Aperçu du bandeau -->
+    <div id="banner-preview" style="background:linear-gradient(90deg,#5C0A1E,#3A0612);color:#F5F0E8;text-align:center;padding:.6rem 1rem;font-size:.8rem;letter-spacing:.08em;border-radius:var(--radius);margin-bottom:1.2rem;display:none">
+      <span id="banner-preview-text"></span>
+    </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem">
       <div class="form-group">
         <label class="form-label">Texte du bandeau</label>
-        <input class="form-input" id="banner-text" placeholder="Ouverture prochaine — Restez connectés">
+        <input class="form-input" id="banner-text" placeholder="Ouverture prochaine — Restez connectés" oninput="updateBannerPreview()">
         <button class="mic-btn" onclick="startDictation('banner-text')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button>
       </div>
       <div class="form-group" style="margin-top:1rem">
         <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
-          <input type="checkbox" id="banner-active">
+          <input type="checkbox" id="banner-active" onchange="updateBannerPreview()">
           <span class="form-label" style="margin:0">Bandeau visible sur le site</span>
         </label>
       </div>
@@ -600,6 +615,7 @@ async function loadSection(name) {
     case 'boutique': return loadBoutique();
     case 'reviews': return loadReviews();
     case 'observations': return loadObservations();
+    case 'recurring': return loadRecurring();
     case 'gallery': return loadGallery();
     case 'announcements': return loadAnnouncements();
     case 'journal': return loadJournal();
@@ -853,6 +869,20 @@ function openModal(type) {
         </div>
         <div class="modal__actions">
           <button class="btn btn--primary" onclick="saveObservation()">Ajouter</button>
+          <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
+        </div>`;
+      break;
+    case 'recurring':
+      mc.innerHTML = `
+        <p class="modal__title">Nouveau rendez-vous récurrent</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Jour</label><select class="form-select" id="rec-day"><option value="Les Lundis">Les Lundis</option><option value="Les Mardis">Les Mardis</option><option value="Les Mercredis">Les Mercredis</option><option value="Les Jeudis">Les Jeudis</option><option value="Les Vendredis">Les Vendredis</option><option value="Les Samedis">Les Samedis</option><option value="Les Dimanches">Les Dimanches</option></select></div>
+          <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="rec-title" placeholder="Jazz au Terrier"></div>
+          <div class="form-group form-group--full"><label class="form-label">Description</label><textarea class="form-textarea" id="rec-desc" placeholder="Musique live acoustique, ambiance feutrée..."></textarea><button class="mic-btn" onclick="startDictation('rec-desc')" title="Dictée vocale" style="margin-top:.3rem;background:none;border:1px solid rgba(200,164,92,.3);color:var(--or);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.75rem">🎤 Dicter</button></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rec-active" checked> <span class="form-label" style="margin:0">Actif sur le site</span></label></div>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary" id="rec-save-btn" onclick="saveRecurring()">Créer</button>
           <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
         </div>`;
       break;
@@ -1261,6 +1291,71 @@ async function editObservation(id) {
 async function completeObservation(id) {
   await api('observations','PATCH',{id, status:'fait'});
   loadObservations();
+}
+
+// ===== RENDEZ-VOUS RÉCURRENTS =====
+async function loadRecurring() {
+  const d = await api('recurring');
+  const el = document.getElementById('recurring-list');
+  el.innerHTML = (d.data||[]).map(r => `
+    <tr>
+      <td>${r.active ? '<span class="badge badge--confirmed">Actif</span>' : '<span class="badge badge--draft">Inactif</span>'}</td>
+      <td><strong>${esc(r.day)}</strong></td>
+      <td>${esc(r.title)}</td>
+      <td>${esc(truncate(r.description, 60))}</td>
+      <td>${r.order ?? '—'}</td>
+      <td class="btn-group">
+        <button class="btn btn--sm btn--ghost" onclick="editRecurring('${esc(r.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--ghost" onclick="toggleRecurring('${esc(r.id)}',${!r.active})">${r.active?'Désactiver':'Activer'}</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('recurring','${esc(r.id)}')">×</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">🔁</p><p class="empty__text">Aucun rendez-vous récurrent</p></div></td></tr>';
+}
+
+async function saveRecurring() {
+  const title = document.getElementById('rec-title').value;
+  const day = document.getElementById('rec-day').value;
+  if (!title || !day) { toast('Jour et titre requis', 'warning'); return; }
+  const btn = document.getElementById('rec-save-btn');
+  btnLoading(btn);
+  await api('recurring','POST',{
+    day,
+    title,
+    description: document.getElementById('rec-desc').value,
+    active: document.getElementById('rec-active').checked,
+  });
+  btnReset(btn);
+  toast('Rendez-vous créé', 'success');
+  closeModal(); loadRecurring();
+}
+
+async function editRecurring(id) {
+  const d = await api('recurring');
+  const r = (d.data||[]).find(x => x.id === id);
+  if (!r) return;
+  openModal('recurring');
+  setTimeout(() => {
+    document.querySelector('#modal-content .modal__title').textContent = 'Modifier le rendez-vous';
+    document.getElementById('rec-day').value = r.day||'Les Jeudis';
+    document.getElementById('rec-title').value = r.title||'';
+    document.getElementById('rec-desc').value = r.description||'';
+    document.getElementById('rec-active').checked = r.active !== false;
+    const saveBtn = document.getElementById('rec-save-btn');
+    saveBtn.textContent = 'Enregistrer';
+    saveBtn.onclick = async () => {
+      btnLoading(saveBtn);
+      await api('recurring','PATCH',{id, day:document.getElementById('rec-day').value, title:document.getElementById('rec-title').value, description:document.getElementById('rec-desc').value, active:document.getElementById('rec-active').checked});
+      btnReset(saveBtn);
+      toast('Rendez-vous modifié', 'success');
+      closeModal(); loadRecurring();
+    };
+  }, 50);
+}
+
+async function toggleRecurring(id, active) {
+  await api('recurring','PATCH',{id, active});
+  loadRecurring();
 }
 
 // ===== GALERIE =====
@@ -1708,6 +1803,25 @@ async function loadBanner() {
   document.getElementById('banner-text').value = data.text || '';
   document.getElementById('banner-active').checked = data.active !== false;
   document.getElementById('banner-status').textContent = data.updated ? 'Dernière mise à jour : ' + data.updated : '';
+  updateBannerPreview();
+}
+
+function updateBannerPreview() {
+  const text = document.getElementById('banner-text').value;
+  const active = document.getElementById('banner-active').checked;
+  const preview = document.getElementById('banner-preview');
+  const previewText = document.getElementById('banner-preview-text');
+  if (text && active) {
+    previewText.textContent = text;
+    preview.style.display = 'block';
+    preview.style.opacity = '1';
+  } else if (text && !active) {
+    previewText.textContent = text + ' (désactivé)';
+    preview.style.display = 'block';
+    preview.style.opacity = '0.4';
+  } else {
+    preview.style.display = 'none';
+  }
 }
 
 async function saveBanner() {

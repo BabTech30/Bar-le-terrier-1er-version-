@@ -16,7 +16,7 @@ header('X-Frame-Options: DENY');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
-if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'public-events', 'public-journal', 'public-banner', 'submit-review', 'subscribe-newsletter'])) {
+if (in_array($action, ['public-gallery', 'public-announcements', 'public-reviews', 'public-carte', 'public-events', 'public-journal', 'public-banner', 'public-recurring', 'submit-review', 'subscribe-newsletter'])) {
     // Skip auth for public endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     if (in_array($action, ['submit-review', 'subscribe-newsletter'])) {
@@ -811,6 +811,57 @@ try {
             break;
 
         // ============================
+        // RENDEZ-VOUS RÉCURRENTS (Admin)
+        // ============================
+        case 'recurring':
+            $data = loadData('recurring');
+            if ($method === 'GET') {
+                usort($data, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+                jsonResponse(['data' => $data, 'count' => count($data)]);
+            }
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $item = [
+                    'id' => generateId(),
+                    'day' => sanitize($input['day'] ?? ''),
+                    'title' => sanitize($input['title'] ?? ''),
+                    'description' => sanitize($input['description'] ?? ''),
+                    'active' => (bool)($input['active'] ?? true),
+                    'order' => intval($input['order'] ?? count($data)),
+                    'created' => date('Y-m-d H:i:s'),
+                ];
+                $data[] = $item;
+                saveData('recurring', $data);
+                jsonResponse(['success' => true, 'item' => $item]);
+            }
+            if ($method === 'PATCH') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = requireId($input);
+                foreach ($data as &$item) {
+                    if (($item['id'] ?? '') === $id) {
+                        foreach (['day','title','description'] as $field) {
+                            if (isset($input[$field])) $item[$field] = sanitize($input[$field]);
+                        }
+                        if (isset($input['active'])) $item['active'] = (bool)$input['active'];
+                        if (isset($input['order'])) $item['order'] = intval($input['order']);
+                        $item['updated'] = date('Y-m-d H:i:s');
+                        break;
+                    }
+                }
+                saveData('recurring', $data);
+                jsonResponse(['success' => true]);
+            }
+            if ($method === 'DELETE') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $id = requireId($input);
+                $data = array_values(array_filter($data, function($r) use ($id) { return ($r['id'] ?? '') !== $id; }));
+                saveData('recurring', $data);
+                jsonResponse(['success' => true]);
+            }
+            jsonResponse(['error' => 'Méthode non supportée'], 405);
+            break;
+
+        // ============================
         // BANDEAU ANNONCE (Admin)
         // ============================
         case 'banner':
@@ -896,8 +947,16 @@ try {
             jsonResponse(['data' => array_slice($active, 0, 3)]);
             break;
 
+        case 'public-recurring':
+            $data = loadData('recurring');
+            $active = array_values(array_filter($data, function($r) { return ($r['active'] ?? true); }));
+            usort($active, function($a, $b) { return ($a['order'] ?? 99) - ($b['order'] ?? 99); });
+            jsonResponse(['data' => $active, 'count' => count($active)]);
+            break;
+
         case 'public-banner':
-            $data = json_decode(file_get_contents(DATA_DIR . 'banner.json'), true) ?: ['text' => '', 'active' => false];
+            $bannerFile = DATA_DIR . 'banner.json';
+            $data = file_exists($bannerFile) ? (json_decode(file_get_contents($bannerFile), true) ?: ['text' => '', 'active' => false]) : ['text' => '', 'active' => false];
             jsonResponse(['data' => $data]);
             break;
 

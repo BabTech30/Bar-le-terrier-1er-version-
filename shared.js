@@ -732,6 +732,46 @@
   }
   loadPublicEvents();
 
+  /* --- RENDEZ-VOUS RÉCURRENTS (Dynamic from dashboard) --- */
+  var recurGrid = document.getElementById('recur-grid');
+  if (recurGrid) {
+    fetch('/api.php?action=public-recurring')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.data || !d.data.length) return; // Keep static fallback
+        var delays = ['reveal-d1', 'reveal-d2', 'reveal-d3'];
+        var html = '';
+        var div = document.createElement('div');
+        d.data.forEach(function(r, i) {
+          div.textContent = r.day || '';
+          var safeDay = div.innerHTML;
+          div.textContent = r.title || '';
+          var safeTitle = div.innerHTML;
+          div.textContent = r.description || '';
+          var safeDesc = div.innerHTML;
+          html += '<div class="recur reveal visible ' + (delays[i] || '') + '">';
+          html += '<p class="recur__day">' + safeDay + '</p>';
+          html += '<h3 class="recur__title">' + safeTitle + '</h3>';
+          html += '<p class="recur__text">' + safeDesc + '</p>';
+          html += '</div>';
+        });
+        recurGrid.innerHTML = html;
+        // Trigger reveal animations
+        var revealEls = recurGrid.querySelectorAll('.reveal');
+        if (typeof IntersectionObserver !== 'undefined') {
+          var obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) { entry.target.classList.add('visible'); obs.unobserve(entry.target); }
+            });
+          }, { threshold: 0.15 });
+          revealEls.forEach(function(el) { obs.observe(el); });
+        } else {
+          revealEls.forEach(function(el) { el.classList.add('visible'); });
+        }
+      })
+      .catch(function() { /* silently fail — keep static fallback */ });
+  }
+
   /* --- JOURNAL DU TERRIER (Dynamic from dashboard) --- */
   var journalGrid = document.getElementById('journal-grid');
   if (journalGrid) {
