@@ -1,0 +1,4 @@
+# Bloquer l'accès direct aux fichiers JSON de déploiement
+<Files "*.json">
+    Require all denied
+</Files>
