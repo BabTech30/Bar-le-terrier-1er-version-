@@ -12,6 +12,7 @@ require_once __DIR__ . '/config.php';
 // --- CORS & HEADERS ---
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
 
 // --- PUBLIC ENDPOINTS (no auth needed) ---
 $action = $_GET['action'] ?? '';
@@ -733,10 +734,10 @@ try {
                             }
                         } elseif ($action_type === 'update-category') {
                             // Mise à jour des infos de la catégorie
-                            if (isset($input['category'])) $cat['category'] = $input['category'];
-                            if (isset($input['subtitle'])) $cat['subtitle'] = $input['subtitle'];
-                            if (isset($input['price_label'])) $cat['price_label'] = $input['price_label'];
-                            if (isset($input['note'])) $cat['note'] = $input['note'];
+                            if (isset($input['category'])) $cat['category'] = sanitize($input['category']);
+                            if (isset($input['subtitle'])) $cat['subtitle'] = sanitize($input['subtitle']);
+                            if (isset($input['price_label'])) $cat['price_label'] = sanitize($input['price_label']);
+                            if (isset($input['note'])) $cat['note'] = sanitize($input['note']);
                         }
                         break;
                     }
@@ -914,8 +915,9 @@ try {
             break;
 
         default:
-            jsonResponse(['error' => 'Action inconnue: ' . $action], 404);
+            jsonResponse(['error' => 'Action inconnue'], 404);
     }
 } catch (Exception $e) {
-    jsonResponse(['error' => 'Erreur serveur: ' . $e->getMessage()], 500);
+    error_log('Le Terrier API error: ' . $e->getMessage());
+    jsonResponse(['error' => 'Erreur serveur interne'], 500);
 }

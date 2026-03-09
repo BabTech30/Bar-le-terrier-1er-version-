@@ -36,13 +36,13 @@ date_default_timezone_set('Europe/Paris');
 // --- INITIALISATION ---
 // Créer les dossiers nécessaires
 if (!is_dir(DATA_DIR)) {
-    mkdir(DATA_DIR, 0755, true);
+    mkdir(DATA_DIR, 0750, true);
 }
 if (!is_dir(UPLOADS_DIR)) {
-    mkdir(UPLOADS_DIR, 0755, true);
+    mkdir(UPLOADS_DIR, 0750, true);
 }
 if (!is_dir(UPLOADS_DIR . 'gallery/')) {
-    mkdir(UPLOADS_DIR . 'gallery/', 0755, true);
+    mkdir(UPLOADS_DIR . 'gallery/', 0750, true);
 }
 
 // Initialiser les fichiers JSON s'ils n'existent pas
@@ -80,7 +80,7 @@ function sendEmail(string $to, string $subject, string $htmlBody, string $replyT
     $headers = "From: Le Terrier <noreply@barleterrier.fr>\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     $headers .= "X-Mailer: Le Terrier Dashboard\r\n";
-    if ($replyTo) {
+    if ($replyTo && filter_var($replyTo, FILTER_VALIDATE_EMAIL) && !preg_match('/[\r\n]/', $replyTo)) {
         $headers .= "Reply-To: $replyTo\r\n";
     }
     return mail($to, "=?UTF-8?B?" . base64_encode($subject) . "?=", $htmlBody, $headers);
