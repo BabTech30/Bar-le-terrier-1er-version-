@@ -568,8 +568,14 @@ try {
                 $id = requireId($input);
                 foreach ($data as &$photo) {
                     if ($photo['id'] === $id) {
-                        foreach (['title','caption','category','image'] as $field) {
+                        foreach (['title','caption','category'] as $field) {
                             if (isset($input[$field])) $photo[$field] = sanitize($input[$field]);
+                        }
+                        if (isset($input['image'])) {
+                            $img = sanitize($input['image']);
+                            if ($img === '' || strpos($img, 'uploads/gallery/') === 0) {
+                                $photo['image'] = $img;
+                            }
                         }
                         if (isset($input['visible'])) $photo['visible'] = (bool)$input['visible'];
                         if (isset($input['order'])) $photo['order'] = intval($input['order']);

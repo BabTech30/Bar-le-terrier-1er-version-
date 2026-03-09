@@ -875,11 +875,14 @@ function openModal(type) {
           <div class="form-group"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="gal-visible" checked> <span class="form-label" style="margin:0">Visible sur le site</span></label></div>
         </div>
         <div class="modal__actions">
-          <button class="btn btn--primary" onclick="saveGallery()">Ajouter</button>
+          <button class="btn btn--primary" id="gal-save-btn">Ajouter</button>
           <button class="btn btn--ghost" onclick="closeModal()">Annuler</button>
         </div>`;
-      // Setup drag and drop
-      setTimeout(() => setupDropzone('gal-dropzone', 'gal-file'), 50);
+      // Setup drag and drop + bind save handler
+      setTimeout(() => {
+        setupDropzone('gal-dropzone', 'gal-file');
+        document.getElementById('gal-save-btn').onclick = saveGallery;
+      }, 50);
       break;
     case 'announcement':
       mc.innerHTML = `
@@ -1321,6 +1324,11 @@ async function editGallery(id) {
   if (!p) return;
   openModal('gallery');
   setTimeout(() => {
+    // Update modal title and button for edit mode
+    document.querySelector('#modal-content .modal__title').textContent = 'Modifier la photo';
+    const saveBtn = document.getElementById('gal-save-btn');
+    saveBtn.textContent = 'Enregistrer';
+    // Fill form with existing data
     document.getElementById('gal-title').value = p.title||'';
     document.getElementById('gal-caption').value = p.caption||'';
     document.getElementById('gal-category').value = p.category||'ambiance';
@@ -1329,18 +1337,29 @@ async function editGallery(id) {
     if (p.image) {
       document.getElementById('gal-preview').innerHTML = '<img src="/'+esc(p.image)+'" style="max-height:120px;border-radius:4px">';
     }
-    document.querySelector('#modal-content .btn--primary').onclick = async () => {
+    // Replace save handler with PATCH
+    saveBtn.onclick = async () => {
       const fileInput = document.getElementById('gal-file');
       let imageUrl = document.getElementById('gal-image-url').value;
       if (fileInput && fileInput.files.length > 0) {
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
         formData.append('csrf_token', CSRF_TOKEN);
+        btnLoading(saveBtn);
         const uploadRes = await fetch(API + '?action=upload', {method:'POST', body: formData});
         const uploadData = await uploadRes.json();
-        if (uploadData.success) imageUrl = uploadData.url;
+        if (uploadData.success) {
+          imageUrl = uploadData.url;
+        } else {
+          toast('Erreur upload: ' + (uploadData.error || 'Erreur inconnue'), 'error');
+          btnReset(saveBtn);
+          return;
+        }
       }
+      btnLoading(saveBtn);
       await api('gallery','PATCH',{id, title:document.getElementById('gal-title').value, caption:document.getElementById('gal-caption').value, category:document.getElementById('gal-category').value, image:imageUrl, visible:document.getElementById('gal-visible').checked});
+      btnReset(saveBtn);
+      toast('Photo modifiée', 'success');
       closeModal(); loadGallery();
     };
   }, 50);
