@@ -11,6 +11,7 @@
 require_once __DIR__ . '/../admin/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
 
 // Seulement POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

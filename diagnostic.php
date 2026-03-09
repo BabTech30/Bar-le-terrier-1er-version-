@@ -2,14 +2,20 @@
 /**
  * LE TERRIER — Diagnostic complet
  * ============================================================
- * Accéder via : https://barleterrier.fr/admin/diagnostic.php
- * À SUPPRIMER après diagnostic !
+ * Accéder via : https://barleterrier.fr/diagnostic.php
+ * SÉCURITÉ : Accessible uniquement si connecté au dashboard.
+ * Pour désactiver : créer un fichier data/.disable_diagnostic
  * ============================================================
  */
 session_start();
 require_once __DIR__ . '/config.php';
 
 header('Content-Type: text/html; charset=utf-8');
+
+// Protection : désactivation par fichier flag
+if (file_exists(DATA_DIR . '.disable_diagnostic')) {
+    die('<h1>Diagnostic désactivé</h1><p>Supprimez le fichier <code>data/.disable_diagnostic</code> pour réactiver.</p>');
+}
 
 // Protection : accessible uniquement si connecté au dashboard
 $isAuth = isset($_SESSION['lt_admin_auth']) && $_SESSION['lt_admin_auth'] === true;
@@ -79,7 +85,7 @@ $checks[] = [
 ];
 
 // --- 4. Fichiers JSON ---
-$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations', 'gallery', 'announcements'];
+$dataFiles = ['messages', 'reservations', 'events', 'social', 'finances', 'stats', 'boutique', 'reviews', 'observations', 'gallery', 'announcements', 'newsletter', 'carte'];
 foreach ($dataFiles as $file) {
     $path = DATA_DIR . $file . '.json';
     $exists = file_exists($path);

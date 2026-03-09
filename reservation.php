@@ -10,6 +10,7 @@
 require_once __DIR__ . '/../admin/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['error' => 'Méthode non autorisée'], 405);

@@ -6,8 +6,19 @@
  * événements, réseaux sociaux, finances
  * ============================================================
  */
+// Sécuriser le cookie de session avant de démarrer
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
 session_start();
 require_once __DIR__ . '/config.php';
+
+// --- BASE URL (pour redirections dynamiques) ---
+$adminBase = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/';
 
 // --- HANDLE LOGIN ---
 $loginError = '';
@@ -22,10 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lt_login'])) {
         $user = $_POST['username'] ?? '';
         $pass = $_POST['password'] ?? '';
         if ($user === ADMIN_USER && password_verify($pass, ADMIN_HASH)) {
+            session_regenerate_id(true);
             $_SESSION['lt_admin_auth'] = true;
             $_SESSION['lt_admin_last'] = time();
             unset($_SESSION['lt_login_attempts'], $_SESSION['lt_login_lock']);
-            header('Location: /admin/');
+            header('Location: ' . $adminBase);
             exit;
         } else {
             $attempts++;
@@ -44,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lt_login'])) {
 // --- HANDLE LOGOUT ---
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: /admin/');
+    header('Location: ' . $adminBase);
     exit;
 }
 
@@ -63,7 +75,7 @@ if (!$isAuth): ?>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>Connexion — Le Terrier Admin</title>
-<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -101,6 +113,9 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;bac
 </body></html>
 <?php exit; endif;
 $csrfToken = generateCsrfToken();
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -108,7 +123,7 @@ $csrfToken = generateCsrfToken();
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>Dashboard — Le Terrier</title>
-<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#1a0a10;--surface:#241218;--surface2:#2e1620;--border:rgba(200,164,92,.12);--or:#C8A45C;--or-dim:rgba(200,164,92,.5);--creme:#F5F0E8;--bordeaux:#5C0A1E;--text:#F5F0E8;--text-dim:rgba(245,240,232,.5);--green:#4CAF50;--orange:#FF9800;--red:#f44336;--blue:#42A5F5;--radius:6px}
@@ -525,12 +540,12 @@ async function loadOverview() {
   `;
   const rm = document.getElementById('recent-messages');
   rm.innerHTML = (d.recent_messages||[]).length ? d.recent_messages.map(m =>
-    `<tr><td>${m.name}</td><td>${truncate(m.subject,30)}</td><td>${fmtDate(m.date)}</td></tr>`
+    `<tr><td>${esc(m.name)}</td><td>${esc(truncate(m.subject,30))}</td><td>${fmtDate(m.date)}</td></tr>`
   ).join('') : '<tr><td colspan="3" class="empty"><p class="empty__text">Aucun nouveau message</p></td></tr>';
 
   const tr = document.getElementById('today-resas');
   tr.innerHTML = (d.today_resas||[]).length ? d.today_resas.map(r =>
-    `<tr><td>${r.name}</td><td>${r.time}</td><td>${r.guests}</td><td>${statusBadge(r.status)}</td></tr>`
+    `<tr><td>${esc(r.name)}</td><td>${esc(r.time)}</td><td>${r.guests}</td><td>${statusBadge(r.status)}</td></tr>`
   ).join('') : '<tr><td colspan="4" class="empty"><p class="empty__text">Aucune réservation aujourd\'hui</p></td></tr>';
 }
 
@@ -541,14 +556,14 @@ async function loadMessages() {
   el.innerHTML = (d.data||[]).map(m => `
     <tr>
       <td>${statusBadge(m.status)}</td>
-      <td><strong>${m.name}</strong></td>
-      <td><a href="mailto:${m.email}">${m.email}</a></td>
-      <td>${truncate(m.subject,40)}</td>
+      <td><strong>${esc(m.name)}</strong></td>
+      <td><a href="mailto:${esc(m.email)}">${esc(m.email)}</a></td>
+      <td>${esc(truncate(m.subject,40))}</td>
       <td>${fmtDateTime(m.date)}</td>
       <td class="btn-group">
-        ${m.status==='nouveau'?'<button class="btn btn--sm btn--ghost" onclick="updateMsg(\''+m.id+'\',\'lu\')">Marquer lu</button>':''}
-        <button class="btn btn--sm btn--ghost" onclick="viewMessage('${m.id}')">Voir</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('messages','${m.id}')">×</button>
+        ${m.status==='nouveau'?'<button class="btn btn--sm btn--ghost" onclick="updateMsg(\''+esc(m.id)+'\',\'lu\')">Marquer lu</button>':''}
+        <button class="btn btn--sm btn--ghost" onclick="viewMessage('${esc(m.id)}')">Voir</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('messages','${esc(m.id)}')">×</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📬</p><p class="empty__text">Aucun message</p></div></td></tr>';
@@ -562,13 +577,13 @@ async function loadReservations() {
     <tr>
       <td>${statusBadge(r.status)}</td>
       <td>${fmtDate(r.date_resa)}</td>
-      <td>${r.time||'—'}</td>
-      <td><strong>${r.name}</strong></td>
+      <td>${esc(r.time)||'—'}</td>
+      <td><strong>${esc(r.name)}</strong></td>
       <td>${r.guests}</td>
-      <td>${r.phone||'—'}</td>
+      <td>${esc(r.phone)||'—'}</td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="updateResa('${r.id}','confirmée')">✓</button>
-        <button class="btn btn--sm btn--danger" onclick="updateResa('${r.id}','annulée')">✗</button>
+        <button class="btn btn--sm btn--ghost" onclick="updateResa('${esc(r.id)}','confirmée')">✓</button>
+        <button class="btn btn--sm btn--danger" onclick="updateResa('${esc(r.id)}','annulée')">✗</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="7"><div class="empty"><p class="empty__icon">📅</p><p class="empty__text">Aucune réservation</p></div></td></tr>';
@@ -583,12 +598,12 @@ async function loadEvents() {
     <tr>
       <td>${statusBadge(e.status)}</td>
       <td>${fmtDate(e.date)}</td>
-      <td>${types[e.type]||e.type}</td>
-      <td><strong>${e.title}</strong><br><small style="color:var(--text-dim)">${truncate(e.description,60)}</small></td>
+      <td>${types[e.type]||esc(e.type)}</td>
+      <td><strong>${esc(e.title)}</strong><br><small style="color:var(--text-dim)">${esc(truncate(e.description,60))}</small></td>
       <td><span style="font-size:.85em">${displayLabels[e.display]||'📄 Les deux'}</span></td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="editEvent('${e.id}')">Modifier</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('events','${e.id}')">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editEvent('${esc(e.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('events','${esc(e.id)}')">×</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">🎭</p><p class="empty__text">Aucun événement</p></div></td></tr>';
@@ -603,11 +618,11 @@ async function loadSocial() {
       <td>${statusBadge(s.status)}</td>
       <td>${fmtDate(s.date)}</td>
       <td>${platforms[s.platform]||s.platform}</td>
-      <td>${s.type}</td>
-      <td>${truncate(s.caption,50)}</td>
+      <td>${esc(s.type)}</td>
+      <td>${esc(truncate(s.caption,50))}</td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="editSocial('${s.id}')">Modifier</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('social','${s.id}')">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editSocial('${esc(s.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('social','${esc(s.id)}')">×</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📱</p><p class="empty__text">Aucun post planifié</p></div></td></tr>';
@@ -623,14 +638,14 @@ async function loadFinances() {
   const el = document.getElementById('finances-list');
   el.innerHTML = (d.data||[]).map(f => `
     <tr>
-      <td><strong>${f.ref}</strong></td>
-      <td>${f.client}</td>
+      <td><strong>${esc(f.ref)}</strong></td>
+      <td>${esc(f.client)}</td>
       <td>${fmtDate(f.date_event)}</td>
       <td>${parseFloat(f.amount).toLocaleString('fr-FR')} €</td>
       <td>${statusBadge(f.status)}</td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="editFinance('${f.id}')">Modifier</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('finances','${f.id}')">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editFinance('${esc(f.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('finances','${esc(f.id)}')">×</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">💰</p><p class="empty__text">Aucun devis</p></div></td></tr>';
@@ -947,14 +962,14 @@ async function loadBoutique() {
   el.innerHTML = (d.data||[]).map(p => `
     <tr>
       <td>${statusBadge(p.status)}</td>
-      <td>${p.image ? '<img src="'+p.image+'" style="width:40px;height:40px;object-fit:cover;border-radius:4px">' : '—'}</td>
-      <td><strong>${p.name}</strong><br><small style="color:var(--text-dim)">${truncate(p.description,40)}</small></td>
-      <td>${cats[p.category]||p.category}</td>
+      <td>${p.image ? '<img src="'+esc(p.image)+'" style="width:40px;height:40px;object-fit:cover;border-radius:4px">' : '—'}</td>
+      <td><strong>${esc(p.name)}</strong><br><small style="color:var(--text-dim)">${esc(truncate(p.description,40))}</small></td>
+      <td>${cats[p.category]||esc(p.category)}</td>
       <td>${parseFloat(p.price||0).toLocaleString('fr-FR')} €</td>
       <td>${p.stock ?? '—'}</td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="editBoutique('${p.id}')">Modifier</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('boutique','${p.id}')">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editBoutique('${esc(p.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('boutique','${esc(p.id)}')">×</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="7"><div class="empty"><p class="empty__icon">🛍️</p><p class="empty__text">Aucun produit</p></div></td></tr>';
@@ -1014,15 +1029,15 @@ async function loadReviews() {
     return `
     <tr${isPending ? ' style="background:rgba(200,164,92,.05)"' : ''}>
       <td style="color:var(--or);font-size:1rem">${stars(r.rating||5)}</td>
-      <td><strong>${r.client}</strong>${r.submitted_by === 'visiteur' ? ' <span style="font-size:.65rem;color:var(--or);border:1px solid var(--or);padding:.1rem .3rem;border-radius:3px">visiteur</span>' : ''}</td>
-      <td>${truncate(r.comment,50)}</td>
-      <td>${r.source||'—'}</td>
+      <td><strong>${esc(r.client)}</strong>${r.submitted_by === 'visiteur' ? ' <span style="font-size:.65rem;color:var(--or);border:1px solid var(--or);padding:.1rem .3rem;border-radius:3px">visiteur</span>' : ''}</td>
+      <td>${esc(truncate(r.comment,50))}</td>
+      <td>${esc(r.source)||'—'}</td>
       <td>${fmtDate(r.date)}</td>
       <td>${r.visible ? '<span style="color:var(--green)">Oui</span>' : '<span style="color:var(--text-dim)">Non</span>'}</td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="editReview('${r.id}')">Modifier</button>
-        <button class="btn btn--sm btn--ghost" onclick="toggleReviewVisibility('${r.id}',${!r.visible})">${r.visible?'Masquer':'Afficher'}</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('reviews','${r.id}')">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editReview('${esc(r.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--ghost" onclick="toggleReviewVisibility('${esc(r.id)}',${!r.visible})">${r.visible?'Masquer':'Afficher'}</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('reviews','${esc(r.id)}')">×</button>
       </td>
     </tr>`;
   }).join('') || '<tr><td colspan="7"><div class="empty"><p class="empty__icon">⭐</p><p class="empty__text">Aucun avis</p></div></td></tr>';
@@ -1073,14 +1088,14 @@ async function loadObservations() {
   el.innerHTML = (d.data||[]).map(o => `
     <tr>
       <td>${priorities[o.priority]||o.priority}</td>
-      <td>${o.category||'—'}</td>
-      <td><strong>${truncate(o.note,60)}</strong></td>
+      <td>${esc(o.category)||'—'}</td>
+      <td><strong>${esc(truncate(o.note,60))}</strong></td>
       <td>${fmtDate(o.created)}</td>
       <td>${statusBadge(o.status)}</td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="editObservation('${o.id}')">Modifier</button>
-        ${o.status!=='fait'?'<button class="btn btn--sm btn--ghost" onclick="completeObservation(\''+o.id+'\')">✓ Fait</button>':''}
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('observations','${o.id}')">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editObservation('${esc(o.id)}')">Modifier</button>
+        ${o.status!=='fait'?'<button class="btn btn--sm btn--ghost" onclick="completeObservation(\''+esc(o.id)+'\')">✓ Fait</button>':''}
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('observations','${esc(o.id)}')">×</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📋</p><p class="empty__text">Aucune observation</p></div></td></tr>';
@@ -1124,15 +1139,15 @@ async function loadGallery() {
   // Note: data is already htmlspecialchars'd server-side via sanitize()
   el.innerHTML = (d.data||[]).map(p => `
     <div class="gallery-card">
-      ${p.image ? '<img src="/'+p.image+'" alt="'+p.title+'">' : '<div class="gallery-card__placeholder">Pas d\'image</div>'}
+      ${p.image ? '<img src="/'+esc(p.image)+'" alt="'+esc(p.title)+'">' : '<div class="gallery-card__placeholder">Pas d\'image</div>'}
       <span class="gallery-card__badge ${p.visible?'gallery-card__badge--visible':'gallery-card__badge--hidden'}">${p.visible?'Visible':'Masqué'}</span>
       <div class="gallery-card__actions">
-        <button class="btn btn--sm btn--ghost" onclick="editGallery('${p.id}')" style="background:rgba(0,0,0,.6)">Modifier</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('gallery','${p.id}')" style="background:rgba(0,0,0,.6)">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editGallery('${esc(p.id)}')" style="background:rgba(0,0,0,.6)">Modifier</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('gallery','${esc(p.id)}')" style="background:rgba(0,0,0,.6)">×</button>
       </div>
       <div class="gallery-card__overlay">
-        <p class="gallery-card__title">${p.title}</p>
-        <p class="gallery-card__caption">${cats[p.category]||p.category} ${p.caption ? '· '+p.caption : ''}</p>
+        <p class="gallery-card__title">${esc(p.title)}</p>
+        <p class="gallery-card__caption">${cats[p.category]||esc(p.category)} ${p.caption ? '· '+esc(p.caption) : ''}</p>
       </div>
     </div>
   `).join('') || '<div style="grid-column:1/-1;text-align:center;padding:3rem"><p style="font-size:1.5rem;margin-bottom:.5rem">🖼️</p><p style="color:var(--text-dim)">Aucune photo dans la galerie</p></div>';
@@ -1179,7 +1194,7 @@ async function editGallery(id) {
     document.getElementById('gal-image-url').value = p.image||'';
     document.getElementById('gal-visible').checked = p.visible !== false;
     if (p.image) {
-      document.getElementById('gal-preview').innerHTML = '<img src="/'+p.image+'" style="max-height:120px;border-radius:4px">';
+      document.getElementById('gal-preview').innerHTML = '<img src="/'+esc(p.image)+'" style="max-height:120px;border-radius:4px">';
     }
     document.querySelector('#modal-content .btn--primary').onclick = async () => {
       const fileInput = document.getElementById('gal-file');
@@ -1207,14 +1222,14 @@ async function loadAnnouncements() {
   el.innerHTML = (d.data||[]).map(a => `
     <tr>
       <td>${a.active ? '<span class="badge badge--confirmed">Active</span>' : '<span class="badge badge--draft">Inactive</span>'}</td>
-      <td>${types[a.type]||a.type}</td>
-      <td><strong>${a.title}</strong></td>
-      <td>${truncate(a.content,50)}</td>
+      <td>${types[a.type]||esc(a.type)}</td>
+      <td><strong>${esc(a.title)}</strong></td>
+      <td>${esc(truncate(a.content,50))}</td>
       <td>${a.expires ? fmtDate(a.expires) : '<span style="color:var(--text-dim)">Permanent</span>'}</td>
       <td class="btn-group">
-        <button class="btn btn--sm btn--ghost" onclick="editAnnouncement('${a.id}')">Modifier</button>
-        <button class="btn btn--sm btn--ghost" onclick="toggleAnnouncement('${a.id}',${!a.active})">${a.active?'Désactiver':'Activer'}</button>
-        <button class="btn btn--sm btn--danger" onclick="deleteItem('announcements','${a.id}')">×</button>
+        <button class="btn btn--sm btn--ghost" onclick="editAnnouncement('${esc(a.id)}')">Modifier</button>
+        <button class="btn btn--sm btn--ghost" onclick="toggleAnnouncement('${esc(a.id)}',${!a.active})">${a.active?'Désactiver':'Activer'}</button>
+        <button class="btn btn--sm btn--danger" onclick="deleteItem('announcements','${esc(a.id)}')">×</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6"><div class="empty"><p class="empty__icon">📢</p><p class="empty__text">Aucune annonce</p></div></td></tr>';
@@ -1294,7 +1309,7 @@ function renderCarte() {
           <h3 style="font-family:var(--font-display);color:var(--gold);font-size:1.1rem;margin:0">${esc(cat.category)}</h3>
           <span style="font-size:.7rem;color:var(--text-dim)">${esc(cat.subtitle || '')} ${cat.price_label ? '· ' + esc(cat.price_label) : ''}</span>
         </div>
-        <button class="btn-action" onclick="openCarteItemModal('${cat.id}')">+ Plat</button>
+        <button class="btn-action" onclick="openCarteItemModal('${esc(cat.id)}')">+ Plat</button>
       </div>
       ${itemsHtml || '<p style="font-size:.8rem;color:var(--text-dim);font-style:italic">Aucun plat dans cette catégorie</p>'}
     </div>`;
@@ -1309,8 +1324,8 @@ function renderCarteItem(catId, item) {
     </div>
     <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
       <strong style="color:var(--gold);font-size:.9rem">${esc(item.price)} €</strong>
-      <button class="btn-action" onclick="editCarteItem('${catId}','${item.id}')" style="font-size:.6rem">Modifier</button>
-      <button class="btn-action btn-action--danger" onclick="deleteCarteItem('${catId}','${item.id}')" style="font-size:.6rem">Suppr</button>
+      <button class="btn-action" onclick="editCarteItem('${esc(catId)}','${esc(item.id)}')" style="font-size:.6rem">Modifier</button>
+      <button class="btn-action btn-action--danger" onclick="deleteCarteItem('${esc(catId)}','${esc(item.id)}')" style="font-size:.6rem">Suppr</button>
     </div>
   </div>`;
 }
@@ -1402,7 +1417,7 @@ async function loadNewsletter() {
     <td>${esc(s.email)}</td>
     <td>${fmtDateTime(s.subscribed)}</td>
     <td>${s.active ? '<span class="badge badge--confirmed">Actif</span>' : '<span class="badge badge--cancelled">Désabonné</span>'}</td>
-    <td><button class="btn-action btn-action--danger" onclick="removeSubscriber('${s.id}')">Supprimer</button></td>
+    <td><button class="btn-action btn-action--danger" onclick="removeSubscriber('${esc(s.id)}')">Supprimer</button></td>
   </tr>`).join('');
 }
 
