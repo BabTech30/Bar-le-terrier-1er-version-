@@ -239,6 +239,25 @@ tr:hover{background:rgba(200,164,92,.03)}
 .dropzone:hover,.dropzone.dragover{border-color:var(--or);background:rgba(200,164,92,.05)}
 .dropzone__text{font-size:.75rem;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
 
+/* TOAST NOTIFICATIONS */
+.toast-container{position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.6rem;pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:.8rem;padding:.8rem 1.2rem;border-radius:var(--radius);font-size:.8rem;letter-spacing:.02em;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:toastIn .3s ease;max-width:380px;border:1px solid}
+.toast--success{background:rgba(26,40,26,.95);border-color:rgba(76,175,80,.3);color:var(--green)}
+.toast--error{background:rgba(40,20,20,.95);border-color:rgba(244,67,54,.3);color:var(--red)}
+.toast--warning{background:rgba(40,30,15,.95);border-color:rgba(255,152,0,.3);color:var(--orange)}
+.toast--info{background:rgba(20,25,40,.95);border-color:rgba(66,165,245,.3);color:var(--blue)}
+.toast__icon{font-size:1.1rem;flex-shrink:0}
+.toast__close{margin-left:auto;cursor:pointer;opacity:.5;font-size:.9rem;flex-shrink:0}
+.toast__close:hover{opacity:1}
+.toast.removing{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)}}
+
+/* LOADING STATE */
+.btn.loading{opacity:.6;pointer-events:none;position:relative}
+.btn.loading::after{content:'';width:14px;height:14px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;margin-left:.5rem;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* RESPONSIVE */
 @media(max-width:768px){
   .sidebar{width:60px;padding:1rem 0}
@@ -254,10 +273,15 @@ tr:hover{background:rgba(200,164,92,.03)}
 @media(max-width:480px){
   .cards{grid-template-columns:1fr}
   .main__header{flex-direction:column;gap:.5rem;align-items:flex-start}
+  .btn,.btn--sm,.btn-action{min-height:36px;min-width:36px;font-size:.65rem;padding:.5rem .8rem}
+  .btn-group{gap:.4rem}
+  td{padding:.5rem .6rem;font-size:.75rem}
+  .toast{max-width:90vw;font-size:.75rem}
 }
 </style>
 </head>
 <body>
+<div class="toast-container" id="toast-container"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -441,6 +465,17 @@ tr:hover{background:rgba(200,164,92,.03)}
 const API = '/api.php';
 const CSRF_TOKEN = '<?= $csrfToken ?>';
 
+// ===== TOAST NOTIFICATIONS =====
+const TOAST_ICONS = {success:'✓',error:'✕',warning:'⚠',info:'ℹ'};
+function toast(message, type='info', duration=4000) {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast toast--' + type;
+  el.innerHTML = '<span class="toast__icon">' + TOAST_ICONS[type] + '</span><span>' + esc(message) + '</span><span class="toast__close" onclick="this.parentElement.classList.add(\'removing\');setTimeout(()=>this.parentElement.remove(),300)">×</span>';
+  container.appendChild(el);
+  if (duration > 0) setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 300); }, duration);
+}
+
 // ===== XSS PROTECTION =====
 function esc(s) {
   if (!s) return '';
@@ -472,6 +507,10 @@ setInterval(updateClock, 30000); updateClock();
 const todayEl = document.getElementById('today-date');
 if (todayEl) todayEl.textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
+// ===== LOADING STATE HELPERS =====
+function btnLoading(btn) { if (btn) { btn.classList.add('loading'); btn.disabled = true; } }
+function btnReset(btn) { if (btn) { btn.classList.remove('loading'); btn.disabled = false; } }
+
 // ===== API HELPERS =====
 async function api(action, method='GET', body=null) {
   const opts = {method, headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN}};
@@ -482,21 +521,21 @@ async function api(action, method='GET', body=null) {
     if (!res.ok) {
       const msg = data.error || 'Erreur ' + res.status;
       if (res.status === 401) {
-        alert('Session expirée. Veuillez vous reconnecter.');
-        window.location.reload();
+        toast('Session expirée. Reconnexion...', 'warning');
+        setTimeout(() => window.location.reload(), 1500);
         return {data:[], error: msg};
       }
       if (res.status === 403) {
-        alert('Token de sécurité expiré. La page va se recharger.');
-        window.location.reload();
+        toast('Token expiré. Rechargement...', 'warning');
+        setTimeout(() => window.location.reload(), 1500);
         return {data:[], error: msg};
       }
-      alert('Erreur API : ' + msg);
+      toast('Erreur : ' + msg, 'error');
       return {data:[], error: msg};
     }
     return data;
   } catch(e) {
-    alert('Erreur réseau : impossible de contacter le serveur.');
+    toast('Erreur réseau : impossible de contacter le serveur', 'error', 6000);
     return {data:[], error: e.message};
   }
 }
@@ -657,6 +696,7 @@ async function updateResa(id, status) { await api('reservations','PATCH',{id,sta
 async function deleteItem(entity, id) {
   if (!confirm('Supprimer cet élément ?')) return;
   await api(entity, 'DELETE', {id});
+  toast('Élément supprimé', 'success');
   loadSection(document.querySelector('.sidebar__link.active')?.dataset.section || 'overview');
 }
 
@@ -843,38 +883,56 @@ function closeModal() { document.getElementById('modal-overlay').classList.remov
 
 // ===== SAVE FUNCTIONS =====
 async function saveEvent() {
+  const title = document.getElementById('evt-title').value;
+  const date = document.getElementById('evt-date').value;
+  if (!title || !date) { toast('Titre et date requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('events','POST',{
-    title: document.getElementById('evt-title').value,
-    date: document.getElementById('evt-date').value,
+    title, date,
     time: document.getElementById('evt-time').value,
     type: document.getElementById('evt-type').value,
     display: document.getElementById('evt-display').value,
     description: document.getElementById('evt-desc').value,
   });
+  btnReset(btn);
+  toast('Événement créé', 'success');
   closeModal(); loadEvents();
 }
 
 async function saveSocial() {
+  const caption = document.getElementById('soc-caption').value;
+  if (!caption) { toast('Contenu du post requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('social','POST',{
     date: document.getElementById('soc-date').value,
     platform: document.getElementById('soc-platform').value,
     type: document.getElementById('soc-type').value,
     status: document.getElementById('soc-status').value,
-    caption: document.getElementById('soc-caption').value,
+    caption,
     hashtags: document.getElementById('soc-hashtags').value,
   });
+  btnReset(btn);
+  toast('Post créé', 'success');
   closeModal(); loadSocial();
 }
 
 async function saveFinance() {
+  const client = document.getElementById('fin-client').value;
+  const amount = document.getElementById('fin-amount').value;
+  if (!client || !amount) { toast('Client et montant requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('finances','POST',{
-    client: document.getElementById('fin-client').value,
+    client, amount,
     date_event: document.getElementById('fin-date-event').value,
-    amount: document.getElementById('fin-amount').value,
     guests: document.getElementById('fin-guests').value,
     description: document.getElementById('fin-desc').value,
     notes: document.getElementById('fin-notes').value,
   });
+  btnReset(btn);
+  toast('Devis créé', 'success');
   closeModal(); loadFinances();
 }
 
@@ -976,15 +1034,21 @@ async function loadBoutique() {
 }
 
 async function saveBoutique() {
+  const name = document.getElementById('bq-name').value;
+  const price = document.getElementById('bq-price').value;
+  if (!name || !price) { toast('Nom et prix requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('boutique','POST',{
-    name: document.getElementById('bq-name').value,
+    name, price,
     category: document.getElementById('bq-category').value,
-    price: document.getElementById('bq-price').value,
     stock: document.getElementById('bq-stock').value,
     description: document.getElementById('bq-desc').value,
     image: document.getElementById('bq-image').value,
     status: document.getElementById('bq-status').value,
   });
+  btnReset(btn);
+  toast('Produit ajouté', 'success');
   closeModal(); loadBoutique();
 }
 
@@ -1044,15 +1108,21 @@ async function loadReviews() {
 }
 
 async function saveReview() {
+  const client = document.getElementById('rv-client').value;
+  const comment = document.getElementById('rv-comment').value;
+  if (!client || !comment) { toast('Nom et commentaire requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   const result = await api('reviews','POST',{
-    client: document.getElementById('rv-client').value,
+    client, comment,
     rating: document.getElementById('rv-rating').value,
-    comment: document.getElementById('rv-comment').value,
     source: document.getElementById('rv-source').value,
     date: document.getElementById('rv-date').value,
     visible: document.getElementById('rv-visible').checked,
   });
+  btnReset(btn);
   if (result.error) return;
+  toast('Avis ajouté', 'success');
   closeModal(); loadReviews();
 }
 
@@ -1102,11 +1172,17 @@ async function loadObservations() {
 }
 
 async function saveObservation() {
+  const note = document.getElementById('obs-note').value;
+  if (!note) { toast('Note requise', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('observations','POST',{
-    note: document.getElementById('obs-note').value,
+    note,
     category: document.getElementById('obs-category').value,
     priority: document.getElementById('obs-priority').value,
   });
+  btnReset(btn);
+  toast('Observation ajoutée', 'success');
   closeModal(); loadObservations();
 }
 
@@ -1167,11 +1243,13 @@ async function saveGallery() {
     if (uploadData.success) {
       imageUrl = uploadData.url;
     } else {
-      alert('Erreur upload: ' + (uploadData.error || 'Erreur inconnue'));
+      toast('Erreur upload: ' + (uploadData.error || 'Erreur inconnue'), 'error');
       return;
     }
   }
 
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('gallery','POST',{
     title: document.getElementById('gal-title').value,
     caption: document.getElementById('gal-caption').value,
@@ -1179,6 +1257,8 @@ async function saveGallery() {
     image: imageUrl,
     visible: document.getElementById('gal-visible').checked,
   });
+  btnReset(btn);
+  toast('Photo ajoutée', 'success');
   closeModal(); loadGallery();
 }
 
@@ -1236,15 +1316,21 @@ async function loadAnnouncements() {
 }
 
 async function saveAnnouncement() {
+  const title = document.getElementById('ann-title').value;
+  const content = document.getElementById('ann-content').value;
+  if (!title || !content) { toast('Titre et contenu requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('announcements','POST',{
-    title: document.getElementById('ann-title').value,
-    content: document.getElementById('ann-content').value,
+    title, content,
     type: document.getElementById('ann-type').value,
     link: document.getElementById('ann-link').value,
     link_text: document.getElementById('ann-link-text').value,
     expires: document.getElementById('ann-expires').value,
     active: document.getElementById('ann-active').checked,
   });
+  btnReset(btn);
+  toast('Annonce créée', 'success');
   closeModal(); loadAnnouncements();
 }
 
@@ -1352,8 +1438,12 @@ async function saveNewCarteItem() {
     description: document.getElementById('ci-desc').value,
     accent: document.getElementById('ci-accent').value || undefined,
   };
-  if (!item.name || !item.price) { alert('Nom et prix requis'); return; }
+  if (!item.name || !item.price) { toast('Nom et prix requis', 'warning'); return; }
+  const btn = document.querySelector('#modal-content .btn--primary');
+  btnLoading(btn);
   await api('carte', 'PATCH', { category_id: catId, type: 'add', item });
+  btnReset(btn);
+  toast('Plat ajouté', 'success');
   closeModal();
   loadCarte();
 }
@@ -1434,7 +1524,7 @@ function csvEscape(str) {
 
 function exportNewsletter() {
   const rows = document.querySelectorAll('#newsletter-list tr');
-  if (!rows.length) { alert('Aucun abonné à exporter.'); return; }
+  if (!rows.length) { toast('Aucun abonné à exporter', 'info'); return; }
   let csv = '\uFEFFEmail,Date inscription,Statut\n';
   rows.forEach(row => {
     const cells = row.querySelectorAll('td');
@@ -1470,7 +1560,7 @@ function setupDropzone(dropzoneId, fileInputId) {
 function previewUpload(input) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
-  if (file.size > 5 * 1024 * 1024) { alert('Fichier trop volumineux (max 5 Mo)'); input.value = ''; return; }
+  if (file.size > 5 * 1024 * 1024) { toast('Fichier trop volumineux (max 5 Mo)', 'error'); input.value = ''; return; }
   const reader = new FileReader();
   reader.onload = (e) => {
     const preview = document.getElementById('gal-preview');
