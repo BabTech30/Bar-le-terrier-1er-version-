@@ -15,7 +15,7 @@ define('ADMIN_HASH', '$2y$12$EsV5IBmEqRgV8xjNWmveBuxL7fIN1TCJvQNRsdKRBPFDCiC2elG
 // --- EMAIL ---
 define('CONTACT_EMAIL', 'barleterrier@gmail.com');
 define('SITE_NAME', 'Le Terrier');
-define('SITE_URL', 'https://barleterrier.fr');
+define('SITE_URL', 'https://bar-le-terrier.fr');
 
 // --- CHEMINS ---
 define('DATA_DIR', __DIR__ . '/data/');
