@@ -830,6 +830,18 @@
           }
         });
         container.innerHTML = html;
+        // Re-trigger reveal animations for dynamically injected sections
+        var newReveals = container.querySelectorAll('.reveal');
+        if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) { entry.target.classList.add('visible'); io.unobserve(entry.target); }
+            });
+          }, { threshold: 0.1 });
+          newReveals.forEach(function(el) { io.observe(el); });
+        } else {
+          newReveals.forEach(function(el) { el.classList.add('visible'); });
+        }
       })
       .catch(function() { /* keep static content as fallback */ });
   })();
