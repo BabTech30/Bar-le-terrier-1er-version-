@@ -9,7 +9,7 @@
  * INSTALLATION (une seule fois) :
  * 1. Cloner le repo sur O2switch via SSH
  * 2. Ajouter ce webhook dans GitHub > Settings > Webhooks
- *    URL : https://barleterrier.fr/webhook-deploy.php
+ *    URL : https://www.bar-le-terrier.fr/webhook-deploy.php
  *    Secret : (la valeur de WEBHOOK_SECRET ci-dessous)
  */
 

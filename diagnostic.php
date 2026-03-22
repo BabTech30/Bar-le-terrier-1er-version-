@@ -2,7 +2,7 @@
 /**
  * LE TERRIER — Diagnostic complet
  * ============================================================
- * Accéder via : https://barleterrier.fr/diagnostic.php
+ * Accéder via : https://www.bar-le-terrier.fr/diagnostic.php
  * SÉCURITÉ : Accessible uniquement si connecté au dashboard.
  * Pour désactiver : créer un fichier data/.disable_diagnostic
  * ============================================================

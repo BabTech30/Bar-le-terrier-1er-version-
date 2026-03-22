@@ -74,7 +74,7 @@ $htmlBody = "
     <p style='white-space:pre-wrap;'>{$message}</p>
   </div>
   <div style='background:#3A0612;color:#C8A45C;padding:12px;text-align:center;font-size:12px;'>
-    Envoyé depuis barleterrier.fr · " . date('d/m/Y à H:i') . "
+    Envoyé depuis www.bar-le-terrier.fr · " . date('d/m/Y à H:i') . "
   </div>
 </div>";
 

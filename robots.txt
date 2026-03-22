@@ -26,4 +26,4 @@ User-agent: Google-Extended
 Allow: /
 
 # Sitemap
-Sitemap: https://barleterrier.fr/sitemap.xml
+Sitemap: https://www.bar-le-terrier.fr/sitemap.xml

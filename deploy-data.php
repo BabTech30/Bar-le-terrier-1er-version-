@@ -6,7 +6,7 @@
  * Utile après un git pull pour mettre à jour la carte, events, etc.
  *
  * USAGE :
- *   https://barleterrier.fr/deploy-data.php?key=VOTRE_CLE
+ *   https://www.bar-le-terrier.fr/deploy-data.php?key=VOTRE_CLE
  *
  * La clé est définie ci-dessous (DEPLOY_KEY).
  * Après utilisation, les fichiers dans data-deploy/ restent intacts

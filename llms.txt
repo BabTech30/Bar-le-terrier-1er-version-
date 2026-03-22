@@ -1,6 +1,6 @@
 # Le Terrier
 
-> Pour des informations détaillées, voir [llms-full.txt](https://barleterrier.fr/llms-full.txt)
+> Pour des informations détaillées, voir [llms-full.txt](https://www.bar-le-terrier.fr/llms-full.txt)
 
 > Bar à cocktails et tapas méditerranéennes de style speakeasy, situé au 26 place de la République à Codognan dans le Gard (30), à 15 minutes de Nîmes.
 
@@ -11,7 +11,7 @@ Le Terrier est un repaire intimiste créé par deux amis : Bastien (artisan) et 
 - Adresse : 26 place de la République, 30920 Codognan, Gard
 - Téléphone : 07 63 51 93 63
 - Email : barleterrier@gmail.com
-- Site web : https://barleterrier.fr
+- Site web : https://www.bar-le-terrier.fr
 - Horaires : mercredi au dimanche, 17h – 00h (fermé lundi et mardi)
 - Deux espaces : L'Antre (rez-de-chaussée, 25 places, service à table) et Le Perchoir (étage, 35 places, bar et comptoir)
 - Réservation recommandée, surtout le week-end
@@ -23,13 +23,13 @@ Le Terrier est un repaire intimiste créé par deux amis : Bastien (artisan) et 
 
 ## Pages du site
 
-- [Accueil](https://barleterrier.fr/): Présentation, ambiance, avis
-- [Notre Carte](https://barleterrier.fr/carte): Carte complète
-- [Le Concept](https://barleterrier.fr/concept): L'histoire, le style speakeasy méditerranéen
-- [Événements](https://barleterrier.fr/evenements): Soirées, DJ sets, privatisations
-- [Contact](https://barleterrier.fr/contact): Réservation, accès, horaires
-- [Boutique](https://barleterrier.fr/boutique): Réservations événements, produits du terroir (en cours)
-- [Galerie](https://barleterrier.fr/galerie): Photos d'ambiance
+- [Accueil](https://www.bar-le-terrier.fr/): Présentation, ambiance, avis
+- [Notre Carte](https://www.bar-le-terrier.fr/carte): Carte complète
+- [Le Concept](https://www.bar-le-terrier.fr/concept): L'histoire, le style speakeasy méditerranéen
+- [Événements](https://www.bar-le-terrier.fr/evenements): Soirées, DJ sets, privatisations
+- [Contact](https://www.bar-le-terrier.fr/contact): Réservation, accès, horaires
+- [Boutique](https://www.bar-le-terrier.fr/boutique): Réservations événements, produits du terroir (en cours)
+- [Galerie](https://www.bar-le-terrier.fr/galerie): Photos d'ambiance
 
 ## Cocktails Signatures — 10 €
 

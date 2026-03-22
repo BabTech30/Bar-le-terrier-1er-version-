@@ -83,7 +83,7 @@ function sanitize(string $input): string {
 }
 
 function sendEmail(string $to, string $subject, string $htmlBody, string $replyTo = ''): bool {
-    $headers = "From: Le Terrier <noreply@barleterrier.fr>\r\n";
+    $headers = "From: Le Terrier <noreply@www.bar-le-terrier.fr>\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     $headers .= "X-Mailer: Le Terrier Dashboard\r\n";
     if ($replyTo && filter_var($replyTo, FILTER_VALIDATE_EMAIL) && !preg_match('/[\r\n]/', $replyTo)) {

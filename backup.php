@@ -2,7 +2,7 @@
 /**
  * LE TERRIER — Backup & Restore des données
  * ============================================================
- * Accès : https://barleterrier.fr/admin/backup.php
+ * Accès : https://www.bar-le-terrier.fr/admin/backup.php
  * ============================================================
  */
 session_start();

@@ -3,7 +3,7 @@
  * LE TERRIER — PAGE DE TEST
  * ============================================================
  * Tester les avis et l'API sans toucher aux données de production.
- * Accès : https://barleterrier.fr/staging/
+ * Accès : https://www.bar-le-terrier.fr/staging/
  * ============================================================
  */
 session_name('lt_staging');
